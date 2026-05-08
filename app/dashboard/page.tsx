@@ -1,29 +1,20 @@
-import { createClient } from "@/lib/supabase/server";
 import { parseFilters } from "@/lib/filters";
 import {
   fetchAvailableFilters,
-  fetchCampaignRows,
   fetchDailyByPublisher,
-  fetchGa4Kpis,
-  fetchGa4SourceMedium,
   fetchKpis,
+  fetchCampaignRows,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { DashboardHeader } from "@/components/dashboard-header";
 import { FiltersBar } from "@/components/filters-bar";
 import { KpiGrid } from "@/components/kpi-grid";
 import { CostEvolutionChart } from "@/components/charts/cost-evolution";
-import { TopCampaignsChart } from "@/components/charts/top-campaigns";
-import { CampaignTable } from "@/components/campaign-table";
-import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
-import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
 import { AiAnalysis } from "@/components/ai-analysis";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
 
-// Next 16: searchParams llega como Promise
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function DashboardPage({
+export default async function ResumenPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -31,38 +22,21 @@ export default async function DashboardPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const [
-    kpis,
-    available,
-    dailyPoints,
-    allCampaignRows,
-    ga4Kpis,
-    ga4Rows,
-  ] = await Promise.all([
+  // Necesitamos campaign rows solo para el detector de "sin datos"
+  // (sin la tabla en sí, eso vive en /detalle).
+  const [kpis, available, dailyPoints, campaignRowsForCheck] = await Promise.all([
     fetchKpis(filters),
     fetchAvailableFilters(filters.from, filters.to, filters.publisher),
     fetchDailyByPublisher(filters),
-    fetchCampaignRows(filters),
-    fetchGa4Kpis(filters),
-    fetchGa4SourceMedium(filters.from, filters.to),
+    fetchCampaignRows(filters, 1),
   ]);
 
-  const top10 = allCampaignRows.slice(0, 10);
-
-  // Detectar "sin datos de campañas pagas para los filtros aplicados".
-  // Si los 4 KPIs son cero Y no hay filas de campañas, mostramos el banner
-  // en lugar de la sección entera de campañas. La sección GA4 sigue visible.
   const hasPaidData =
     kpis.cost.current > 0 ||
     kpis.impressions.current > 0 ||
     kpis.clicks.current > 0 ||
     kpis.conversions.current > 0 ||
-    allCampaignRows.length > 0;
+    campaignRowsForCheck.length > 0;
 
   const days = rangeDays(filters.from, filters.to);
   const compareLabel =
@@ -74,13 +48,10 @@ export default async function DashboardPage({
 
   return (
     <main className="min-h-screen bg-background">
-      <DashboardHeader userEmail={user?.email} active="dashboard" />
-
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
-        {/* Encabezado del reporte */}
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Reporte de campañas
+            Resumen del período
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
             {formatHumanRange(filters.from, filters.to)}
@@ -90,16 +61,13 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        {/* Filtros sticky */}
         <FiltersBar filters={filters} available={available} />
-
-        {/* ============== Bloque 1: campañas pagas ============== */}
 
         {hasPaidData ? (
           <>
             <section aria-labelledby="kpis-heading">
               <h3 id="kpis-heading" className="sr-only">
-                Indicadores de campañas pagas
+                Indicadores principales
               </h3>
               <KpiGrid kpis={kpis} compareMode={filters.compare} />
             </section>
@@ -115,62 +83,18 @@ export default async function DashboardPage({
               />
             </section>
 
-            <section aria-labelledby="top-heading">
-              <h3 id="top-heading" className="sr-only">
-                Top campañas por inversión
+            {/* Análisis de Claude — sube de posición: ahora está
+                inmediatamente debajo del gráfico de evolución, no al final. */}
+            <section aria-labelledby="ai-heading">
+              <h3 id="ai-heading" className="sr-only">
+                Análisis automático de Claude
               </h3>
-              <TopCampaignsChart rows={top10} />
-            </section>
-
-            <section aria-labelledby="table-heading">
-              <h3 id="table-heading" className="sr-only">
-                Tabla detalle de campañas
-              </h3>
-              <CampaignTable rows={allCampaignRows} />
+              <AiAnalysis filters={filters} />
             </section>
           </>
         ) : (
           <EmptyStateBanner />
         )}
-
-        {/* ============== Separador entre secciones ============== */}
-
-        <div className="pt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Tráfico del sitio
-          </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
-            Google Analytics
-          </h2>
-          <p className="mt-1 text-sm text-steel">
-            Mismo rango de fechas. Los filtros de campaña no aplican a GA4.
-          </p>
-        </div>
-
-        {/* ============== Bloque 2: GA4 ============== */}
-
-        <section aria-labelledby="ga4-kpis-heading">
-          <h3 id="ga4-kpis-heading" className="sr-only">
-            Indicadores de GA4
-          </h3>
-          <Ga4KpiGrid kpis={ga4Kpis} compareMode={filters.compare} />
-        </section>
-
-        <section aria-labelledby="ga4-table-heading">
-          <h3 id="ga4-table-heading" className="sr-only">
-            Tráfico por fuente y medio
-          </h3>
-          <Ga4SourceMediumTable rows={ga4Rows} />
-        </section>
-
-        {/* ============== Bloque 3: análisis de Claude ============== */}
-
-        <section aria-labelledby="ai-heading" className="pt-4">
-          <h3 id="ai-heading" className="sr-only">
-            Análisis automático de Claude
-          </h3>
-          <AiAnalysis filters={filters} />
-        </section>
       </div>
     </main>
   );
