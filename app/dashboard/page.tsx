@@ -18,6 +18,7 @@ import { CampaignTable } from "@/components/campaign-table";
 import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
 import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
 import { AiAnalysis } from "@/components/ai-analysis";
+import { EmptyStateBanner } from "@/components/empty-state-banner";
 
 // Next 16: searchParams llega como Promise
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -53,6 +54,16 @@ export default async function DashboardPage({
 
   const top10 = allCampaignRows.slice(0, 10);
 
+  // Detectar "sin datos de campañas pagas para los filtros aplicados".
+  // Si los 4 KPIs son cero Y no hay filas de campañas, mostramos el banner
+  // en lugar de la sección entera de campañas. La sección GA4 sigue visible.
+  const hasPaidData =
+    kpis.cost.current > 0 ||
+    kpis.impressions.current > 0 ||
+    kpis.clicks.current > 0 ||
+    kpis.conversions.current > 0 ||
+    allCampaignRows.length > 0;
+
   const days = rangeDays(filters.from, filters.to);
   const compareLabel =
     filters.compare === "yoy"
@@ -63,7 +74,7 @@ export default async function DashboardPage({
 
   return (
     <main className="min-h-screen bg-background">
-      <DashboardHeader userEmail={user?.email} />
+      <DashboardHeader userEmail={user?.email} active="dashboard" />
 
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
         {/* Encabezado del reporte */}
@@ -79,42 +90,48 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        {/* Filtros sticky (aplican a la sección de campañas pagas) */}
+        {/* Filtros sticky */}
         <FiltersBar filters={filters} available={available} />
 
         {/* ============== Bloque 1: campañas pagas ============== */}
 
-        <section aria-labelledby="kpis-heading">
-          <h3 id="kpis-heading" className="sr-only">
-            Indicadores de campañas pagas
-          </h3>
-          <KpiGrid kpis={kpis} compareMode={filters.compare} />
-        </section>
+        {hasPaidData ? (
+          <>
+            <section aria-labelledby="kpis-heading">
+              <h3 id="kpis-heading" className="sr-only">
+                Indicadores de campañas pagas
+              </h3>
+              <KpiGrid kpis={kpis} compareMode={filters.compare} />
+            </section>
 
-        <section aria-labelledby="evolution-heading">
-          <h3 id="evolution-heading" className="sr-only">
-            Evolución diaria de inversión
-          </h3>
-          <CostEvolutionChart
-            points={dailyPoints}
-            fromIso={filters.from}
-            toIso={filters.to}
-          />
-        </section>
+            <section aria-labelledby="evolution-heading">
+              <h3 id="evolution-heading" className="sr-only">
+                Evolución diaria de inversión
+              </h3>
+              <CostEvolutionChart
+                points={dailyPoints}
+                fromIso={filters.from}
+                toIso={filters.to}
+              />
+            </section>
 
-        <section aria-labelledby="top-heading">
-          <h3 id="top-heading" className="sr-only">
-            Top campañas por inversión
-          </h3>
-          <TopCampaignsChart rows={top10} />
-        </section>
+            <section aria-labelledby="top-heading">
+              <h3 id="top-heading" className="sr-only">
+                Top campañas por inversión
+              </h3>
+              <TopCampaignsChart rows={top10} />
+            </section>
 
-        <section aria-labelledby="table-heading">
-          <h3 id="table-heading" className="sr-only">
-            Tabla detalle de campañas
-          </h3>
-          <CampaignTable rows={allCampaignRows} />
-        </section>
+            <section aria-labelledby="table-heading">
+              <h3 id="table-heading" className="sr-only">
+                Tabla detalle de campañas
+              </h3>
+              <CampaignTable rows={allCampaignRows} />
+            </section>
+          </>
+        ) : (
+          <EmptyStateBanner />
+        )}
 
         {/* ============== Separador entre secciones ============== */}
 
