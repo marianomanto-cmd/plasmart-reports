@@ -246,6 +246,13 @@ function formatTimestamp(iso: string): string {
  * Solo necesitamos: **negritas**, párrafos separados por línea en blanco,
  * y la flecha "→". Cualquier markdown más complejo lo dejamos como texto
  * plano. Mantener esto chico evita traer una dependencia (react-markdown).
+ *
+ * Claude soft-wrapea sus respuestas con \n cada ~80 chars. Si tratamos
+ * cada \n como un párrafo nuevo, el cuerpo se ve cortado en franjas en
+ * vez de fluir. Por eso unimos las líneas "normales" dentro de un mismo
+ * bloque en un único párrafo, y dejamos que el browser haga el wrap.
+ * Las líneas que empiezan con `**` (título) o `→` (acción) sí se
+ * mantienen como segmentos separados.
  */
 function MarkdownLite({ text }: { text: string }) {
   // Separar en bloques por línea en blanco
@@ -255,15 +262,44 @@ function MarkdownLite({ text }: { text: string }) {
     <div className="space-y-5">
       {blocks.map((block, i) => (
         <div key={i} className="space-y-1.5 text-sm leading-relaxed text-primary">
-          {block.split("\n").map((line, j) => (
-            <p key={j} className={lineClass(line)}>
-              {renderInline(line)}
+          {parseBlock(block).map((seg, j) => (
+            <p key={j} className={lineClass(seg)}>
+              {renderInline(seg)}
             </p>
           ))}
         </div>
       ))}
     </div>
   );
+}
+
+function parseBlock(block: string): string[] {
+  const lines = block
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  const segments: string[] = [];
+  let body: string[] = [];
+
+  const flushBody = () => {
+    if (body.length > 0) {
+      segments.push(body.join(" "));
+      body = [];
+    }
+  };
+
+  for (const line of lines) {
+    if (line.startsWith("**") || line.startsWith("→")) {
+      flushBody();
+      segments.push(line);
+    } else {
+      body.push(line);
+    }
+  }
+  flushBody();
+
+  return segments;
 }
 
 function lineClass(line: string): string {
