@@ -17,6 +17,7 @@ import { TopCampaignsChart } from "@/components/charts/top-campaigns";
 import { CampaignTable } from "@/components/campaign-table";
 import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
 import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
+import { AiAnalysis } from "@/components/ai-analysis";
 
 // Next 16: searchParams llega como Promise
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -34,8 +35,6 @@ export default async function DashboardPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Todas las queries en paralelo. La sección GA4 solo usa from/to/compare;
-  // el resto de filtros (publisher/type/campaign) no aplican a GA4.
   const [
     kpis,
     available,
@@ -145,6 +144,15 @@ export default async function DashboardPage({
             Tráfico por fuente y medio
           </h3>
           <Ga4SourceMediumTable rows={ga4Rows} />
+        </section>
+
+        {/* ============== Bloque 3: análisis de Claude ============== */}
+
+        <section aria-labelledby="ai-heading" className="pt-4">
+          <h3 id="ai-heading" className="sr-only">
+            Análisis automático de Claude
+          </h3>
+          <AiAnalysis filters={filters} />
         </section>
       </div>
     </main>
