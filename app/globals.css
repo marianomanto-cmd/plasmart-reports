@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Plasmart Reports — Tokens de diseño
+   Paleta industrial-elegante basada en plasmartcba.com
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta */
+  --color-primary: #1a1a1a;       /* Negro: texto principal, headings, líneas */
+  --color-accent: #c9a961;        /* Cobre/dorado: acento sutil */
+  --color-steel: #4a4a4a;         /* Gris medio: texto secundario */
+  --color-light: #8a8a8a;         /* Gris claro: labels, metadatos */
+  --color-bg-cream: #f5f5f0;      /* Crema: fondo de bloques */
+  --color-bg-white: #ffffff;      /* Blanco puro: cards principales */
+  --color-border: #d0d0d0;        /* Bordes y divisores */
+  --color-success: #5c8a5c;       /* Verde sobrio: métricas positivas */
+  --color-warning: #b8704a;       /* Cobre alerta: métricas a revisar */
+
+  /* Tokens semánticos */
+  --background: var(--color-bg-cream);
+  --foreground: var(--color-primary);
 }
 
+/* Theme inline para que las clases bg-primary, text-accent, etc. funcionen */
 @theme inline {
+  --color-primary: var(--color-primary);
+  --color-accent: var(--color-accent);
+  --color-steel: var(--color-steel);
+  --color-light: var(--color-light);
+  --color-cream: var(--color-bg-cream);
+  --color-border-default: var(--color-border);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* No dark mode: la identidad Plasmart es clara y de alto contraste */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings: mayúsculas con tracking amplio, espíritu industrial */
+.heading-display {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
 }
