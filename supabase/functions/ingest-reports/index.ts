@@ -13,7 +13,7 @@ import { listFilesInFolder, readSheet } from "./lib/drive-client.ts";
 import { getSupabaseClient } from "./lib/supabase-client.ts";
 import { normalizeGadsRows } from "./lib/normalizers/gads.ts";
 import { normalizeMetaRows } from "./lib/normalizers/meta.ts";
-import { normalizeGa4Rows } from "./lib/normalizers/ga4.ts";
+import { fetchGa4Data, getGa4AccessToken } from "./lib/ga4-client.ts";
 import type {
   CampaignFactRow,
   DimCampaignRow,
@@ -21,11 +21,12 @@ import type {
   Source,
 } from "./types.ts";
 
-// IDs de las carpetas de Drive donde el equipo dropea los exports semanales.
-const SOURCES: Record<Source, string> = {
+// Fuentes que se ingestan vía Drive (sheets que dropea el equipo). GA4 NO va
+// acá: se trae directo de la Data API en un bloque aparte.
+type DriveSource = Exclude<Source, "ga4">;
+const SOURCES: Record<DriveSource, string> = {
   gads: "1q0iduDYtjptDi5MQwwYgbFcv-rcZl-kW",
   meta: "1GIrJ6FNZ4RednoeGZQtHGgS1CFYw8Vbs",
-  ga4: "1iZbSzQfa63vjJuVuR13R5JLe_NMGA7Z0",
 };
 
 const CORS_HEADERS = {
@@ -151,7 +152,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const results: IngestResult[] = [];
 
-  for (const sourceKey of Object.keys(SOURCES) as Source[]) {
+  for (const sourceKey of Object.keys(SOURCES) as DriveSource[]) {
     const folderId = SOURCES[sourceKey];
     console.log(`\n[${sourceKey}] === inicio fuente ===`);
 
@@ -201,7 +202,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           campaigns,
           facts,
         );
-      } else if (sourceKey === "meta") {
+      } else {
         const { campaigns, facts } = normalizeMetaRows(rows);
         rowsInserted = await ingestCampaignSource(
           supabase,
@@ -209,22 +210,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
           campaigns,
           facts,
         );
-      } else {
-        const gaRows = normalizeGa4Rows(rows);
-        if (gaRows.length === 0) {
-          console.log(`[${sourceKey}] sin filas válidas para fact_ga_daily`);
-        } else {
-          console.log(
-            `[${sourceKey}] upserting ${gaRows.length} filas en fact_ga_daily`,
-          );
-          const { error: gaErr } = await supabase
-            .from("fact_ga_daily")
-            .upsert(gaRows, { onConflict: "date,source,medium" });
-          if (gaErr) {
-            throw new Error(`Upsert fact_ga_daily falló: ${gaErr.message}`);
-          }
-          rowsInserted = gaRows.length;
-        }
       }
 
       results.push({
@@ -269,6 +254,101 @@ Deno.serve(async (req: Request): Promise<Response> => {
           .eq("id", logId);
       }
       // No abortamos: seguimos con la próxima fuente.
+    }
+  }
+
+  // ----------------------------------------------------------------
+  // GA4 — bloque aparte: usa OAuth Refresh Token + GA4 Data API,
+  // no Drive. Trae los últimos 7 días completos (sin contar hoy).
+  // ----------------------------------------------------------------
+  console.log(`\n[ga4] === inicio fuente ===`);
+  let ga4LogId: string | null = null;
+  try {
+    const { data: logRow, error: logErr } = await supabase
+      .from("ingestion_log")
+      .insert({
+        source: "ga4",
+        started_at: new Date().toISOString(),
+        status: "running",
+      })
+      .select("id")
+      .single();
+    if (logErr) {
+      console.error("[ga4] no pude crear ingestion_log:", logErr.message);
+    } else {
+      ga4LogId = String(logRow.id);
+    }
+  } catch (err) {
+    console.error("[ga4] error creando log inicial:", (err as Error).message);
+  }
+
+  try {
+    const propertyId = Deno.env.get("GA4_PROPERTY_ID");
+    if (!propertyId) {
+      throw new Error("Falta la env var GA4_PROPERTY_ID");
+    }
+
+    // Ventana: últimos 7 días completos. endDate = ayer, startDate = hace 7 días.
+    const todayMs = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const endDate = new Date(todayMs - dayMs).toISOString().slice(0, 10);
+    const startDate = new Date(todayMs - 7 * dayMs).toISOString().slice(0, 10);
+    console.log(`[ga4] ventana ${startDate} → ${endDate}`);
+
+    const ga4Token = await getGa4AccessToken();
+    const gaRows = await fetchGa4Data(ga4Token, propertyId, startDate, endDate);
+    console.log(`[ga4] runReport devolvió ${gaRows.length} filas`);
+
+    let rowsInserted = 0;
+    if (gaRows.length > 0) {
+      const { error: gaErr } = await supabase
+        .from("fact_ga_daily")
+        .upsert(gaRows, { onConflict: "date,source,medium" });
+      if (gaErr) {
+        throw new Error(`Upsert fact_ga_daily falló: ${gaErr.message}`);
+      }
+      rowsInserted = gaRows.length;
+    }
+
+    results.push({
+      source: "ga4",
+      file_name: null,
+      rows_inserted: rowsInserted,
+      status: "success",
+    });
+
+    if (ga4LogId) {
+      await supabase
+        .from("ingestion_log")
+        .update({
+          file_name: `GA4 Data API ${startDate}→${endDate}`,
+          finished_at: new Date().toISOString(),
+          rows_inserted: rowsInserted,
+          status: "success",
+        })
+        .eq("id", ga4LogId);
+    }
+    console.log(`[ga4] OK — ${rowsInserted} filas`);
+  } catch (err) {
+    const message = (err as Error).message;
+    console.error("[ga4] FALLÓ:", message);
+    results.push({
+      source: "ga4",
+      file_name: null,
+      rows_inserted: 0,
+      status: "failed",
+      error_message: message,
+    });
+
+    if (ga4LogId) {
+      await supabase
+        .from("ingestion_log")
+        .update({
+          finished_at: new Date().toISOString(),
+          status: "failed",
+          error_message: message,
+        })
+        .eq("id", ga4LogId);
     }
   }
 
