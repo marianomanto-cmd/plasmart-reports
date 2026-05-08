@@ -80,6 +80,7 @@ export function AiAnalysis({ filters }: Props) {
         {state.kind === "ok" && (
           <Result
             data={state.data}
+            filters={filters}
             onRegenerate={() => run(true)}
           />
         )}
@@ -163,9 +164,11 @@ function ErrorState({
 
 function Result({
   data,
+  filters,
   onRegenerate,
 }: {
   data: ApiResponse;
+  filters: DashboardFilters;
   onRegenerate: () => void;
 }) {
   return (
@@ -177,16 +180,28 @@ function Result({
           {data.fromCache ? "Cacheado" : "Generado"} ·{" "}
           {formatTimestamp(data.generatedAt)} · {data.modelUsed}
         </p>
-        <button
-          type="button"
-          onClick={onRegenerate}
-          className="
-            text-[10px] font-semibold uppercase tracking-[0.18em] text-light
-            transition-colors duration-150 hover:text-primary
-          "
-        >
-          Regenerar análisis
-        </button>
+        <div className="flex items-center gap-5">
+          <button
+            type="button"
+            onClick={() => downloadAsPdf(data, filters)}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-primary
+              transition-colors duration-150 hover:text-light
+            "
+          >
+            Descargar PDF
+          </button>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-light
+              transition-colors duration-150 hover:text-primary
+            "
+          >
+            Regenerar análisis
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -323,4 +338,165 @@ function renderInline(line: string): React.ReactNode {
     }
     return <span key={i}>{part}</span>;
   });
+}
+
+// ---------- Descarga PDF ----------
+
+/**
+ * Abre una ventana nueva con el análisis renderizado en HTML imprimible
+ * y dispara el diálogo de impresión. El usuario elige "Guardar como PDF"
+ * desde el diálogo nativo del navegador. Sin dependencias extra.
+ */
+function downloadAsPdf(data: ApiResponse, filters: DashboardFilters) {
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert(
+      "El navegador bloqueó la ventana emergente. Permití pop-ups en este sitio y reintentá.",
+    );
+    return;
+  }
+  win.document.open();
+  win.document.write(buildPrintableHtml(data, filters));
+  win.document.close();
+}
+
+function buildPrintableHtml(
+  data: ApiResponse,
+  filters: DashboardFilters,
+): string {
+  const blocks = data.content
+    .split(/\n\s*\n/)
+    .filter((b) => b.trim().length > 0);
+
+  let body = "";
+  for (const block of blocks) {
+    body += '<div class="block">';
+    for (const seg of parseBlock(block)) {
+      const cls = seg.startsWith("→")
+        ? "action"
+        : seg.startsWith("**")
+        ? "title"
+        : "body";
+      const html = escapeHtml(seg).replace(
+        /\*\*([^*]+)\*\*/g,
+        "<strong>$1</strong>",
+      );
+      body += `<p class="${cls}">${html}</p>`;
+    }
+    body += "</div>";
+  }
+
+  const periodLabel = `${formatPrintDate(filters.from)} — ${formatPrintDate(filters.to)}`;
+  const filtersLabel = describeFiltersForPrint(filters);
+  const generatedLabel = formatTimestamp(data.generatedAt);
+  const fileTitle = `Plasmart Analisis ${filters.from} a ${filters.to}`;
+
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(fileTitle)}</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      color: #1a1a1a;
+      line-height: 1.6;
+      max-width: 720px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+    .header {
+      border-top: 4px solid #1a1a1a;
+      padding-top: 16px;
+      margin-bottom: 28px;
+    }
+    .label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+    }
+    .period {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .meta {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+      margin-top: 10px;
+    }
+    .block { margin-bottom: 18px; page-break-inside: avoid; }
+    p { margin: 0 0 6px 0; font-size: 13px; }
+    p.title { font-weight: 600; margin-top: 16px; font-size: 14px; }
+    p.action { padding-left: 16px; color: #4a4a4a; }
+    strong { font-weight: 600; color: #1a1a1a; }
+    .footer {
+      border-top: 1px solid #d0d0d0;
+      padding-top: 12px;
+      margin-top: 36px;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <p class="label">Análisis de Claude · Plasmart Reportería</p>
+    <p class="period">${escapeHtml(periodLabel)}</p>
+    <p class="meta">${escapeHtml(filtersLabel)}</p>
+  </div>
+  ${body}
+  <div class="footer">
+    Generado: ${escapeHtml(generatedLabel)} · ${escapeHtml(data.modelUsed)}
+  </div>
+  <script>
+    window.addEventListener("load", function () {
+      window.focus();
+      window.print();
+    });
+  </script>
+</body>
+</html>`;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatPrintDate(iso: string): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${iso}T00:00:00Z`));
+}
+
+function describeFiltersForPrint(filters: DashboardFilters): string {
+  const parts: string[] = [];
+  if (filters.publisher) {
+    parts.push(filters.publisher === "gads" ? "Google Ads" : "Meta Ads");
+  } else {
+    parts.push("Todos los publishers");
+  }
+  if (filters.type) parts.push(filters.type.toUpperCase());
+  if (filters.campaignId) parts.push("Campaña específica");
+  if (filters.compare === "yoy") parts.push("vs año anterior");
+  else if (filters.compare === "previous") parts.push("vs período anterior");
+  return parts.join(" · ");
 }
