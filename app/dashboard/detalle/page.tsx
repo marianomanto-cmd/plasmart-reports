@@ -1,6 +1,7 @@
 import { parseFilters } from "@/lib/filters";
 import {
   fetchAvailableFilters,
+  fetchCampaignAnomalies,
   fetchCampaignRows,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
@@ -19,9 +20,10 @@ export default async function DetallePage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const [available, allCampaignRows] = await Promise.all([
+  const [available, allCampaignRows, anomalies] = await Promise.all([
     fetchAvailableFilters(filters.from, filters.to, filters.publisher),
     fetchCampaignRows(filters),
+    fetchCampaignAnomalies(filters),
   ]);
 
   const top10 = allCampaignRows.slice(0, 10);
@@ -59,7 +61,7 @@ export default async function DetallePage({
               <h3 id="table-heading" className="sr-only">
                 Tabla detalle de campañas
               </h3>
-              <CampaignTable rows={allCampaignRows} />
+              <CampaignTable rows={allCampaignRows} anomalies={anomalies} />
             </section>
           </>
         ) : (

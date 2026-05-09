@@ -170,3 +170,12 @@ export interface PublisherComparison {
     conversions: number;
   };
 }
+
+// ---- Anomalías de campaña (v1.1) ----
+
+export interface CampaignAnomalies {
+  campaignId: string;
+  isLearning: boolean;
+  cpcIncreased: boolean;
+  isWasteful: boolean;
+}

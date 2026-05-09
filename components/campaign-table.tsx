@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { CampaignRow } from "@/lib/types";
+import type { CampaignAnomalies, CampaignRow } from "@/lib/types";
 import {
   formatCurrencyArs,
   formatDecimal,
@@ -25,6 +25,7 @@ type SortDir = "asc" | "desc";
 
 interface Props {
   rows: CampaignRow[];
+  anomalies?: Map<string, CampaignAnomalies>;
 }
 
 /**
@@ -34,7 +35,7 @@ interface Props {
  * Es Client Component porque el ordenamiento es interacción local: cambiar
  * el sort no debería disparar una nueva query a la BD.
  */
-export function CampaignTable({ rows }: Props) {
+export function CampaignTable({ rows, anomalies }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("cost");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -108,6 +109,7 @@ export function CampaignTable({ rows }: Props) {
                   <span className="block max-w-[280px] truncate" title={row.name}>
                     {row.name}
                   </span>
+                  <AnomalyBadges a={anomalies?.get(row.campaignId)} />
                 </td>
                 <td className="px-4 py-3 text-steel">
                   {row.publisher === "gads" ? "Google Ads" : "Meta Ads"}
@@ -195,5 +197,61 @@ function EmptyState() {
         Sin campañas en el rango seleccionado
       </div>
     </div>
+  );
+}
+
+// ---------- Badges de anomalía ----------
+
+function AnomalyBadges({ a }: { a: CampaignAnomalies | undefined }) {
+  if (!a) return null;
+  if (!a.isLearning && !a.cpcIncreased && !a.isWasteful) return null;
+
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1">
+      {a.isLearning && (
+        <Badge
+          label="Aprendizaje"
+          tone="neutral"
+          title="Campaña con datos hace menos de 7 días — los KPIs todavía son inestables"
+        />
+      )}
+      {a.cpcIncreased && (
+        <Badge
+          label="CPC ↑"
+          tone="warning"
+          title="El CPC subió más del 50% vs el período de comparación"
+        />
+      )}
+      {a.isWasteful && (
+        <Badge
+          label="Desperdicio"
+          tone="warning"
+          title="Más del 30% del gasto, menos del 10% de las conversiones"
+        />
+      )}
+    </div>
+  );
+}
+
+function Badge({
+  label,
+  tone,
+  title,
+}: {
+  label: string;
+  tone: "neutral" | "warning";
+  title: string;
+}) {
+  const colorClass =
+    tone === "warning"
+      ? "border-warning text-warning"
+      : "border-light text-light";
+  return (
+    <span
+      title={title}
+      className={`inline-block border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] ${colorClass}`}
+    >
+      {label}
+    </span>
   );
 }

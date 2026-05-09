@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { comparisonRange } from "@/lib/dates";
 import type {
   AvailableFilters,
+  CampaignAnomalies,
   CampaignRow,
   DailyByPublisherPoint,
   DashboardFilters,
@@ -375,4 +376,49 @@ export async function fetchPublisherComparison(
       : null,
     totals,
   };
+}
+
+// ---- Anomalías de campaña ----
+
+interface CampaignAnomaliesRpcRow {
+  campaign_id: string;
+  is_learning: boolean;
+  cpc_increased: boolean;
+  is_wasteful: boolean;
+}
+
+/**
+ * Devuelve un Map[campaignId → anomalies] para lookup O(1) desde el
+ * componente de la tabla. Si compare === "none", cpc_increased queda
+ * en false para todas las campañas (no hay período de comparación
+ * contra el cual evaluar).
+ */
+export async function fetchCampaignAnomalies(
+  filters: DashboardFilters,
+): Promise<Map<string, CampaignAnomalies>> {
+  const supabase = await createClient();
+  const prev = comparisonRange(filters.from, filters.to, filters.compare);
+
+  const { data, error } = await supabase.rpc("dashboard_campaign_anomalies", {
+    p_from: filters.from,
+    p_to: filters.to,
+    p_prev_from: prev?.from ?? null,
+    p_prev_to: prev?.to ?? null,
+    p_publisher: filters.publisher ?? null,
+    p_type: filters.type ?? null,
+  });
+  if (error) {
+    throw new Error(`dashboard_campaign_anomalies: ${error.message}`);
+  }
+
+  const map = new Map<string, CampaignAnomalies>();
+  for (const r of (data ?? []) as CampaignAnomaliesRpcRow[]) {
+    map.set(r.campaign_id, {
+      campaignId: r.campaign_id,
+      isLearning: r.is_learning,
+      cpcIncreased: r.cpc_increased,
+      isWasteful: r.is_wasteful,
+    });
+  }
+  return map;
 }
