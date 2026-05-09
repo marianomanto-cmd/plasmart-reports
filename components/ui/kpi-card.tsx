@@ -62,11 +62,11 @@ export function KpiCard({
         {value}
       </div>
 
-      {sparkline && sparkline.length >= 2 && (
-        <div className="mt-3">
-          <Sparkline values={sparkline} />
-        </div>
-      )}
+      <div className="mt-3 h-6">
+        {sparkline && sparkline.length >= 2 && (
+          <Sparkline values={sparkline} height={24} />
+        )}
+      </div>
 
       {showDelta && (
         <div className={`mt-4 flex items-center gap-2 text-sm tabular-nums ${deltaColor}`}>

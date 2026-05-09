@@ -55,7 +55,7 @@ export function AiAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-primary bg-white">
+    <div className="border border-border-default border-t-2 border-t-accent bg-white">
       <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
         <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
           Análisis de Claude

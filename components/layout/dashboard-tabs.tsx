@@ -17,7 +17,7 @@ export function DashboardTabs() {
   const pathname = usePathname();
 
   return (
-    <div className="border-b border-border-default bg-background">
+    <div className="border-b border-border-default bg-white">
       <nav
         aria-label="Pestañas del dashboard"
         className="mx-auto flex max-w-7xl gap-8 px-8"

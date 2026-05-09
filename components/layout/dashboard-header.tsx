@@ -11,12 +11,15 @@ export function DashboardHeader({ userEmail, active = "dashboard" }: Props) {
     <header className="border-b border-border-default bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-5">
         <div className="flex items-center gap-10">
-          <h1 className="text-xl font-bold tracking-[0.12em] text-primary">
-            PLASMART
-            <span className="ml-3 text-xs font-medium uppercase tracking-[0.2em] text-light">
+          <Link href="/dashboard" className="flex items-baseline gap-3">
+            <h1 className="text-xl font-bold tracking-[0.15em] text-primary">
+              PLASMART
+            </h1>
+            <span className="h-px w-6 bg-accent" aria-hidden="true" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-light">
               Reportería
             </span>
-          </h1>
+          </Link>
 
           <nav className="flex items-center gap-6">
             <NavLink href="/dashboard" isActive={active === "dashboard"}>

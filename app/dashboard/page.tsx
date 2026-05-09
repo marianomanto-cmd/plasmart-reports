@@ -7,11 +7,11 @@ import {
   fetchKpis,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
-import { KpiGrid } from "@/components/kpi-grid";
+import { FiltersBar } from "@/components/filters/filters-bar";
+import { KpiGrid } from "@/components/dashboard/kpi-grid";
 import { CostEvolutionChart } from "@/components/charts/cost-evolution";
-import { AiAnalysis } from "@/components/ai-analysis";
-import { EmptyStateBanner } from "@/components/empty-state-banner";
+import { AiAnalysis } from "@/components/ai/ai-analysis";
+import { EmptyStateBanner } from "@/components/ui/empty-state-banner";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -53,7 +53,7 @@ export default async function ResumenPage({
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
             Resumen del período
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">

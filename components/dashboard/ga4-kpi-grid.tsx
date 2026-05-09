@@ -1,5 +1,5 @@
 import type { CompareMode, Ga4Kpis, KpiWithDelta } from "@/lib/types";
-import { KpiCard } from "./kpi-card";
+import { KpiCard } from "@/components/ui/kpi-card";
 import { formatDeltaPct, formatRatioAsPct } from "@/lib/format";
 
 interface Props {

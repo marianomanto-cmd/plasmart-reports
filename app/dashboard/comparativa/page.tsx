@@ -6,10 +6,10 @@ import {
   fetchPublisherComparison,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
-import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
-import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
-import { PublisherComparisonTable } from "@/components/publisher-comparison";
+import { FiltersBar } from "@/components/filters/filters-bar";
+import { Ga4KpiGrid } from "@/components/dashboard/ga4-kpi-grid";
+import { Ga4SourceMediumTable } from "@/components/dashboard/ga4-source-medium-table";
+import { PublisherComparisonTable } from "@/components/dashboard/publisher-comparison";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -34,7 +34,7 @@ export default async function ComparativaPage({
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
             Comparativa
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
@@ -56,7 +56,7 @@ export default async function ComparativaPage({
 
         {/* GA4 — vivía antes en /dashboard, lo movemos acá */}
         <div className="pt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
             Tráfico del sitio
           </p>
           <h3 className="mt-1 text-xl font-bold tracking-tight text-primary">
