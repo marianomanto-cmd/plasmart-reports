@@ -133,3 +133,40 @@ export interface Ga4SourceMediumRow {
   keyEvents: number;
   bounceRate: number; // 0..1
 }
+
+// ---- Comparativa GAds vs Meta (v1.1) ----
+
+/**
+ * Totales por publisher con métricas derivadas listas para mostrar.
+ * Las shares (cost/conversion share) se calculan en queries.ts contra
+ * la suma global de los publishers presentes.
+ */
+export interface PublisherTotals {
+  publisher: Publisher;
+  cost: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  // Derivadas
+  cpm: number;             // cost / impressions × 1000 (ARS por mil impresiones)
+  ctr: number;             // clicks / impressions (ratio 0..1)
+  cpc: number;             // cost / clicks (ARS por click)
+  cpa: number;             // cost / conversions (ARS por conversión, 0 si no hay conv.)
+  spendShare: number;      // cost / total_cost (ratio 0..1)
+  conversionShare: number; // conversions / total_conversions (ratio 0..1)
+}
+
+/**
+ * Resultado completo del comparador. `gads` o `meta` pueden ser null
+ * si en el rango no hubo datos de ese publisher (ej: filtro restrictivo).
+ */
+export interface PublisherComparison {
+  gads: PublisherTotals | null;
+  meta: PublisherTotals | null;
+  totals: {
+    cost: number;
+    impressions: number;
+    clicks: number;
+    conversions: number;
+  };
+}

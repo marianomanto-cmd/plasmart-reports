@@ -15,6 +15,8 @@ import type {
   KpiTotals,
   KpiWithDelta,
   Publisher,
+  PublisherComparison,
+  PublisherTotals,
 } from "@/lib/types";
 
 // ---------- Helpers internos ----------
@@ -271,4 +273,106 @@ export async function fetchGa4SourceMedium(
     keyEvents: Number(r.key_events ?? 0),
     bounceRate: Number(r.bounce_rate ?? 0),
   }));
+}
+
+// ---- Comparativa GAds vs Meta ----
+
+interface PublisherComparisonRpcRow {
+  publisher: string;
+  cost: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+}
+
+/**
+ * Calcula las métricas derivadas de un publisher dado sus raw totals
+ * y los totales globales (para los shares).
+ */
+function deriveMetrics(
+  raw: { cost: number; impressions: number; clicks: number; conversions: number },
+  publisher: Publisher,
+  globalCost: number,
+  globalConversions: number,
+): PublisherTotals {
+  return {
+    publisher,
+    cost: raw.cost,
+    impressions: raw.impressions,
+    clicks: raw.clicks,
+    conversions: raw.conversions,
+    cpm: raw.impressions > 0 ? (raw.cost / raw.impressions) * 1000 : 0,
+    ctr: raw.impressions > 0 ? raw.clicks / raw.impressions : 0,
+    cpc: raw.clicks > 0 ? raw.cost / raw.clicks : 0,
+    cpa: raw.conversions > 0 ? raw.cost / raw.conversions : 0,
+    spendShare: globalCost > 0 ? raw.cost / globalCost : 0,
+    conversionShare:
+      globalConversions > 0 ? raw.conversions / globalConversions : 0,
+  };
+}
+
+/**
+ * Devuelve la comparativa GAds vs Meta para el período filtrado.
+ * Usa los mismos filtros de type y campaignId que el resto del
+ * dashboard. NO usa el filtro de publisher (sería contradictorio).
+ */
+export async function fetchPublisherComparison(
+  filters: DashboardFilters,
+): Promise<PublisherComparison> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("dashboard_publisher_comparison", {
+    p_from: filters.from,
+    p_to: filters.to,
+    p_type: filters.type ?? null,
+    p_campaign_id: filters.campaignId ?? null,
+  });
+  if (error) {
+    throw new Error(`dashboard_publisher_comparison: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as PublisherComparisonRpcRow[];
+
+  // Indexamos por publisher
+  const byPublisher = new Map<Publisher, {
+    cost: number;
+    impressions: number;
+    clicks: number;
+    conversions: number;
+  }>();
+  for (const r of rows) {
+    if (r.publisher !== "gads" && r.publisher !== "meta") continue;
+    byPublisher.set(r.publisher as Publisher, {
+      cost: Number(r.cost ?? 0),
+      impressions: Number(r.impressions ?? 0),
+      clicks: Number(r.clicks ?? 0),
+      conversions: Number(r.conversions ?? 0),
+    });
+  }
+
+  // Totales globales (suma de los publishers presentes)
+  const totals = {
+    cost: 0,
+    impressions: 0,
+    clicks: 0,
+    conversions: 0,
+  };
+  for (const v of byPublisher.values()) {
+    totals.cost += v.cost;
+    totals.impressions += v.impressions;
+    totals.clicks += v.clicks;
+    totals.conversions += v.conversions;
+  }
+
+  const gadsRaw = byPublisher.get("gads");
+  const metaRaw = byPublisher.get("meta");
+
+  return {
+    gads: gadsRaw
+      ? deriveMetrics(gadsRaw, "gads", totals.cost, totals.conversions)
+      : null,
+    meta: metaRaw
+      ? deriveMetrics(metaRaw, "meta", totals.cost, totals.conversions)
+      : null,
+    totals,
+  };
 }
