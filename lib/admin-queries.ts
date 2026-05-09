@@ -86,3 +86,76 @@ export async function fetchDataFreshness(): Promise<DataFreshnessRow[]> {
     rowsTotal: Number(r.rows_total ?? 0),
   }));
 }
+
+// ---- Log de análisis generados por Claude ----
+
+export interface AiAnalysisLogRow {
+  id: string;
+  generatedAt: string;
+  userEmail: string;
+  periodFrom: string;
+  periodTo: string;
+  compareMode: string;
+  publisher: string | null;
+  campaignType: string | null;
+  campaignId: string | null;
+  dataMaxDate: string | null;
+  modelUsed: string;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  durationMs: number | null;
+  content: string;
+}
+
+interface AiAnalysisLogRpcRow {
+  id: string;
+  generated_at: string;
+  user_email: string;
+  period_from: string;
+  period_to: string;
+  compare_mode: string;
+  publisher: string | null;
+  campaign_type: string | null;
+  campaign_id: string | null;
+  data_max_date: string | null;
+  model_used: string;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  duration_ms: number | null;
+  content: string;
+}
+
+/**
+ * Devuelve los últimos N análisis generados, ordenados por generated_at desc.
+ * Cada fila incluye el contenido completo (markdown) para mostrar en el modal
+ * expandible — la tabla en sí no es enorme y para Plasmart con ~5 usuarios
+ * el volumen es bajo.
+ */
+export async function fetchAiAnalysisLog(limit = 50): Promise<AiAnalysisLogRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("ai_analysis_log")
+    .select("*")
+    .order("generated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`fetchAiAnalysisLog: ${error.message}`);
+
+  return (data ?? []).map((r: AiAnalysisLogRpcRow) => ({
+    id: r.id,
+    generatedAt: r.generated_at,
+    userEmail: r.user_email,
+    periodFrom: r.period_from,
+    periodTo: r.period_to,
+    compareMode: r.compare_mode,
+    publisher: r.publisher,
+    campaignType: r.campaign_type,
+    campaignId: r.campaign_id,
+    dataMaxDate: r.data_max_date,
+    modelUsed: r.model_used,
+    promptTokens: r.prompt_tokens,
+    completionTokens: r.completion_tokens,
+    durationMs: r.duration_ms,
+    content: r.content,
+  }));
+}

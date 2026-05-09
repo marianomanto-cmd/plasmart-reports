@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import {
+  fetchAiAnalysisLog,
   fetchDataFreshness,
   fetchIngestionLog,
 } from "@/lib/admin-queries";
@@ -7,6 +8,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { IngestionLogTable } from "@/components/ingestion-log-table";
 import { DataFreshnessPanel } from "@/components/data-freshness-panel";
 import { ForceIngestButton } from "@/components/force-ingest-button";
+import { AiAnalysisLogTable } from "@/components/ai-analysis-log-table";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +18,10 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [rows, freshness] = await Promise.all([
+  const [rows, freshness, aiLog] = await Promise.all([
     fetchIngestionLog(20),
     fetchDataFreshness(),
+    fetchAiAnalysisLog(50),
   ]);
 
   const lastSuccess = rows.find((r) => r.status === "success");
@@ -108,6 +111,24 @@ export default async function AdminPage() {
             una falla, las otras siguen y queda registrado el error.
           </p>
         </div>
+
+        {/* Log de análisis generados por Claude */}
+        <section aria-labelledby="ai-log-heading" className="pt-4">
+          <div className="mb-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+              Análisis generados
+            </p>
+            <h3 id="ai-log-heading" className="mt-1 text-lg font-bold tracking-tight text-primary">
+              Historial de Claude
+            </h3>
+            <p className="mt-1 text-sm text-steel">
+              {aiLog.length === 0
+                ? "Todavía no se generó ningún análisis."
+                : `Últimos ${aiLog.length} análisis generados. Click en una fila para abrir el contenido.`}
+            </p>
+          </div>
+          <AiAnalysisLogTable rows={aiLog} />
+        </section>
       </div>
     </main>
   );

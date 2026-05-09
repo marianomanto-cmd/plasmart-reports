@@ -116,6 +116,7 @@ export async function POST(request: Request) {
   // ---- 5. Generar análisis nuevo ----
   // Las queries de datos en paralelo. No traemos KPIs derivados de campañas
   // separadas: usamos los mismos endpoints que el dashboard.
+  const startedAt = Date.now();
   let kpis;
   let topCampaigns;
   let ga4Kpis;
@@ -194,18 +195,43 @@ export async function POST(request: Request) {
     );
   }
 
+  const durationMs = Date.now() - startedAt;
+  const promptTokens = claudeResponse.usage?.input_tokens ?? null;
+  const completionTokens = claudeResponse.usage?.output_tokens ?? null;
+
   // ---- 6. Guardar en cache ----
   // Si el insert falla, no rompemos: ya tenemos la respuesta para devolver.
   const { error: insertErr } = await supabase.from("ai_analysis_cache").insert({
     filters_hash: filtersHash,
     data_max_date: maxDate,
     model_used: MODEL,
-    prompt_tokens: claudeResponse.usage?.input_tokens ?? null,
-    completion_tokens: claudeResponse.usage?.output_tokens ?? null,
+    prompt_tokens: promptTokens,
+    completion_tokens: completionTokens,
     content,
   });
   if (insertErr) {
     console.warn("No se pudo guardar el análisis en cache:", insertErr.message);
+  }
+
+  // ---- 7. Loguear en ai_analysis_log ----
+  // Una fila por cada llamada exitosa al modelo. Sin dedupe — es audit log.
+  const { error: logErr } = await supabase.from("ai_analysis_log").insert({
+    user_email: user.email,
+    period_from: filters.from,
+    period_to: filters.to,
+    compare_mode: filters.compare,
+    publisher: filters.publisher ?? null,
+    campaign_type: filters.type ?? null,
+    campaign_id: filters.campaignId ?? null,
+    data_max_date: maxDate,
+    model_used: MODEL,
+    prompt_tokens: promptTokens,
+    completion_tokens: completionTokens,
+    duration_ms: durationMs,
+    content,
+  });
+  if (logErr) {
+    console.warn("No se pudo guardar el análisis en el log:", logErr.message);
   }
 
   return NextResponse.json({
