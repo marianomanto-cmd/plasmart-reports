@@ -5,10 +5,10 @@ import {
   fetchCampaignRows,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
+import { FiltersBar } from "@/components/filters/filters-bar";
 import { TopCampaignsChart } from "@/components/charts/top-campaigns";
-import { CampaignTable } from "@/components/campaign-table";
-import { EmptyStateBanner } from "@/components/empty-state-banner";
+import { CampaignTable } from "@/components/dashboard/campaign-table";
+import { EmptyStateBanner } from "@/components/ui/empty-state-banner";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -35,7 +35,7 @@ export default async function DetallePage({
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
             Detalle de campañas
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">

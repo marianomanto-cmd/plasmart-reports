@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { DashboardHeader } from "@/components/dashboard-header";
-import { DashboardTabs } from "@/components/dashboard-tabs";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { DashboardTabs } from "@/components/layout/dashboard-tabs";
 
 /**
  * Layout compartido entre las tres pestañas del dashboard.

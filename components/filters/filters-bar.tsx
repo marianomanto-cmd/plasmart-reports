@@ -10,6 +10,11 @@ import type {
 } from "@/lib/types";
 import { buildSearchString } from "@/lib/filters";
 import { parseIsoDate, rangeDays, toIsoDate } from "@/lib/dates";
+import {
+  DateField,
+  FieldLabel,
+  SelectField,
+} from "@/components/ui/form-field";
 
 type RangeMode = "exact" | "period";
 
@@ -198,82 +203,6 @@ export function FiltersBar({ filters, available }: Props) {
 }
 
 // ---------- Sub-componentes ----------
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-light">
-      {children}
-    </span>
-  );
-}
-
-function DateField({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  min?: string;
-  max?: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <label className="flex flex-col">
-      <FieldLabel>{label}</FieldLabel>
-      <input
-        type="date"
-        value={value}
-        min={min}
-        max={max}
-        onChange={(e) => onChange(e.target.value)}
-        className="
-          border border-border-default bg-white px-3 py-2
-          text-sm text-primary tabular-nums
-          focus:border-primary focus:outline-none
-        "
-      />
-    </label>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  options,
-  onChange,
-  minWidth = 160,
-}: {
-  label: string;
-  value: string;
-  options: Array<{ value: string; label: string }>;
-  onChange: (v: string) => void;
-  minWidth?: number;
-}) {
-  return (
-    <label className="flex flex-col">
-      <FieldLabel>{label}</FieldLabel>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{ minWidth }}
-        className="
-          border border-border-default bg-white px-3 py-2
-          text-sm font-medium text-primary
-          focus:border-primary focus:outline-none
-        "
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 /**
  * Slider para elegir un período en días, anclado a la fecha "Hasta" actual.

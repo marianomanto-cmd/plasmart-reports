@@ -114,7 +114,7 @@ export function CampaignTable({ rows, anomalies }: Props) {
                 <td className="px-4 py-3 text-steel">
                   {row.publisher === "gads" ? "Google Ads" : "Meta Ads"}
                 </td>
-                <td className="px-4 py-3 text-[11px] uppercase tracking-[0.1em] text-steel">
+                <td className="px-4 py-3 text-[11px] uppercase tracking-[0.12em] text-steel">
                   {row.type}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-primary tabular-nums">
@@ -249,7 +249,7 @@ function Badge({
   return (
     <span
       title={title}
-      className={`inline-block border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] ${colorClass}`}
+      className={`inline-block border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${colorClass}`}
     >
       {label}
     </span>

@@ -4,11 +4,11 @@ import {
   fetchDataFreshness,
   fetchIngestionLog,
 } from "@/lib/admin-queries";
-import { DashboardHeader } from "@/components/dashboard-header";
-import { IngestionLogTable } from "@/components/ingestion-log-table";
-import { DataFreshnessPanel } from "@/components/data-freshness-panel";
-import { ForceIngestButton } from "@/components/force-ingest-button";
-import { AiAnalysisLogTable } from "@/components/ai-analysis-log-table";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { IngestionLogTable } from "@/components/admin/ingestion-log-table";
+import { DataFreshnessPanel } from "@/components/admin/data-freshness-panel";
+import { ForceIngestButton } from "@/components/admin/force-ingest-button";
+import { AiAnalysisLogTable } from "@/components/ai/ai-analysis-log-table";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
         {/* Encabezado */}
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
             Operación
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">

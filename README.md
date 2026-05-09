@@ -78,9 +78,14 @@ app/                       # Next.js App Router
   admin/                   # /admin: log de ingestas, freshness, botón forzar
   dashboard/               # /dashboard: reporte completo
   login/                   # /login: wordmark + botón Google
-components/                # Componentes React (server + client mezclados)
+components/                # Componentes React, agrupados por dominio
+  ui/                      # Primitivos: kpi-card, sparkline, form-field, empty-state
+  layout/                  # Header global + sub-tabs del dashboard
+  filters/                 # Barra de filtros sticky
+  dashboard/               # Grids, tablas y comparativas del reporte
+  ai/                      # Bloque del análisis de Claude + log de análisis
+  admin/                   # Widgets de /admin (log de ingestas, freshness, forzar)
   charts/                  # SVG vanilla (cost-evolution, top-campaigns)
-  ai-analysis.tsx          # Bloque del análisis de Claude
 lib/
   supabase/                # Clientes browser, server, middleware
   ai/                      # Builder del prompt + hash de cache

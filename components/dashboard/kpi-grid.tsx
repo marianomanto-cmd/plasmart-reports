@@ -3,7 +3,7 @@ import type {
   DailyTotalsPoint,
   DashboardKpis,
 } from "@/lib/types";
-import { KpiCard } from "./kpi-card";
+import { KpiCard } from "@/components/ui/kpi-card";
 
 interface Props {
   kpis: DashboardKpis;
