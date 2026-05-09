@@ -52,6 +52,7 @@ coverage/
 .turbo
 
 # Claude Code (configuración local)
-.claude/
+.claude/*
+!.claude/skills/
 .claude-code/
 CLAUDE.local.md

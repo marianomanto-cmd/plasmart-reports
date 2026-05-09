@@ -9,19 +9,27 @@ import type { DashboardFilters } from "@/lib/types";
 /**
  * Genera un hash determinístico de los filtros del dashboard.
  * Mismos filtros → mismo hash. Cambia cualquier filtro → hash distinto.
+ *
+ * El namespace separa caches que comparten la tabla pero responden a
+ * pipelines distintos (ej: "default" vs "corey"). Sin namespace,
+ * dos análisis diferentes para los mismos filtros se pisarían.
  */
-export function hashFilters(filters: DashboardFilters): string {
-  // Normalizamos los filtros a una representación canónica antes de hashear.
-  // Esto garantiza que `{ from: "X", to: "Y" }` y `{ to: "Y", from: "X" }`
-  // produzcan el mismo hash.
-  const canonical = JSON.stringify({
+export function hashFilters(
+  filters: DashboardFilters,
+  namespace = "default",
+): string {
+  // Solo incluimos `ns` si NO es "default", así los caches existentes
+  // (creados antes de existir este parámetro) siguen siendo válidos.
+  const base: Record<string, unknown> = {
     from: filters.from,
     to: filters.to,
     compare: filters.compare,
     publisher: filters.publisher ?? null,
     type: filters.type ?? null,
     campaignId: filters.campaignId ?? null,
-  });
+  };
+  if (namespace !== "default") base.ns = namespace;
+  const canonical = JSON.stringify(base);
 
   return createHash("sha256").update(canonical).digest("hex").slice(0, 32);
 }
