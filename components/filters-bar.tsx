@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type {
   AvailableFilters,
@@ -9,6 +9,30 @@ import type {
   Publisher,
 } from "@/lib/types";
 import { buildSearchString } from "@/lib/filters";
+import { parseIsoDate, rangeDays, toIsoDate } from "@/lib/dates";
+
+type RangeMode = "exact" | "period";
+
+const PERIOD_MIN = 1;
+const PERIOD_MAX = 365;
+const PERIOD_PRESETS = [7, 14, 30, 60, 90, 180, 365] as const;
+
+function subtractDays(iso: string, days: number): string {
+  const d = parseIsoDate(iso);
+  d.setUTCDate(d.getUTCDate() - days);
+  return toIsoDate(d);
+}
+
+const dateFmt = new Intl.DateTimeFormat("es-AR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function formatDateShort(iso: string): string {
+  return dateFmt.format(parseIsoDate(iso));
+}
 
 interface Props {
   filters: DashboardFilters;
@@ -25,6 +49,7 @@ export function FiltersBar({ filters, available }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [rangeMode, setRangeMode] = useState<RangeMode>("exact");
 
   const update = (patch: Partial<DashboardFilters>) => {
     const next: DashboardFilters = { ...filters, ...patch };
@@ -57,18 +82,39 @@ export function FiltersBar({ filters, available }: Props) {
   return (
     <div className="sticky top-0 z-20 -mx-8 border-b border-border-default bg-cream/95 px-8 py-4 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
       <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-        <DateField
-          label="Desde"
-          value={filters.from}
-          max={filters.to}
-          onChange={(v) => update({ from: v })}
+        <SelectField
+          label="Tipo de rango"
+          value={rangeMode}
+          options={[
+            { value: "exact", label: "Fechas exactas" },
+            { value: "period", label: "Período" },
+          ]}
+          onChange={(v) => setRangeMode(v as RangeMode)}
+          minWidth={150}
         />
-        <DateField
-          label="Hasta"
-          value={filters.to}
-          min={filters.from}
-          onChange={(v) => update({ to: v })}
-        />
+
+        {rangeMode === "exact" ? (
+          <>
+            <DateField
+              label="Desde"
+              value={filters.from}
+              max={filters.to}
+              onChange={(v) => update({ from: v })}
+            />
+            <DateField
+              label="Hasta"
+              value={filters.to}
+              min={filters.from}
+              onChange={(v) => update({ to: v })}
+            />
+          </>
+        ) : (
+          <PeriodSlider
+            from={filters.from}
+            to={filters.to}
+            onCommit={(newFrom) => update({ from: newFrom })}
+          />
+        )}
 
         <SelectField
           label="Comparar contra"
@@ -225,6 +271,75 @@ function SelectField({
           </option>
         ))}
       </select>
+    </label>
+  );
+}
+
+/**
+ * Slider para elegir un período en días, anclado a la fecha "Hasta" actual.
+ * Mientras se arrastra, sólo actualiza el estado local (preview); commitea
+ * el cambio a la URL en pointerup / keyup para evitar refetchs en cascada.
+ */
+function PeriodSlider({
+  from,
+  to,
+  onCommit,
+}: {
+  from: string;
+  to: string;
+  onCommit: (newFrom: string) => void;
+}) {
+  const currentDays = Math.min(
+    Math.max(rangeDays(from, to), PERIOD_MIN),
+    PERIOD_MAX,
+  );
+  const [draftDays, setDraftDays] = useState<number | null>(null);
+  const days = draftDays ?? currentDays;
+  const previewFrom = subtractDays(to, days - 1);
+
+  const commit = () => {
+    if (draftDays === null) return;
+    const newFrom = subtractDays(to, draftDays - 1);
+    setDraftDays(null);
+    if (newFrom !== from) onCommit(newFrom);
+  };
+
+  const presetsListId = "period-presets";
+
+  return (
+    <label className="flex flex-col">
+      <FieldLabel>Período</FieldLabel>
+      <div className="flex items-center gap-4 border border-border-default bg-white px-3 py-2">
+        <div className="flex flex-col gap-0.5">
+          <input
+            type="range"
+            min={PERIOD_MIN}
+            max={PERIOD_MAX}
+            step={1}
+            value={days}
+            list={presetsListId}
+            onChange={(e) => setDraftDays(Number(e.target.value))}
+            onPointerUp={commit}
+            onKeyUp={commit}
+            onBlur={commit}
+            className="w-[260px] accent-[#1A1A1A]"
+            aria-label="Cantidad de días del período"
+          />
+          <datalist id={presetsListId}>
+            {PERIOD_PRESETS.map((p) => (
+              <option key={p} value={p} label={`${p}`} />
+            ))}
+          </datalist>
+        </div>
+        <div className="flex flex-col leading-tight">
+          <span className="text-sm font-semibold text-primary tabular-nums whitespace-nowrap">
+            Últimos {days} {days === 1 ? "día" : "días"}
+          </span>
+          <span className="text-[11px] text-light tabular-nums whitespace-nowrap">
+            {formatDateShort(previewFrom)} — {formatDateShort(to)}
+          </span>
+        </div>
+      </div>
     </label>
   );
 }
