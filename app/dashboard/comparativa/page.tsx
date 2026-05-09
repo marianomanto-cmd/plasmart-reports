@@ -3,11 +3,13 @@ import {
   fetchAvailableFilters,
   fetchGa4Kpis,
   fetchGa4SourceMedium,
+  fetchPublisherComparison,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
 import { FiltersBar } from "@/components/filters-bar";
 import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
 import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
+import { PublisherComparisonTable } from "@/components/publisher-comparison";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -19,10 +21,11 @@ export default async function ComparativaPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const [available, ga4Kpis, ga4Rows] = await Promise.all([
+  const [available, ga4Kpis, ga4Rows, comparison] = await Promise.all([
     fetchAvailableFilters(filters.from, filters.to, filters.publisher),
     fetchGa4Kpis(filters),
     fetchGa4SourceMedium(filters.from, filters.to),
+    fetchPublisherComparison(filters),
   ]);
 
   const days = rangeDays(filters.from, filters.to);
@@ -44,14 +47,11 @@ export default async function ComparativaPage({
 
         <FiltersBar filters={filters} available={available} />
 
-        {/* Placeholder: comparativa GAds vs Meta se monta en TXT-03 */}
-        <section className="border border-dashed border-border-default bg-white/40 p-10 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-light">
-            Próximamente
-          </p>
-          <p className="mt-2 text-sm text-steel">
-            Comparativa GAds vs Meta lado a lado
-          </p>
+        <section aria-labelledby="comparison-heading">
+          <h3 id="comparison-heading" className="sr-only">
+            Comparativa GAds vs Meta
+          </h3>
+          <PublisherComparisonTable data={comparison} />
         </section>
 
         {/* GA4 — vivía antes en /dashboard, lo movemos acá */}
