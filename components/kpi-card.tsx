@@ -4,6 +4,7 @@ import {
   formatDeltaPct,
   formatInteger,
 } from "@/lib/format";
+import { Sparkline } from "./sparkline";
 
 type Format = "currency" | "number";
 
@@ -15,10 +16,11 @@ interface Props {
   /**
    * Si true, un delta positivo es bueno (verde sobrio).
    * Si false, positivo es malo (cobre).
-   * Default: true. En Fase 4.7 cuando agreguemos CPC/CPA en la tabla,
-   * vamos a invertirlo para esas métricas.
+   * Default: true.
    */
   positiveIsGood?: boolean;
+  /** Serie diaria del KPI para el sparkline. Opcional. */
+  sparkline?: number[];
 }
 
 export function KpiCard({
@@ -27,6 +29,7 @@ export function KpiCard({
   format,
   compareMode,
   positiveIsGood = true,
+  sparkline,
 }: Props) {
   const value =
     format === "currency"
@@ -58,6 +61,12 @@ export function KpiCard({
       <div className="text-[40px] font-bold leading-none tracking-tight text-primary tabular-nums">
         {value}
       </div>
+
+      {sparkline && sparkline.length >= 2 && (
+        <div className="mt-3">
+          <Sparkline values={sparkline} />
+        </div>
+      )}
 
       {showDelta && (
         <div className={`mt-4 flex items-center gap-2 text-sm tabular-nums ${deltaColor}`}>

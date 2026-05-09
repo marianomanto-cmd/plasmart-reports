@@ -1,9 +1,10 @@
 import { parseFilters } from "@/lib/filters";
 import {
   fetchAvailableFilters,
-  fetchDailyByPublisher,
-  fetchKpis,
   fetchCampaignRows,
+  fetchDailyByPublisher,
+  fetchDailyTotals,
+  fetchKpis,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
 import { FiltersBar } from "@/components/filters-bar";
@@ -24,12 +25,14 @@ export default async function ResumenPage({
 
   // Necesitamos campaign rows solo para el detector de "sin datos"
   // (sin la tabla en sí, eso vive en /detalle).
-  const [kpis, available, dailyPoints, campaignRowsForCheck] = await Promise.all([
-    fetchKpis(filters),
-    fetchAvailableFilters(filters.from, filters.to, filters.publisher),
-    fetchDailyByPublisher(filters),
-    fetchCampaignRows(filters, 1),
-  ]);
+  const [kpis, available, dailyPoints, dailyTotals, campaignRowsForCheck] =
+    await Promise.all([
+      fetchKpis(filters),
+      fetchAvailableFilters(filters.from, filters.to, filters.publisher),
+      fetchDailyByPublisher(filters),
+      fetchDailyTotals(filters),
+      fetchCampaignRows(filters, 1),
+    ]);
 
   const hasPaidData =
     kpis.cost.current > 0 ||
@@ -69,7 +72,11 @@ export default async function ResumenPage({
               <h3 id="kpis-heading" className="sr-only">
                 Indicadores principales
               </h3>
-              <KpiGrid kpis={kpis} compareMode={filters.compare} />
+              <KpiGrid
+                kpis={kpis}
+                compareMode={filters.compare}
+                daily={dailyTotals}
+              />
             </section>
 
             <section aria-labelledby="evolution-heading">

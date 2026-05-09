@@ -179,3 +179,13 @@ export interface CampaignAnomalies {
   cpcIncreased: boolean;
   isWasteful: boolean;
 }
+
+// ---- Totales diarios para sparklines (v1.1) ----
+
+export interface DailyTotalsPoint {
+  date: string;
+  cost: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+}

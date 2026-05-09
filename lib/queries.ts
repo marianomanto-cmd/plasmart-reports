@@ -8,6 +8,7 @@ import type {
   CampaignAnomalies,
   CampaignRow,
   DailyByPublisherPoint,
+  DailyTotalsPoint,
   DashboardFilters,
   DashboardKpis,
   Ga4Kpis,
@@ -421,4 +422,41 @@ export async function fetchCampaignAnomalies(
     });
   }
   return map;
+}
+
+// ---- Totales diarios (sparklines) ----
+
+interface DailyTotalsRpcRow {
+  date: string;
+  cost: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+}
+
+/**
+ * Devuelve los totales agregados por día. Sin desglose por
+ * publisher — para eso ya existe fetchDailyByPublisher().
+ * Pensado para alimentar los sparklines de los KPI cards.
+ */
+export async function fetchDailyTotals(
+  filters: DashboardFilters,
+): Promise<DailyTotalsPoint[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("dashboard_daily_totals", {
+    p_from: filters.from,
+    p_to: filters.to,
+    p_publisher: filters.publisher ?? null,
+    p_type: filters.type ?? null,
+    p_campaign_id: filters.campaignId ?? null,
+  });
+  if (error) throw new Error(`dashboard_daily_totals: ${error.message}`);
+
+  return (data ?? []).map((r: DailyTotalsRpcRow) => ({
+    date: r.date,
+    cost: Number(r.cost ?? 0),
+    impressions: Number(r.impressions ?? 0),
+    clicks: Number(r.clicks ?? 0),
+    conversions: Number(r.conversions ?? 0),
+  }));
 }
