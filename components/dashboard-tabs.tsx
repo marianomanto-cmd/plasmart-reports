@@ -1,20 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const TABS = [
   { label: "Resumen", href: "/dashboard" },
   { label: "Comparativa", href: "/dashboard/comparativa" },
   { label: "Detalle", href: "/dashboard/detalle" },
+  { label: "Corey Haines", href: "/dashboard/corey-haines" },
 ] as const;
 
 /**
- * Sub-navegación dentro de /dashboard/* — tres pestañas.
- * El nav de nivel app (Dashboard / Admin) está en DashboardHeader.
+ * Sub-navegación dentro de /dashboard/* — mantiene los filtros de la URL
+ * al cambiar de pestaña, así el rango de fechas y demás filtros se preservan.
  */
 export function DashboardTabs() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const qs = searchParams.toString();
 
   return (
     <div className="border-b border-border-default bg-background">
@@ -27,10 +30,11 @@ export function DashboardTabs() {
             tab.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(tab.href);
+          const href = qs ? `${tab.href}?${qs}` : tab.href;
           return (
             <Link
               key={tab.href}
-              href={tab.href}
+              href={href}
               className={`
                 relative py-4 text-[11px] font-semibold uppercase tracking-[0.18em]
                 transition-colors duration-150
