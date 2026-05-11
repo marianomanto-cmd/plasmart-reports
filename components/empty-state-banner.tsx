@@ -10,7 +10,7 @@ import Link from "next/link";
  */
 export function EmptyStateBanner() {
   return (
-    <div className="border border-border-default bg-white px-8 py-12 text-center">
+    <div className="border border-border-default bg-white px-4 py-10 text-center sm:px-8 sm:py-12">
       <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
         Sin datos
       </p>

@@ -53,12 +53,12 @@ export function KpiCard({
     compareMode === "yoy" ? "vs año anterior" : "vs período anterior";
 
   return (
-    <div className="border border-border-default bg-white p-6">
-      <div className="mb-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+    <div className="min-w-0 border border-border-default bg-white p-4 sm:p-6">
+      <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-light sm:mb-4">
         {label}
       </div>
 
-      <div className="text-[40px] font-bold leading-none tracking-tight text-primary tabular-nums">
+      <div className="break-words text-[26px] font-bold leading-none tracking-tight text-primary tabular-nums sm:text-[40px]">
         {value}
       </div>
 

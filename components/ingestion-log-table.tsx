@@ -59,14 +59,14 @@ export function IngestionLogTable({ rows }: Props) {
                 <td className="px-4 py-3 text-steel">
                   {row.errorMessage ? (
                     <span
-                      className="block max-w-[400px] truncate text-warning"
+                      className="block max-w-[200px] truncate text-warning sm:max-w-[400px]"
                       title={row.errorMessage}
                     >
                       {row.errorMessage}
                     </span>
                   ) : row.fileName ? (
                     <span
-                      className="block max-w-[400px] truncate text-[12px]"
+                      className="block max-w-[200px] truncate text-[12px] sm:max-w-[400px]"
                       title={row.fileName}
                     >
                       {row.fileName}
