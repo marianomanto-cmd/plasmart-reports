@@ -196,6 +196,7 @@ function ErrorState({
 
 function Result({
   data,
+  filters,
   onRegenerate,
 }: {
   data: ApiResponse;
@@ -206,21 +207,33 @@ function Result({
     <div className="space-y-6">
       <ReportMarkdown text={data.content} />
 
-      <div className="flex items-center justify-between border-t border-border-default pt-4">
+      <div className="flex flex-col gap-3 border-t border-border-default pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[10px] uppercase tracking-[0.18em] text-light tabular-nums">
           {data.fromCache ? "Cacheado" : "Generado"} ·{" "}
           {formatTimestamp(data.generatedAt)} · {data.modelUsed}
         </p>
-        <button
-          type="button"
-          onClick={onRegenerate}
-          className="
-            text-[10px] font-semibold uppercase tracking-[0.18em] text-light
-            transition-colors duration-150 hover:text-primary
-          "
-        >
-          Regenerar reporte
-        </button>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <button
+            type="button"
+            onClick={() => downloadPdf(filters)}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-primary
+              transition-colors duration-150 hover:text-light
+            "
+          >
+            Descargar PDF
+          </button>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-light
+              transition-colors duration-150 hover:text-primary
+            "
+          >
+            Regenerar reporte
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -256,6 +269,41 @@ function filtersToParams(filters: DashboardFilters): Record<string, string> {
   if (filters.type) out.type = filters.type;
   if (filters.campaignId) out.campaign = filters.campaignId;
   return out;
+}
+
+/**
+ * Pide el PDF al endpoint /api/corey-haines/pdf y dispara la descarga en
+ * el browser. El endpoint usa el análisis cacheado del período (que ya
+ * existe porque el usuario lo generó arriba). Si el cache no está
+ * disponible, devuelve 404 y mostramos un alert.
+ */
+async function downloadPdf(filters: DashboardFilters) {
+  const params = new URLSearchParams(filtersToParams(filters));
+  const url = `/api/corey-haines/pdf?${params.toString()}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      alert(
+        body?.error ??
+          `No pudimos descargar el PDF (HTTP ${res.status}). Reintentá.`,
+      );
+      return;
+    }
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = `plasmart-corey-${filters.from}_a_${filters.to}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch (err) {
+    alert(`Error descargando el PDF: ${(err as Error).message}`);
+  }
 }
 
 function formatTimestamp(iso: string): string {

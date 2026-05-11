@@ -83,8 +83,8 @@ export function CampaignTable({ rows, anomalies }: Props) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="-mx-px overflow-x-auto" aria-label="Desliza horizontalmente para ver más columnas">
+        <table className="w-full min-w-[820px] text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
               <Th k="name"        sortKey={sortKey} sortDir={sortDir} onClick={onHeaderClick} align="left">Campaña</Th>
@@ -105,37 +105,37 @@ export function CampaignTable({ rows, anomalies }: Props) {
                 key={row.campaignId}
                 className="border-b border-border-default/60 last:border-0 hover:bg-cream/50"
               >
-                <td className="px-4 py-3 text-primary">
-                  <span className="block max-w-[280px] truncate" title={row.name}>
+                <td className="px-3 py-2.5 text-primary sm:px-4 sm:py-3">
+                  <span className="block max-w-[180px] truncate sm:max-w-[240px] lg:max-w-[280px]" title={row.name}>
                     {row.name}
                   </span>
                   <AnomalyBadges a={anomalies?.get(row.campaignId)} />
                 </td>
-                <td className="px-4 py-3 text-steel">
+                <td className="px-3 py-2.5 text-steel sm:px-4 sm:py-3">
                   {row.publisher === "gads" ? "Google Ads" : "Meta Ads"}
                 </td>
-                <td className="px-4 py-3 text-[11px] uppercase tracking-[0.1em] text-steel">
+                <td className="px-3 py-2.5 text-[11px] uppercase tracking-[0.1em] text-steel sm:px-4 sm:py-3">
                   {row.type}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary tabular-nums">
+                <td className="px-3 py-2.5 text-right font-semibold text-primary tabular-nums sm:px-4 sm:py-3">
                   {formatCurrencyArs(row.cost)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatInteger(row.impressions)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatInteger(row.clicks)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatRatioAsPct(row.ctr)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatCurrencyArs(row.cpc)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatDecimal(row.conversions)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {row.conversions > 0 ? formatCurrencyArs(row.cpa) : "—"}
                 </td>
               </tr>
@@ -168,7 +168,7 @@ function Th({
   const arrow = isActive ? (sortDir === "asc" ? "▲" : "▼") : "";
   return (
     <th
-      className={`px-4 py-3 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
+      className={`px-3 py-2.5 font-semibold sm:px-4 sm:py-3 ${align === "right" ? "text-right" : "text-left"}`}
     >
       <button
         type="button"
