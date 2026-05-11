@@ -43,8 +43,8 @@ export function PublisherComparisonTable({ data }: Props) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto publisher-comparison-scroll">
+        <table className="w-full text-sm publisher-comparison-table">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
               <th className="px-6 py-3 text-left font-semibold w-[28%]">

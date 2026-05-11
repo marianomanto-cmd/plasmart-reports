@@ -81,7 +81,7 @@ export function FiltersBar({ filters, available }: Props) {
 
   return (
     <div className="sticky top-0 z-20 -mx-8 border-b border-border-default bg-cream/95 px-8 py-4 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-3 filters-bar-row">
         <SelectField
           label="Tipo de rango"
           value={rangeMode}
@@ -139,6 +139,7 @@ export function FiltersBar({ filters, available }: Props) {
           onChange={(v) =>
             update({ publisher: v ? (v as Publisher) : undefined })
           }
+          mobileFullWidth
         />
 
         <SelectField
@@ -153,6 +154,7 @@ export function FiltersBar({ filters, available }: Props) {
           ]}
           onChange={(v) => update({ type: v || undefined })}
           minWidth={150}
+          mobileFullWidth
         />
 
         <SelectField
@@ -164,6 +166,7 @@ export function FiltersBar({ filters, available }: Props) {
           ]}
           onChange={(v) => update({ campaignId: v || undefined })}
           minWidth={260}
+          mobileFullWidth
         />
 
         <div className="ml-auto flex items-center gap-3">
@@ -245,15 +248,19 @@ function SelectField({
   options,
   onChange,
   minWidth = 160,
+  mobileFullWidth = false,
 }: {
   label: string;
   value: string;
   options: Array<{ value: string; label: string }>;
   onChange: (v: string) => void;
   minWidth?: number;
+  mobileFullWidth?: boolean;
 }) {
   return (
-    <label className="flex flex-col">
+    <label
+      className={`flex flex-col${mobileFullWidth ? " filter-select-mobile-full" : ""}`}
+    >
       <FieldLabel>{label}</FieldLabel>
       <select
         value={value}
