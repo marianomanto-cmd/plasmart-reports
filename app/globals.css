@@ -56,3 +56,77 @@ body {
   letter-spacing: 0.04em;
   color: var(--color-primary);
 }
+
+/* ============================================================
+   Responsive mobile (≤ 768px y ≤ 480px)
+   Sólo aplica en mobile/tablet chica; desktop (≥ 1024px) intacto.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Tabla "Comparativa GAds vs Meta"
+   Reemplaza la combinación de Tailwind utilities aplicada en
+   components/publisher-comparison.tsx:
+     - wrapper: div.overflow-x-auto  ->  añade .publisher-comparison-scroll
+     - tabla:   table.w-full.text-sm ->  añade .publisher-comparison-table
+     - celdas (th/td): px-6 py-3 / py-4
+   Estrategia: preservar el lado a lado bajando padding y font-size;
+   el scroll horizontal interno queda como fallback con sombras
+   laterales para indicar contenido recortado.
+   ------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+  .publisher-comparison-scroll {
+    /* Indicador visual de scroll: dos sombras-cobertor que se
+       desvanecen contra los bordes blancos. `local` hace que las
+       capas blancas se peguen al borde del contenido scrolleable
+       (desaparecen al llegar al extremo). */
+    background:
+      linear-gradient(to right, #ffffff 30%, rgba(255, 255, 255, 0)) 0 0 / 24px 100% no-repeat local,
+      linear-gradient(to left,  #ffffff 30%, rgba(255, 255, 255, 0)) 100% 0 / 24px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgba(26, 26, 26, 0.18), transparent) 0 0 / 10px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgba(26, 26, 26, 0.18), transparent) 100% 0 / 10px 100% no-repeat scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .publisher-comparison-table {
+    font-size: 12px; /* reemplaza text-sm (14px) en mobile */
+  }
+  .publisher-comparison-table th,
+  .publisher-comparison-table td {
+    padding-left: 0.75rem;   /* reemplaza px-6 (1.5rem) */
+    padding-right: 0.75rem;
+    padding-top: 0.625rem;   /* reemplaza py-3 (0.75rem) y py-4 (1rem) */
+    padding-bottom: 0.625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .publisher-comparison-table {
+    font-size: 11px;
+  }
+  .publisher-comparison-table th,
+  .publisher-comparison-table td {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* ------------------------------------------------------------
+   Filtros — Publisher / Tipo / Campaña ocupan 100% del ancho
+   en mobile, anulando el inline style={{ minWidth }} que genera
+   anchos inconsistentes en components/filters-bar.tsx.
+   Marcadores:
+     - .filters-bar-row    -> contenedor flex-wrap (raíz interna)
+     - .filter-select-mobile-full -> <label> envolvente de cada
+       SelectField marcado con la prop mobileFullWidth.
+   ------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+  .filter-select-mobile-full {
+    width: 100%;
+  }
+  .filter-select-mobile-full > select {
+    width: 100%;
+    min-width: 0; /* anula el style inline minWidth del SelectField */
+  }
+}
