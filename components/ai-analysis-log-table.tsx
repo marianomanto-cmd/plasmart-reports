@@ -25,8 +25,8 @@ export function AiAnalysisLogTable({ rows }: Props) {
   }
 
   return (
-    <div className="border border-border-default bg-white">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light">
+    <div className="overflow-x-auto border border-border-default bg-white">
+      <div className="grid min-w-[720px] grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light">
         <span className="font-semibold">Fecha</span>
         <span className="font-semibold">Período · filtros · usuario</span>
         <span className="font-semibold text-right">Tokens in</span>
@@ -35,7 +35,7 @@ export function AiAnalysisLogTable({ rows }: Props) {
         <span className="font-semibold text-right">Ver</span>
       </div>
 
-      <ul>
+      <ul className="min-w-[720px]">
         {rows.map((row) => (
           <li
             key={row.id}

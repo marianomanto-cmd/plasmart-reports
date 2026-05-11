@@ -31,7 +31,7 @@ export default async function AdminPage() {
     <main className="min-h-screen bg-background">
       <DashboardHeader userEmail={user?.email} active="admin" />
 
-      <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         {/* Encabezado */}
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">

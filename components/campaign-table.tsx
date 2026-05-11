@@ -106,7 +106,7 @@ export function CampaignTable({ rows, anomalies }: Props) {
                 className="border-b border-border-default/60 last:border-0 hover:bg-cream/50"
               >
                 <td className="px-4 py-3 text-primary">
-                  <span className="block max-w-[280px] truncate" title={row.name}>
+                  <span className="block max-w-[160px] truncate sm:max-w-[280px]" title={row.name}>
                     {row.name}
                   </span>
                   <AnomalyBadges a={anomalies?.get(row.campaignId)} />

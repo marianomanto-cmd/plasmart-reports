@@ -91,7 +91,7 @@ export function Ga4SourceMediumTable({ rows }: Props) {
                 className="border-b border-border-default/60 last:border-0 hover:bg-cream/50"
               >
                 <td className="px-4 py-3 text-primary">
-                  <span className="block max-w-[220px] truncate" title={row.source}>
+                  <span className="block max-w-[140px] truncate sm:max-w-[220px]" title={row.source}>
                     {row.source || "(direct)"}
                   </span>
                 </td>

@@ -5,16 +5,16 @@
 export default function Loading() {
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-8 px-8 py-8">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         {/* Header del reporte (rango + comparación) */}
         <div className="space-y-2">
-          <div className="h-3 w-44 animate-pulse bg-border-default" />
-          <div className="h-7 w-72 animate-pulse bg-border-default" />
-          <div className="h-3 w-56 animate-pulse bg-[#e5e5e0]" />
+          <div className="h-3 w-44 max-w-full animate-pulse bg-border-default" />
+          <div className="h-7 w-72 max-w-full animate-pulse bg-border-default" />
+          <div className="h-3 w-56 max-w-full animate-pulse bg-[#e5e5e0]" />
         </div>
 
         {/* Filtros */}
-        <div className="-mx-8 border-b border-border-default bg-cream px-8 py-4">
+        <div className="-mx-4 border-b border-border-default bg-cream px-4 py-4 sm:-mx-8 sm:px-8">
           <div className="flex flex-wrap gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="space-y-1">

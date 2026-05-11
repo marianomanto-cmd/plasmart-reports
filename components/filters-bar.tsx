@@ -80,7 +80,7 @@ export function FiltersBar({ filters, available }: Props) {
   const hasActive = Boolean(filters.publisher || filters.type || filters.campaignId);
 
   return (
-    <div className="sticky top-0 z-20 -mx-8 border-b border-border-default bg-cream/95 px-8 py-4 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
+    <div className="sticky top-0 z-20 -mx-4 border-b border-border-default bg-cream/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-cream/80 sm:-mx-8 sm:px-8">
       <div className="flex flex-wrap items-end gap-x-4 gap-y-3 filters-bar-row">
         <SelectField
           label="Tipo de rango"
@@ -329,7 +329,7 @@ function PeriodSlider({
             onPointerUp={commit}
             onKeyUp={commit}
             onBlur={commit}
-            className="w-[260px] accent-[#1A1A1A]"
+            className="w-full accent-[#1A1A1A] sm:w-[260px]"
             aria-label="Cantidad de días del período"
           />
           <datalist id={presetsListId}>

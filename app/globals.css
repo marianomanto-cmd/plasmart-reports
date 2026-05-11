@@ -41,6 +41,16 @@
 
 /* No dark mode: la identidad Plasmart es clara y de alto contraste */
 
+html,
+body {
+  /* Salvavidas anti-overflow horizontal: si cualquier descendiente desborda
+     (chart oversized, tabla, negative-margin trick mal calculado, etc.), el
+     scroll horizontal se contiene dentro del componente en cuestión, no se
+     propaga al viewport. */
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -112,21 +122,33 @@ body {
 }
 
 /* ------------------------------------------------------------
-   Filtros — Publisher / Tipo / Campaña ocupan 100% del ancho
-   en mobile, anulando el inline style={{ minWidth }} que genera
-   anchos inconsistentes en components/filters-bar.tsx.
+   Filtros — todos los controles ocupan 100% del ancho en mobile
+   para anchos consistentes y evitar que el flex-wrap deje filas
+   con huecos raros. Anula los style={{ minWidth }} inline y los
+   w-[Npx] hardcodeados de components/filters-bar.tsx.
    Marcadores:
-     - .filters-bar-row    -> contenedor flex-wrap (raíz interna)
-     - .filter-select-mobile-full -> <label> envolvente de cada
-       SelectField marcado con la prop mobileFullWidth.
+     - .filters-bar-row           -> contenedor flex-wrap raíz
+     - .filter-select-mobile-full -> <label> envolvente de Publisher/Tipo/Campaña
    ------------------------------------------------------------ */
 
 @media (max-width: 768px) {
+  /* Cualquier <label> hijo directo de la barra se estira */
+  .filters-bar-row > label {
+    width: 100%;
+  }
+  /* Inputs y selects internos full-width, sin minWidth heredado */
+  .filters-bar-row select,
+  .filters-bar-row input[type="date"],
+  .filters-bar-row input[type="range"] {
+    width: 100%;
+    min-width: 0;
+  }
+  /* Compat con la regla previa (los 3 selects con prop mobileFullWidth) */
   .filter-select-mobile-full {
     width: 100%;
   }
   .filter-select-mobile-full > select {
     width: 100%;
-    min-width: 0; /* anula el style inline minWidth del SelectField */
+    min-width: 0;
   }
 }
