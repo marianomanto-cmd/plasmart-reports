@@ -9,12 +9,14 @@
 //   - max_tokens más alto porque el reporte es más extenso
 
 import { NextResponse } from "next/server";
+import { after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { parseFilters } from "@/lib/filters";
 import {
   fetchCampaignAnomalies,
   fetchCampaignRows,
+  fetchDailyTotals,
   fetchGa4Kpis,
   fetchGa4SourceMedium,
   fetchKpis,
@@ -27,6 +29,8 @@ import {
 } from "@/lib/ai/corey-prompt";
 import { rangeDays } from "@/lib/dates";
 import type { DashboardFilters } from "@/lib/types";
+import { renderCoreyPdf } from "@/lib/pdf/render-corey-pdf";
+import { sendCoreyReportEmail } from "@/lib/email/send-corey-report";
 
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const MAX_TOKENS = Number(process.env.ANTHROPIC_COREY_MAX_TOKENS ?? 3500);
@@ -122,8 +126,9 @@ export async function POST(request: Request) {
   let ga4Top;
   let comparison;
   let anomaliesMap;
+  let daily;
   try {
-    [kpis, topCampaigns, ga4Kpis, ga4Top, comparison, anomaliesMap] =
+    [kpis, topCampaigns, ga4Kpis, ga4Top, comparison, anomaliesMap, daily] =
       await Promise.all([
         fetchKpis(filters),
         fetchCampaignRows(filters, 15),
@@ -131,6 +136,7 @@ export async function POST(request: Request) {
         fetchGa4SourceMedium(filters.from, filters.to, 10),
         fetchPublisherComparison(filters),
         fetchCampaignAnomalies(filters),
+        fetchDailyTotals(filters),
       ]);
   } catch (err) {
     return NextResponse.json(
@@ -244,10 +250,45 @@ export async function POST(request: Request) {
     console.warn("No se pudo guardar el análisis en el log:", logErr.message);
   }
 
+  const generatedAt = new Date().toISOString();
+
+  // ---- 9. Email automático con PDF (fire-and-forget) ----
+  // Sólo lo disparamos cuando el reporte es fresh (acá ya lo es). Si la
+  // env var no está configurada, sendCoreyReportEmail devuelve skipped.
+  after(async () => {
+    try {
+      const pdf = await renderCoreyPdf({
+        filters,
+        kpis,
+        daily,
+        comparison,
+        topCampaigns,
+        content,
+        generatedAt,
+        modelUsed: MODEL,
+      });
+      const result = await sendCoreyReportEmail({
+        pdf,
+        filters,
+        generatedAt,
+        modelUsed: MODEL,
+      });
+      if (!result.ok && !result.skipped) {
+        console.warn("Envío de email Corey falló:", result.reason);
+      } else if (result.skipped) {
+        console.info("Envío de email Corey skip:", result.reason);
+      } else {
+        console.info("Email Corey enviado:", result.id);
+      }
+    } catch (err) {
+      console.warn("Error generando PDF/email Corey:", (err as Error).message);
+    }
+  });
+
   return NextResponse.json({
     content,
     fromCache: false,
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     modelUsed: MODEL,
   } satisfies AnalyzeResponseBody);
 }

@@ -21,16 +21,16 @@ export function IngestionLogTable({ rows }: Props) {
 
   return (
     <div className="border border-border-default bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto" aria-label="Desliza horizontalmente para ver más columnas">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
-              <th className="px-4 py-3 text-left font-semibold">Inicio</th>
-              <th className="px-4 py-3 text-left font-semibold">Fuente</th>
-              <th className="px-4 py-3 text-left font-semibold">Estado</th>
-              <th className="px-4 py-3 text-right font-semibold">Filas</th>
-              <th className="px-4 py-3 text-right font-semibold">Duración</th>
-              <th className="px-4 py-3 text-left font-semibold">Detalle</th>
+              <th className="px-3 py-2.5 text-left font-semibold sm:px-4 sm:py-3">Inicio</th>
+              <th className="px-3 py-2.5 text-left font-semibold sm:px-4 sm:py-3">Fuente</th>
+              <th className="px-3 py-2.5 text-left font-semibold sm:px-4 sm:py-3">Estado</th>
+              <th className="px-3 py-2.5 text-right font-semibold sm:px-4 sm:py-3">Filas</th>
+              <th className="px-3 py-2.5 text-right font-semibold sm:px-4 sm:py-3">Duración</th>
+              <th className="px-3 py-2.5 text-left font-semibold sm:px-4 sm:py-3">Detalle</th>
             </tr>
           </thead>
           <tbody>
@@ -39,34 +39,34 @@ export function IngestionLogTable({ rows }: Props) {
                 key={row.id}
                 className="border-b border-border-default/60 last:border-0 hover:bg-cream/50"
               >
-                <td className="px-4 py-3 text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatTimestamp(row.startedAt)}
                 </td>
-                <td className="px-4 py-3 text-primary font-medium">
+                <td className="px-3 py-2.5 text-primary font-medium sm:px-4 sm:py-3">
                   {sourceLabel(row.source)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-2.5 sm:px-4 sm:py-3">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {row.rowsInserted !== null
                     ? formatInteger(row.rowsInserted)
                     : "—"}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {duration(row.startedAt, row.finishedAt)}
                 </td>
-                <td className="px-4 py-3 text-steel">
+                <td className="px-3 py-2.5 text-steel sm:px-4 sm:py-3">
                   {row.errorMessage ? (
                     <span
-                      className="block max-w-[400px] truncate text-warning"
+                      className="block max-w-[200px] truncate text-warning sm:max-w-[300px] lg:max-w-[400px]"
                       title={row.errorMessage}
                     >
                       {row.errorMessage}
                     </span>
                   ) : row.fileName ? (
                     <span
-                      className="block max-w-[400px] truncate text-[12px]"
+                      className="block max-w-[200px] truncate text-[12px] sm:max-w-[300px] lg:max-w-[400px]"
                       title={row.fileName}
                     >
                       {row.fileName}

@@ -72,8 +72,8 @@ export function Ga4SourceMediumTable({ rows }: Props) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto" aria-label="Desliza horizontalmente para ver más columnas">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
               <Th k="source"     sortKey={sortKey} sortDir={sortDir} onClick={onHeaderClick} align="left">Fuente</Th>
@@ -90,24 +90,24 @@ export function Ga4SourceMediumTable({ rows }: Props) {
                 key={`${row.source}-${row.medium}-${i}`}
                 className="border-b border-border-default/60 last:border-0 hover:bg-cream/50"
               >
-                <td className="px-4 py-3 text-primary">
-                  <span className="block max-w-[220px] truncate" title={row.source}>
+                <td className="px-3 py-2.5 text-primary sm:px-4 sm:py-3">
+                  <span className="block max-w-[140px] truncate sm:max-w-[180px] lg:max-w-[220px]" title={row.source}>
                     {row.source || "(direct)"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-steel">
+                <td className="px-3 py-2.5 text-steel sm:px-4 sm:py-3">
                   {row.medium || "(none)"}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-primary tabular-nums">
+                <td className="px-3 py-2.5 text-right font-semibold text-primary tabular-nums sm:px-4 sm:py-3">
                   {formatInteger(row.sessions)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatInteger(row.users)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatDecimal(row.keyEvents)}
                 </td>
-                <td className="px-4 py-3 text-right text-steel tabular-nums">
+                <td className="px-3 py-2.5 text-right text-steel tabular-nums sm:px-4 sm:py-3">
                   {formatRatioAsPct(row.bounceRate)}
                 </td>
               </tr>
@@ -140,7 +140,7 @@ function Th({
   const arrow = isActive ? (sortDir === "asc" ? "▲" : "▼") : "";
   return (
     <th
-      className={`px-4 py-3 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
+      className={`px-3 py-2.5 font-semibold sm:px-4 sm:py-3 ${align === "right" ? "text-right" : "text-left"}`}
     >
       <button
         type="button"

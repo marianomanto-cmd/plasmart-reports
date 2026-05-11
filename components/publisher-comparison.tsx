@@ -43,20 +43,20 @@ export function PublisherComparisonTable({ data }: Props) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto" aria-label="Desliza horizontalmente para ver más columnas">
+        <table className="w-full min-w-[520px] text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
-              <th className="px-6 py-3 text-left font-semibold w-[28%]">
+              <th className="px-3 py-3 text-left font-semibold w-[28%] sm:px-6">
                 Métrica
               </th>
-              <th className="px-6 py-3 text-right font-semibold">
+              <th className="px-3 py-3 text-right font-semibold sm:px-6">
                 Google Ads
               </th>
-              <th className="px-6 py-3 text-right font-semibold">
+              <th className="px-3 py-3 text-right font-semibold sm:px-6">
                 Meta Ads
               </th>
-              <th className="px-6 py-3 text-right font-semibold">Total</th>
+              <th className="px-3 py-3 text-right font-semibold sm:px-6">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -132,24 +132,24 @@ function Row({
 }) {
   return (
     <tr className="border-b border-border-default/60 last:border-0">
-      <td className="px-6 py-4 text-[11px] font-medium uppercase tracking-[0.12em] text-steel">
+      <td className="px-3 py-3.5 text-[11px] font-medium uppercase tracking-[0.12em] text-steel sm:px-6 sm:py-4">
         {label}
       </td>
       <td
-        className={`px-6 py-4 text-right tabular-nums ${
+        className={`px-3 py-3.5 text-right tabular-nums sm:px-6 sm:py-4 ${
           emphasis ? "font-semibold text-primary" : "text-steel"
         }`}
       >
         {gads}
       </td>
       <td
-        className={`px-6 py-4 text-right tabular-nums ${
+        className={`px-3 py-3.5 text-right tabular-nums sm:px-6 sm:py-4 ${
           emphasis ? "font-semibold text-primary" : "text-steel"
         }`}
       >
         {meta}
       </td>
-      <td className="px-6 py-4 text-right text-light tabular-nums">{total}</td>
+      <td className="px-3 py-3.5 text-right text-light tabular-nums sm:px-6 sm:py-4">{total}</td>
     </tr>
   );
 }
@@ -172,16 +172,16 @@ function ShareRow({
 
   return (
     <tr className="border-b border-border-default/60 last:border-0 bg-cream/30">
-      <td className="px-6 py-4 text-[11px] font-medium uppercase tracking-[0.12em] text-steel">
+      <td className="px-3 py-3.5 text-[11px] font-medium uppercase tracking-[0.12em] text-steel sm:px-6 sm:py-4">
         {label}
       </td>
-      <td className="px-6 py-4 text-right tabular-nums text-steel">
+      <td className="px-3 py-3.5 text-right tabular-nums text-steel sm:px-6 sm:py-4">
         <ShareCell pct={gadsPct} hasData={gadsShare !== null} colorClass="bg-primary" />
       </td>
-      <td className="px-6 py-4 text-right tabular-nums text-steel">
+      <td className="px-3 py-3.5 text-right tabular-nums text-steel sm:px-6 sm:py-4">
         <ShareCell pct={metaPct} hasData={metaShare !== null} colorClass="bg-accent" />
       </td>
-      <td className="px-6 py-4 text-right text-light tabular-nums">—</td>
+      <td className="px-3 py-3.5 text-right text-light tabular-nums sm:px-6 sm:py-4">—</td>
     </tr>
   );
 }

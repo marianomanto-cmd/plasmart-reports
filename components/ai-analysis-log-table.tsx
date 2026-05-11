@@ -26,6 +26,8 @@ export function AiAnalysisLogTable({ rows }: Props) {
 
   return (
     <div className="border border-border-default bg-white">
+     <div className="overflow-x-auto" aria-label="Desliza horizontalmente para ver más columnas">
+      <div className="min-w-[760px]">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light">
         <span className="font-semibold">Fecha</span>
         <span className="font-semibold">Período · filtros · usuario</span>
@@ -95,6 +97,8 @@ export function AiAnalysisLogTable({ rows }: Props) {
           </li>
         ))}
       </ul>
+      </div>
+     </div>
     </div>
   );
 }

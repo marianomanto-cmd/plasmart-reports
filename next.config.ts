@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/corey-haines": [".claude/skills/**/SKILL.md"],
   },
+  // @react-pdf/renderer trae binarios y módulos node que Next.js no sabe
+  // bundlear correctamente. Lo marcamos como external para que el runtime
+  // serverless lo cargue desde node_modules en lugar de intentar trazarlo.
+  serverExternalPackages: ["@react-pdf/renderer"],
 };
 
 export default nextConfig;
