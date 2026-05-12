@@ -43,7 +43,7 @@ export function LoginButton() {
       disabled={loading}
       className="
         group flex w-full items-center justify-center gap-3
-        border border-[#1a1a1a] bg-[#1a1a1a] px-6 py-4
+        border border-[#0f172a] bg-[#0f172a] px-6 py-4
         text-sm font-medium uppercase tracking-wider text-white
         transition-colors duration-200
         hover:bg-[#2a2a2a]

@@ -16,7 +16,7 @@ interface Props {
  */
 export function Sparkline({
   values,
-  color = "#1A1A1A",
+  color = "#0f172a",
   width = 80,
   height = 24,
 }: Props) {

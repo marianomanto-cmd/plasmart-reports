@@ -24,8 +24,8 @@ interface Props {
 const VIEW_W = 900;
 const VIEW_H = 280;
 
-const COLOR_GADS = "#1A1A1A";
-const COLOR_META = "#C9A961";
+const COLOR_GADS = "#0f172a";
+const COLOR_META = "#2563eb";
 
 export function CostEvolutionChart({ points, fromIso, toIso }: Props) {
   // Pivot a {date → {gads, meta}}
@@ -107,7 +107,7 @@ export function CostEvolutionChart({ points, fromIso, toIso }: Props) {
                 x2={VIEW_W - m.right}
                 y1={y}
                 y2={y}
-                stroke="#D0D0D0"
+                stroke="#e2e8f0"
                 strokeWidth={i === 0 ? 1 : 0.5}
                 strokeDasharray={i === 0 ? "" : "2 3"}
               />
@@ -116,7 +116,7 @@ export function CostEvolutionChart({ points, fromIso, toIso }: Props) {
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fill="#8A8A8A"
+                fill="#94a3b8"
                 fontSize={10}
                 fontFamily="var(--font-sans)"
                 style={{ fontVariantNumeric: "tabular-nums" }}
@@ -136,7 +136,7 @@ export function CostEvolutionChart({ points, fromIso, toIso }: Props) {
               x={x}
               y={VIEW_H - m.bottom + 16}
               textAnchor="middle"
-              fill="#8A8A8A"
+              fill="#94a3b8"
               fontSize={10}
               fontFamily="var(--font-sans)"
             >

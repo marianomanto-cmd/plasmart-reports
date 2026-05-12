@@ -401,14 +401,14 @@ function buildPrintableHtml(
     * { box-sizing: border-box; }
     body {
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      color: #1a1a1a;
+      color: #0f172a;
       line-height: 1.6;
       max-width: 720px;
       margin: 32px auto;
       padding: 0 24px;
     }
     .header {
-      border-top: 4px solid #1a1a1a;
+      border-top: 4px solid #0f172a;
       padding-top: 16px;
       margin-bottom: 28px;
     }
@@ -416,14 +416,14 @@ function buildPrintableHtml(
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #1a1a1a;
+      color: #0f172a;
       font-weight: 600;
       margin: 0 0 8px 0;
     }
     .period {
       font-size: 18px;
       font-weight: bold;
-      color: #1a1a1a;
+      color: #0f172a;
       margin: 0;
       letter-spacing: -0.01em;
     }
@@ -431,22 +431,22 @@ function buildPrintableHtml(
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #8a8a8a;
+      color: #94a3b8;
       margin-top: 10px;
     }
     .block { margin-bottom: 18px; page-break-inside: avoid; }
     p { margin: 0 0 6px 0; font-size: 13px; }
     p.title { font-weight: 600; margin-top: 16px; font-size: 14px; }
-    p.action { padding-left: 16px; color: #4a4a4a; }
-    strong { font-weight: 600; color: #1a1a1a; }
+    p.action { padding-left: 16px; color: #475569; }
+    strong { font-weight: 600; color: #0f172a; }
     .footer {
-      border-top: 1px solid #d0d0d0;
+      border-top: 1px solid #e2e8f0;
       padding-top: 12px;
       margin-top: 36px;
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #8a8a8a;
+      color: #94a3b8;
     }
   </style>
 </head>

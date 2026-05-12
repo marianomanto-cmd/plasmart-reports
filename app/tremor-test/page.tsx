@@ -54,7 +54,7 @@ export default function TremorTestPage() {
           </h2>
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-steel">
             <li>Card 1: fondo blanco, borde gris claro, esquinas redondeadas.</li>
-            <li>Card 2: fondo crema (#F5F5F0), borde negro, esquinas rectas.</li>
+            <li>Card 2: fondo crema (#f8fafc), borde negro, esquinas rectas.</li>
             <li>Sin errores en consola del navegador.</li>
             <li>Sin warnings en `npm run build`.</li>
           </ul>

@@ -16,8 +16,8 @@ interface Props {
 const ROW_HEIGHT = 32;
 const ROW_GAP = 6;
 const VIEW_W = 900;
-const COLOR_GADS = "#1A1A1A";
-const COLOR_META = "#C9A961";
+const COLOR_GADS = "#0f172a";
+const COLOR_META = "#2563eb";
 const TRACK_COLOR = "#F0EFEA";
 
 export function TopCampaignsChart({ rows }: Props) {
@@ -86,7 +86,7 @@ export function TopCampaignsChart({ rows }: Props) {
                 y={y + ROW_HEIGHT / 2}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fill="#1A1A1A"
+                fill="#0f172a"
                 fontSize={12}
                 fontFamily="var(--font-sans)"
               >
@@ -99,7 +99,7 @@ export function TopCampaignsChart({ rows }: Props) {
                 y={y + ROW_HEIGHT / 2 + 14}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fill="#8A8A8A"
+                fill="#94a3b8"
                 fontSize={9}
                 fontFamily="var(--font-sans)"
                 style={{ letterSpacing: "0.1em" }}
@@ -113,7 +113,7 @@ export function TopCampaignsChart({ rows }: Props) {
                 x={barEnd + 8}
                 y={y + ROW_HEIGHT / 2}
                 dominantBaseline="middle"
-                fill="#1A1A1A"
+                fill="#0f172a"
                 fontSize={12}
                 fontFamily="var(--font-sans)"
                 fontWeight={600}

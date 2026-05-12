@@ -20,16 +20,16 @@
    ============================================================ */
 
 :root {
-  /* Paleta */
-  --color-primary: #1a1a1a;       /* Negro: texto principal, headings, líneas */
-  --color-accent: #c9a961;        /* Cobre/dorado: acento sutil */
-  --color-steel: #4a4a4a;         /* Gris medio: texto secundario */
-  --color-light: #8a8a8a;         /* Gris claro: labels, metadatos */
-  --color-bg-cream: #f5f5f0;      /* Crema: fondo de bloques */
+  /* Paleta industrial-azul (slate + blue) — armoniza con Tremor defaults */
+  --color-primary: #0f172a;       /* slate-900: texto principal, headings */
+  --color-accent: #2563eb;        /* blue-600: acento, links, foco */
+  --color-steel: #475569;         /* slate-600: texto secundario */
+  --color-light: #94a3b8;         /* slate-400: labels, metadatos */
+  --color-bg-cream: #f8fafc;      /* slate-50: fondo de bloques (off-white azulado) */
   --color-bg-white: #ffffff;      /* Blanco puro: cards principales */
-  --color-border: #d0d0d0;        /* Bordes y divisores */
-  --color-success: #5c8a5c;       /* Verde sobrio: métricas positivas */
-  --color-warning: #b8704a;       /* Cobre alerta: métricas a revisar */
+  --color-border: #e2e8f0;        /* slate-200: bordes y divisores */
+  --color-success: #059669;       /* emerald-600: métricas positivas */
+  --color-warning: #d97706;       /* amber-600: métricas a revisar */
 
   /* Tokens semánticos */
   --background: var(--color-bg-cream);
