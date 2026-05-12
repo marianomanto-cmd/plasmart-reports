@@ -2,6 +2,8 @@
 // El header NO se duplica acá: ya está montado en page.tsx, que se renderiza
 // inmediatamente; solo la sección de datos espera.
 
+import { Card } from "@/components/tremor/card";
+
 export default function Loading() {
   return (
     <main className="min-h-screen bg-background">
@@ -10,7 +12,7 @@ export default function Loading() {
         <div className="space-y-2">
           <div className="h-3 w-44 max-w-full animate-pulse bg-border-default" />
           <div className="h-7 w-72 max-w-full animate-pulse bg-border-default" />
-          <div className="h-3 w-56 max-w-full animate-pulse bg-[#e5e5e0]" />
+          <div className="h-3 w-56 max-w-full animate-pulse bg-slate-100" />
         </div>
 
         {/* Filtros */}
@@ -19,7 +21,7 @@ export default function Loading() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="space-y-1">
                 <div className="h-2.5 w-16 animate-pulse bg-border-default" />
-                <div className="h-9 w-40 animate-pulse bg-[#e5e5e0]" />
+                <div className="h-9 w-40 animate-pulse bg-slate-100" />
               </div>
             ))}
           </div>
@@ -28,11 +30,11 @@ export default function Loading() {
         {/* KPI cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="border border-border-default bg-white p-6">
+            <Card key={i}>
               <div className="mb-4 h-2.5 w-24 animate-pulse bg-border-default" />
-              <div className="h-10 w-32 animate-pulse bg-[#e5e5e0]" />
-              <div className="mt-4 h-3 w-40 animate-pulse bg-[#f0f0ea]" />
-            </div>
+              <div className="h-10 w-32 animate-pulse bg-slate-100" />
+              <div className="mt-4 h-3 w-40 animate-pulse bg-slate-50" />
+            </Card>
           ))}
         </div>
       </div>

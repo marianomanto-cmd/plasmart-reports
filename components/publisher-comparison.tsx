@@ -4,6 +4,7 @@ import {
   formatInteger,
   formatRatioAsPct,
 } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 interface Props {
   data: PublisherComparison;
@@ -21,19 +22,19 @@ export function PublisherComparisonTable({ data }: Props) {
 
   if (!gads && !meta) {
     return (
-      <div className="border border-border-default bg-white p-12 text-center">
+      <Card className="p-12 text-center">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
           Comparativa GAds vs Meta
         </p>
         <p className="mt-3 text-sm text-light">
           Sin datos en el rango y filtros seleccionados.
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="border border-border-default bg-white">
+    <Card className="p-0">
       <div className="border-b border-border-default px-6 py-4">
         <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
           Comparativa GAds vs Meta
@@ -111,7 +112,7 @@ export function PublisherComparisonTable({ data }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 

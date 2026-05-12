@@ -1,5 +1,6 @@
 import type { IngestionLogRow } from "@/lib/admin-queries";
 import { formatInteger } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 interface Props {
   rows: IngestionLogRow[];
@@ -8,19 +9,19 @@ interface Props {
 export function IngestionLogTable({ rows }: Props) {
   if (rows.length === 0) {
     return (
-      <div className="border border-border-default bg-white p-12 text-center">
+      <Card className="p-12 text-center">
         <p className="text-sm text-light">
           Sin ejecuciones registradas todavía.
         </p>
         <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-light">
           La primera corrida automática es el lunes a las 18:00 ART
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="border border-border-default bg-white">
+    <Card className="p-0">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -80,7 +81,7 @@ export function IngestionLogTable({ rows }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 

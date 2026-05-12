@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Card } from "@/components/tremor/card";
 
 /**
  * Banner que se muestra cuando los filtros aplicados no devuelven datos
@@ -10,7 +11,7 @@ import Link from "next/link";
  */
 export function EmptyStateBanner() {
   return (
-    <div className="border border-border-default bg-white px-4 py-10 text-center sm:px-8 sm:py-12">
+    <Card className="px-4 py-10 text-center sm:px-8 sm:py-12">
       <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
         Sin datos
       </p>
@@ -26,7 +27,7 @@ export function EmptyStateBanner() {
         <Link
           href="/dashboard"
           className="
-            inline-block border border-primary px-5 py-2.5
+            inline-block rounded-md border border-primary px-5 py-2.5
             text-[11px] font-semibold uppercase tracking-[0.18em] text-primary
             transition-colors duration-150 hover:bg-primary hover:text-white
           "
@@ -34,6 +35,6 @@ export function EmptyStateBanner() {
           Limpiar filtros
         </Link>
       </div>
-    </div>
+    </Card>
   );
 }
