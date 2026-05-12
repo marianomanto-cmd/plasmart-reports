@@ -31,6 +31,7 @@ import type { DashboardFilters } from "@/lib/types";
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const MAX_TOKENS = Number(process.env.ANTHROPIC_COREY_MAX_TOKENS ?? 3500);
 const NAMESPACE = "corey";
+const COOLDOWN_MINUTES = 60;
 
 interface AnalyzeRequestBody {
   filters: Record<string, string | string[] | undefined>;
@@ -42,6 +43,11 @@ interface AnalyzeResponseBody {
   fromCache: boolean;
   generatedAt: string;
   modelUsed: string;
+}
+
+interface CooldownResponseBody {
+  error: string;
+  cooldownMinutesRemaining: number;
 }
 
 export async function POST(request: Request) {
@@ -112,6 +118,31 @@ export async function POST(request: Request) {
         modelUsed: hit.model_used,
       } satisfies AnalyzeResponseBody);
     }
+  }
+
+  // ---- 4.5. Cooldown ----
+  // No hubo cache hit → llamada real a Claude. Bloqueamos si este usuario
+  // ya generó un Corey Haines en los últimos 60 min.
+  const { data: lastCallData, error: lastCallErr } = await supabase.rpc(
+    "dashboard_last_ai_call",
+    {
+      p_user_email: user.email,
+      p_analyzer: "corey",
+      p_within_minutes: COOLDOWN_MINUTES,
+    },
+  );
+  if (lastCallErr) {
+    console.warn("Cooldown lookup falló:", lastCallErr.message);
+  } else if (lastCallData && lastCallData.length > 0) {
+    const minutesAgo = Number(lastCallData[0].minutes_ago);
+    const remaining = Math.max(1, Math.ceil(COOLDOWN_MINUTES - minutesAgo));
+    return NextResponse.json(
+      {
+        error: `Cooldown activo. Próximo reporte disponible en ${remaining} ${remaining === 1 ? "minuto" : "minutos"}.`,
+        cooldownMinutesRemaining: remaining,
+      } satisfies CooldownResponseBody,
+      { status: 429 },
+    );
   }
 
   // ---- 5. Datos del período ----
