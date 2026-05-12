@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DashboardFilters } from "@/lib/types";
+import { Button } from "@/components/tremor/button";
 
 interface Props {
   filters: DashboardFilters;
@@ -99,17 +100,13 @@ function Idle({ onRun }: { onRun: () => void }) {
         los KPIs, las top campañas y el tráfico de GA4 visibles en este
         reporte y devuelve recomendaciones puntuales.
       </p>
-      <button
+      <Button
         type="button"
         onClick={onRun}
-        className="
-          border border-primary bg-primary px-5 py-2.5
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-white
-          transition-colors duration-150 hover:bg-white hover:text-primary
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Generar análisis
-      </button>
+      </Button>
     </div>
   );
 }
@@ -117,16 +114,16 @@ function Idle({ onRun }: { onRun: () => void }) {
 function LoadingSkeleton() {
   return (
     <div className="space-y-4 py-2">
-      <div className="h-4 w-3/5 animate-pulse bg-[#e5e5e0]" />
+      <div className="h-4 w-3/5 animate-pulse bg-slate-100" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-11/12 animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-4/5 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
+        <div className="h-3 w-4/5 animate-pulse bg-slate-50" />
       </div>
-      <div className="h-4 w-2/5 animate-pulse bg-[#e5e5e0]" />
+      <div className="h-4 w-2/5 animate-pulse bg-slate-100" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-10/12 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-10/12 animate-pulse bg-slate-50" />
       </div>
       <p className="pt-2 text-[11px] uppercase tracking-[0.18em] text-light">
         Claude está leyendo los datos…
@@ -147,17 +144,14 @@ function ErrorState({
       <p className="text-sm text-warning">
         No pudimos generar el análisis: {message}
       </p>
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onRetry}
-        className="
-          border border-primary px-4 py-2
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-primary
-          transition-colors duration-150 hover:bg-primary hover:text-white
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Reintentar
-      </button>
+      </Button>
     </div>
   );
 }
@@ -401,14 +395,14 @@ function buildPrintableHtml(
     * { box-sizing: border-box; }
     body {
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      color: #1a1a1a;
+      color: #0f172a;
       line-height: 1.6;
       max-width: 720px;
       margin: 32px auto;
       padding: 0 24px;
     }
     .header {
-      border-top: 4px solid #1a1a1a;
+      border-top: 4px solid #0f172a;
       padding-top: 16px;
       margin-bottom: 28px;
     }
@@ -416,14 +410,14 @@ function buildPrintableHtml(
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #1a1a1a;
+      color: #0f172a;
       font-weight: 600;
       margin: 0 0 8px 0;
     }
     .period {
       font-size: 18px;
       font-weight: bold;
-      color: #1a1a1a;
+      color: #0f172a;
       margin: 0;
       letter-spacing: -0.01em;
     }
@@ -431,22 +425,22 @@ function buildPrintableHtml(
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #8a8a8a;
+      color: #94a3b8;
       margin-top: 10px;
     }
     .block { margin-bottom: 18px; page-break-inside: avoid; }
     p { margin: 0 0 6px 0; font-size: 13px; }
     p.title { font-weight: 600; margin-top: 16px; font-size: 14px; }
-    p.action { padding-left: 16px; color: #4a4a4a; }
-    strong { font-weight: 600; color: #1a1a1a; }
+    p.action { padding-left: 16px; color: #475569; }
+    strong { font-weight: 600; color: #0f172a; }
     .footer {
-      border-top: 1px solid #d0d0d0;
+      border-top: 1px solid #e2e8f0;
       padding-top: 12px;
       margin-top: 36px;
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #8a8a8a;
+      color: #94a3b8;
     }
   </style>
 </head>

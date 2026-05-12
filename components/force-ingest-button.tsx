@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Button } from "@/components/tremor/button";
 
 interface ApiResponse {
   ok: boolean;
@@ -62,20 +63,15 @@ export function ForceIngestButton() {
 
   return (
     <div className="flex flex-wrap items-center gap-4">
-      <button
+      <Button
         type="button"
         onClick={run}
-        disabled={state.kind === "running"}
-        className="
-          border border-primary bg-primary px-5 py-2.5
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-white
-          transition-colors duration-150
-          hover:bg-white hover:text-primary
-          disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-primary disabled:hover:text-white
-        "
+        isLoading={state.kind === "running"}
+        loadingText="Ingestando…"
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
-        {state.kind === "running" ? "Ingestando…" : "Forzar ingesta ahora"}
-      </button>
+        Forzar ingesta ahora
+      </Button>
 
       <Status state={state} />
     </div>

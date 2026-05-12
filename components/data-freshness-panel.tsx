@@ -1,5 +1,6 @@
 import type { DataFreshnessRow, DataSource } from "@/lib/admin-queries";
 import { formatInteger } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 interface Props {
   rows: DataFreshnessRow[];
@@ -22,7 +23,7 @@ export function DataFreshnessPanel({ rows }: Props) {
       {order.map(({ key, label }) => {
         const row = byKey.get(key);
         return (
-          <div key={key} className="border border-border-default bg-white p-6">
+          <Card key={key}>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
               {label}
             </p>
@@ -36,7 +37,7 @@ export function DataFreshnessPanel({ rows }: Props) {
                 ? `${formatInteger(row.rowsTotal)} ${row.rowsTotal === 1 ? "fila" : "filas"} acumuladas`
                 : "—"}
             </p>
-          </div>
+          </Card>
         );
       })}
     </div>

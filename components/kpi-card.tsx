@@ -4,6 +4,7 @@ import {
   formatDeltaPct,
   formatInteger,
 } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 import { Sparkline } from "./sparkline";
 
 type Format = "currency" | "number";
@@ -53,7 +54,7 @@ export function KpiCard({
     compareMode === "yoy" ? "vs año anterior" : "vs período anterior";
 
   return (
-    <div className="min-w-0 border border-border-default bg-white p-4 sm:p-6">
+    <Card className="min-w-0 p-4 sm:p-6">
       <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-light sm:mb-4">
         {label}
       </div>
@@ -79,6 +80,6 @@ export function KpiCard({
           </span>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

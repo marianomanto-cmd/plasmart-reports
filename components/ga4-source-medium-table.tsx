@@ -7,6 +7,7 @@ import {
   formatInteger,
   formatRatioAsPct,
 } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 type SortKey =
   | "source"
@@ -62,7 +63,7 @@ export function Ga4SourceMediumTable({ rows }: Props) {
   }
 
   return (
-    <div className="border border-border-default bg-white">
+    <Card className="p-0">
       <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
         <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
           Tráfico por fuente y medio
@@ -115,7 +116,7 @@ export function Ga4SourceMediumTable({ rows }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -161,13 +162,13 @@ function Th({
 
 function EmptyState() {
   return (
-    <div className="border border-border-default bg-white p-6">
+    <Card>
       <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
         Tráfico por fuente y medio
       </h3>
       <div className="flex h-[200px] items-center justify-center text-sm text-light">
         Sin datos de GA4 en el rango seleccionado
       </div>
-    </div>
+    </Card>
   );
 }

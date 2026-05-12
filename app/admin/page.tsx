@@ -9,6 +9,7 @@ import { IngestionLogTable } from "@/components/ingestion-log-table";
 import { DataFreshnessPanel } from "@/components/data-freshness-panel";
 import { ForceIngestButton } from "@/components/force-ingest-button";
 import { AiAnalysisLogTable } from "@/components/ai-analysis-log-table";
+import { Card } from "@/components/tremor/card";
 
 export const dynamic = "force-dynamic";
 
@@ -65,20 +66,22 @@ export default async function AdminPage() {
         </section>
 
         {/* Acción manual */}
-        <section className="border border-border-default bg-white p-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-            Ingesta manual
-          </p>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-steel">
-            Disparar la ingesta a demanda corre las tres fuentes en
-            paralelo y tarda hasta un minuto. Después de cada corrida hay
-            un cooldown de 10 minutos para evitar consumo innecesario de
-            cuotas.
-          </p>
-          <div className="mt-4">
-            <ForceIngestButton />
-          </div>
-        </section>
+        <Card asChild>
+          <section>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+              Ingesta manual
+            </p>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-steel">
+              Disparar la ingesta a demanda corre las tres fuentes en
+              paralelo y tarda hasta un minuto. Después de cada corrida hay
+              un cooldown de 10 minutos para evitar consumo innecesario de
+              cuotas.
+            </p>
+            <div className="mt-4">
+              <ForceIngestButton />
+            </div>
+          </section>
+        </Card>
 
         {/* Log de ingestas */}
         <section aria-labelledby="log-heading">
@@ -97,20 +100,20 @@ export default async function AdminPage() {
         </section>
 
         {/* Cómo se ejecuta */}
-        <div className="border border-border-default bg-white p-6">
+        <Card>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
             Cómo corre el cron automático
           </p>
           <p className="mt-3 text-sm leading-relaxed text-steel">
             Postgres dispara la Edge Function{" "}
-            <code className="bg-cream px-1.5 py-0.5 text-[12px] tabular-nums">
+            <code className="rounded bg-cream px-1.5 py-0.5 text-[12px] tabular-nums">
               ingest-reports
             </code>{" "}
             todos los lunes a las 18:00 ART. Cada fuente (Google Ads, Meta
             Ads, Google Analytics) se procesa de forma independiente: si
             una falla, las otras siguen y queda registrado el error.
           </p>
-        </div>
+        </Card>
 
         {/* Log de análisis generados por Claude */}
         <section aria-labelledby="ai-log-heading" className="pt-4">

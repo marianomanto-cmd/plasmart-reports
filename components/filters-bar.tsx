@@ -329,7 +329,7 @@ function PeriodSlider({
             onPointerUp={commit}
             onKeyUp={commit}
             onBlur={commit}
-            className="w-full accent-[#1A1A1A] sm:w-[260px]"
+            className="w-full accent-[#0f172a] sm:w-[260px]"
             aria-label="Cantidad de días del período"
           />
           <datalist id={presetsListId}>

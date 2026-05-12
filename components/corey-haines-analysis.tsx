@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DashboardFilters } from "@/lib/types";
+import { Button } from "@/components/tremor/button";
 
 interface Props {
   filters: DashboardFilters;
@@ -129,17 +130,13 @@ function Idle({ onRun }: { onRun: () => void }) {
           ))}
         </div>
       </div>
-      <button
+      <Button
         type="button"
         onClick={onRun}
-        className="
-          border border-primary bg-primary px-5 py-2.5
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-white
-          transition-colors duration-150 hover:bg-white hover:text-primary
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Generar reporte
-      </button>
+      </Button>
     </div>
   );
 }
@@ -148,19 +145,19 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-5 py-2">
       <div className="space-y-2">
-        <div className="h-4 w-2/5 animate-pulse bg-[#e5e5e0]" />
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-11/12 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-4 w-2/5 animate-pulse bg-slate-100" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
       </div>
       <div className="space-y-2 pt-2">
-        <div className="h-4 w-1/3 animate-pulse bg-[#e5e5e0]" />
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-10/12 animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-9/12 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-4 w-1/3 animate-pulse bg-slate-100" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-10/12 animate-pulse bg-slate-50" />
+        <div className="h-3 w-9/12 animate-pulse bg-slate-50" />
       </div>
       <div className="space-y-2 pt-2">
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-11/12 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
       </div>
       <p className="pt-2 text-[11px] uppercase tracking-[0.18em] text-light">
         Aplicando frameworks · esto puede tardar 30-60 segundos…
@@ -179,17 +176,14 @@ function ErrorState({
   return (
     <div className="space-y-3">
       <p className="text-sm text-warning">No pudimos generar el reporte: {message}</p>
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onRetry}
-        className="
-          border border-primary px-4 py-2
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-primary
-          transition-colors duration-150 hover:bg-primary hover:text-white
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Reintentar
-      </button>
+      </Button>
     </div>
   );
 }

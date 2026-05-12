@@ -1,6 +1,7 @@
 import type { CompareMode, Ga4Kpis, KpiWithDelta } from "@/lib/types";
 import { KpiCard } from "./kpi-card";
 import { formatDeltaPct, formatRatioAsPct } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 interface Props {
   kpis: Ga4Kpis;
@@ -66,7 +67,7 @@ function BounceRateCard({
     compareMode === "yoy" ? "vs año anterior" : "vs período anterior";
 
   return (
-    <div className="min-w-0 border border-border-default bg-white p-4 sm:p-6">
+    <Card className="min-w-0 p-4 sm:p-6">
       <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-light sm:mb-4">
         Bounce rate
       </div>
@@ -86,6 +87,6 @@ function BounceRateCard({
           </span>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

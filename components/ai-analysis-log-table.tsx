@@ -1,5 +1,6 @@
 import type { AiAnalysisLogRow } from "@/lib/admin-queries";
 import { formatInteger } from "@/lib/format";
+import { Card } from "@/components/tremor/card";
 
 interface Props {
   rows: AiAnalysisLogRow[];
@@ -13,19 +14,19 @@ interface Props {
 export function AiAnalysisLogTable({ rows }: Props) {
   if (rows.length === 0) {
     return (
-      <div className="border border-border-default bg-white p-12 text-center">
+      <Card className="p-12 text-center">
         <p className="text-sm text-light">
           Sin análisis generados todavía.
         </p>
         <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-light">
           La primera vez que alguien genere uno desde el dashboard, va a aparecer acá
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-x-auto border border-border-default bg-white">
+    <Card className="overflow-x-auto p-0">
       <div className="grid min-w-[720px] grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light">
         <span className="font-semibold">Fecha</span>
         <span className="font-semibold">Período · filtros · usuario</span>
@@ -95,7 +96,7 @@ export function AiAnalysisLogTable({ rows }: Props) {
           </li>
         ))}
       </ul>
-    </div>
+    </Card>
   );
 }
 
