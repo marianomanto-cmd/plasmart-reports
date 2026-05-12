@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DashboardFilters } from "@/lib/types";
+import { Button } from "@/components/tremor/button";
 
 interface Props {
   filters: DashboardFilters;
@@ -99,17 +100,13 @@ function Idle({ onRun }: { onRun: () => void }) {
         los KPIs, las top campañas y el tráfico de GA4 visibles en este
         reporte y devuelve recomendaciones puntuales.
       </p>
-      <button
+      <Button
         type="button"
         onClick={onRun}
-        className="
-          border border-primary bg-primary px-5 py-2.5
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-white
-          transition-colors duration-150 hover:bg-white hover:text-primary
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Generar análisis
-      </button>
+      </Button>
     </div>
   );
 }
@@ -117,16 +114,16 @@ function Idle({ onRun }: { onRun: () => void }) {
 function LoadingSkeleton() {
   return (
     <div className="space-y-4 py-2">
-      <div className="h-4 w-3/5 animate-pulse bg-[#e5e5e0]" />
+      <div className="h-4 w-3/5 animate-pulse bg-slate-100" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-11/12 animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-4/5 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
+        <div className="h-3 w-4/5 animate-pulse bg-slate-50" />
       </div>
-      <div className="h-4 w-2/5 animate-pulse bg-[#e5e5e0]" />
+      <div className="h-4 w-2/5 animate-pulse bg-slate-100" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-[#f0f0ea]" />
-        <div className="h-3 w-10/12 animate-pulse bg-[#f0f0ea]" />
+        <div className="h-3 w-full animate-pulse bg-slate-50" />
+        <div className="h-3 w-10/12 animate-pulse bg-slate-50" />
       </div>
       <p className="pt-2 text-[11px] uppercase tracking-[0.18em] text-light">
         Claude está leyendo los datos…
@@ -147,17 +144,14 @@ function ErrorState({
       <p className="text-sm text-warning">
         No pudimos generar el análisis: {message}
       </p>
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={onRetry}
-        className="
-          border border-primary px-4 py-2
-          text-[11px] font-semibold uppercase tracking-[0.18em] text-primary
-          transition-colors duration-150 hover:bg-primary hover:text-white
-        "
+        className="text-[11px] font-semibold uppercase tracking-[0.18em]"
       >
         Reintentar
-      </button>
+      </Button>
     </div>
   );
 }
