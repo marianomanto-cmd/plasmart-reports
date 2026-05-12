@@ -285,6 +285,8 @@ comment on function public.refresh_all_materialized_views is
 -- RPCs para PR 5 (IA)
 -- ============================================================
 
+-- total_clicks es numeric porque sum(bigint) devuelve numeric en Postgres,
+-- no bigint. Declarar bigint hace fallar el CREATE FUNCTION.
 create or replace function public.top_wasted_search_terms(
   p_start date,
   p_end date,
@@ -296,7 +298,7 @@ returns table (
   search_term text,
   match_type text,
   total_cost numeric,
-  total_clicks bigint
+  total_clicks numeric
 )
 language sql stable as $$
   select
@@ -305,7 +307,7 @@ language sql stable as $$
     st.search_term,
     st.match_type,
     sum(st.cost_ars)::numeric,
-    sum(st.clicks)
+    sum(st.clicks)::numeric
   from public.fact_search_term_daily st
   join public.dim_ad_group ag on ag.id = st.ad_group_id
   join public.dim_campaign c on c.id = ag.campaign_id
