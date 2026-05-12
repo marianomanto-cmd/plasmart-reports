@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 /**
@@ -35,4 +36,22 @@ export async function createClient() {
       },
     },
   );
+}
+
+/**
+ * Cliente Supabase con service role key. Bypasea RLS — usar solo en
+ * contextos sin usuario autenticado (jobs cron, edge functions internas).
+ * NUNCA exponer al cliente.
+ */
+export function createServiceRoleClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serviceRoleKey) {
+    throw new Error(
+      "createServiceRoleClient: faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY",
+    );
+  }
+  return createSupabaseClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }

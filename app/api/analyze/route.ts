@@ -25,6 +25,7 @@ import type { DashboardFilters } from "@/lib/types";
 
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const MAX_TOKENS = Number(process.env.ANTHROPIC_MAX_TOKENS ?? 1024);
+const COOLDOWN_MINUTES = 60;
 
 interface AnalyzeRequestBody {
   filters: Record<string, string | string[] | undefined>;
@@ -36,6 +37,11 @@ interface AnalyzeResponseBody {
   fromCache: boolean;
   generatedAt: string;
   modelUsed: string;
+}
+
+interface CooldownResponseBody {
+  error: string;
+  cooldownMinutesRemaining: number;
 }
 
 export async function POST(request: Request) {
@@ -111,6 +117,33 @@ export async function POST(request: Request) {
         modelUsed: hit.model_used,
       } satisfies AnalyzeResponseBody);
     }
+  }
+
+  // ---- 4.5. Cooldown ----
+  // No hubo cache hit → vamos a llamar a Claude. Antes verificamos que el
+  // usuario no haya hecho otra generación de Resumen en los últimos 60 min.
+  // Las llamadas que resolvieron por cache NO cuentan (ai_analysis_log solo
+  // registra llamadas reales al modelo).
+  const { data: lastCallData, error: lastCallErr } = await supabase.rpc(
+    "dashboard_last_ai_call",
+    {
+      p_user_email: user.email,
+      p_analyzer: "analyze",
+      p_within_minutes: COOLDOWN_MINUTES,
+    },
+  );
+  if (lastCallErr) {
+    console.warn("Cooldown lookup falló:", lastCallErr.message);
+  } else if (lastCallData && lastCallData.length > 0) {
+    const minutesAgo = Number(lastCallData[0].minutes_ago);
+    const remaining = Math.max(1, Math.ceil(COOLDOWN_MINUTES - minutesAgo));
+    return NextResponse.json(
+      {
+        error: `Cooldown activo. Próximo análisis disponible en ${remaining} ${remaining === 1 ? "minuto" : "minutos"}.`,
+        cooldownMinutesRemaining: remaining,
+      } satisfies CooldownResponseBody,
+      { status: 429 },
+    );
   }
 
   // ---- 5. Generar análisis nuevo ----
