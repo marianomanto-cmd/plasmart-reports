@@ -117,6 +117,25 @@ El desarrollo está organizado en 7 fases. Resumen:
 **Regla:** no avanzar de fase si los criterios de aceptación de la actual
 no están cumplidos.
 
+## Features pospuestas
+
+Cosas que ya se intentaron o se evaluaron y quedan para una fase posterior.
+No retomarlas hasta que el dashboard esté estable y el equipo lo pida.
+
+- **Reporte semanal por mail (Resend + pg_cron).** Se prototipó en PR #8
+  (mergeada y revertida en PR #9): endpoint `/api/cron/weekly-report` con
+  auth por shared secret, HTML con KPIs + análisis de Claude + dos
+  charts SVG inline, disparado por `pg_cron` los lunes 18:30 ART. Se
+  abandonó por dos razones:
+  1. El setup operativo (verificar dominio en Resend, configurar 4 envs
+     en Vercel, crear 2 secrets en Supabase Vault, aplicar la migration
+     del cron) tiene fricción alta para algo que el equipo todavía no
+     pidió.
+  2. Mientras el dashboard se itera todas las semanas, un mail con
+     análisis viejo en la bandeja de entrada genera ruido más que valor.
+  Para retomar: revisar el branch `claude/add-tremor-ui-1Eeb7` antes
+  del revert (commit `0b7d224`) — el código andaba.
+
 ## Cómo trabajamos
 
 - Las decisiones de arquitectura, diseño y dudas conceptuales se discuten
