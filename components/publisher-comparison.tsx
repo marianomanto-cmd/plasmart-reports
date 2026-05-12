@@ -201,7 +201,7 @@ function ShareCell({
   }
   return (
     <div className="flex items-center justify-end gap-3">
-      <div className="relative h-2 w-24 bg-[#f0f0ea]">
+      <div className="relative h-2 w-24 bg-slate-100">
         <div
           className={`absolute inset-y-0 left-0 ${colorClass}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
