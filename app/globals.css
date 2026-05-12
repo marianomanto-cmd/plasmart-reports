@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
 /* ============================================================
+   Dark mode: class-based (no auto por OS preference)
+   ------------------------------------------------------------
+   Tailwind v4 por default activa variantes `dark:` con
+   `prefers-color-scheme: dark`. Plasmart NO tiene dark mode
+   (la identidad es de alto contraste sobre fondo claro), pero
+   los componentes copy-paste de Tremor Raw vienen con variantes
+   `dark:` embebidas. Forzamos selector class-based para que
+   esas variantes queden inertes mientras no haya `.dark` en
+   `<html>` — que nunca agregamos.
+   ============================================================ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
    Plasmart Reports — Tokens de diseño
    Paleta industrial-elegante basada en plasmartcba.com
    ============================================================ */
