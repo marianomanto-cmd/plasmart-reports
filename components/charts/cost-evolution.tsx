@@ -1,6 +1,8 @@
 // Gráfico de evolución diaria de inversión por publisher.
 // Implementado con Tremor AreaChart (Recharts, client-side).
 
+"use client";
+
 import type { DailyByPublisherPoint } from "@/lib/types";
 import { formatCurrencyArs } from "@/lib/format";
 import { AreaChart } from "@/components/tremor/area-chart";

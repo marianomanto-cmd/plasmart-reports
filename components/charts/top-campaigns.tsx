@@ -1,6 +1,8 @@
 // Top 10 campañas por inversión en el período.
 // Implementado con Tremor BarChart horizontal (Recharts, client-side).
 
+"use client";
+
 import type { CampaignRow } from "@/lib/types";
 import { formatCurrencyArs } from "@/lib/format";
 import { BarChart } from "@/components/tremor/bar-chart";
