@@ -1,19 +1,25 @@
 // Builder del prompt para el análisis automático de Claude.
 // Separamos system prompt (constante, define rol) de user content
 // (variable, contiene los datos del período).
+//
+// El system prompt ahora se arma dinámicamente desde la fila
+// analysis_context (editable por el usuario en el modal). El bloque
+// "CONTEXTO DE LA CUENTA" puede crecer o achicarse según qué secciones
+// estén pobladas en la DB.
 
 import type {
+  AnalysisContext,
   CampaignRow,
   DashboardFilters,
   DashboardKpis,
   Ga4Kpis,
   Ga4SourceMediumRow,
 } from "@/lib/types";
-import { ACCOUNT_CONTEXT } from "./account-context";
+import { renderAccountContext } from "./account-context";
 
 // ---- System prompt (rol + restricciones + formato) -----------------
 
-export const SYSTEM_PROMPT = `
+const BASE_INSTRUCTIONS = `
 Sos un analista senior de marketing digital especializado en e-commerce
 industrial. Tu cliente es Plasmart, descripto en el contexto que sigue.
 
@@ -28,6 +34,8 @@ REGLAS DURAS:
 - NUNCA inventés datos. Si los datos son insuficientes para una
   recomendación, decilo explícitamente.
 - Priorizá por impacto comercial estimado, no por orden alfabético.
+- Respetá el OBJETIVO DEL PERÍODO y la DECISIÓN POR TOMAR del contexto:
+  ordená las recomendaciones de modo que sirvan a esa decisión.
 
 FORMATO DE RESPUESTA (markdown):
 Devolvé entre 3 y 5 recomendaciones. Cada una con esta estructura exacta:
@@ -38,10 +46,20 @@ Devolvé entre 3 y 5 recomendaciones. Cada una con esta estructura exacta:
 
 Sin preámbulos. Sin conclusiones. Solo las recomendaciones, una debajo
 de la otra, separadas por una línea en blanco.
-
-CONTEXTO DE LA CUENTA:
-${ACCOUNT_CONTEXT}
 `.trim();
+
+/**
+ * Arma el system prompt completo combinando instrucciones base + el
+ * contexto editable de la cuenta. focusOverride sobreescribe ctx.focus
+ * sin tocar la fila persistida (input inline del dashboard).
+ */
+export function buildSystemPrompt(
+  ctx: AnalysisContext,
+  focusOverride?: string,
+): string {
+  const accountBlock = renderAccountContext(ctx, focusOverride);
+  return `${BASE_INSTRUCTIONS}\n\nCONTEXTO DE LA CUENTA:\n${accountBlock}`;
+}
 
 // ---- User content (datos del período) ------------------------------
 

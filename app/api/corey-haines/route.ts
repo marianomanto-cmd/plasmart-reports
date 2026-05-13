@@ -25,6 +25,7 @@ import {
   buildCoreySystemPrompt,
   buildCoreyUserContent,
 } from "@/lib/ai/corey-prompt";
+import { contextCacheKey, loadAnalysisContext } from "@/lib/ai/account-context";
 import { rangeDays } from "@/lib/dates";
 import type { DashboardFilters } from "@/lib/types";
 
@@ -36,6 +37,9 @@ const COOLDOWN_MINUTES = 60;
 interface AnalyzeRequestBody {
   filters: Record<string, string | string[] | undefined>;
   forceRegenerate?: boolean;
+  // Override del campo "focus" del contexto editable, solo para esta
+  // corrida. Si está vacío o ausente, se usa el focus persistido.
+  focusOverride?: string;
 }
 
 interface AnalyzeResponseBody {
@@ -71,6 +75,13 @@ export async function POST(request: Request) {
 
   const filters: DashboardFilters = parseFilters(body.filters ?? {});
   const forceRegenerate = body.forceRegenerate === true;
+  const focusOverride =
+    typeof body.focusOverride === "string" && body.focusOverride.trim().length > 0
+      ? body.focusOverride.trim()
+      : undefined;
+
+  const analysisContext = await loadAnalysisContext(supabase);
+  const ctxKey = contextCacheKey(analysisContext, focusOverride);
 
   // ---- 3. Fecha máxima de datos (clave de cache) ----
   const { data: maxDateData, error: maxDateErr } = await supabase.rpc(
@@ -98,7 +109,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const filtersHash = hashFilters(filters, NAMESPACE);
+  const filtersHash = hashFilters(filters, NAMESPACE, ctxKey);
 
   // ---- 4. Lookup en cache ----
   if (!forceRegenerate) {
@@ -179,7 +190,10 @@ export async function POST(request: Request) {
       : "sin comparación";
 
   // ---- 6. Build prompts ----
-  const systemPrompt = await buildCoreySystemPrompt();
+  const systemPrompt = await buildCoreySystemPrompt(
+    analysisContext,
+    focusOverride,
+  );
   const userContent = buildCoreyUserContent({
     filters,
     kpis,
