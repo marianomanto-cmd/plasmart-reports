@@ -19,7 +19,8 @@ import {
   fetchKpis,
 } from "@/lib/queries";
 import { hashFilters } from "@/lib/ai/hash";
-import { SYSTEM_PROMPT, buildUserContent } from "@/lib/ai/prompt";
+import { buildSystemPrompt, buildUserContent } from "@/lib/ai/prompt";
+import { contextCacheKey, loadAnalysisContext } from "@/lib/ai/account-context";
 import { rangeDays } from "@/lib/dates";
 import type { DashboardFilters } from "@/lib/types";
 
@@ -30,6 +31,9 @@ const COOLDOWN_MINUTES = 60;
 interface AnalyzeRequestBody {
   filters: Record<string, string | string[] | undefined>;
   forceRegenerate?: boolean;
+  // Override del campo "focus" del contexto editable, solo para esta
+  // corrida. Si está vacío o ausente, se usa el focus persistido.
+  focusOverride?: string;
 }
 
 interface AnalyzeResponseBody {
@@ -67,6 +71,16 @@ export async function POST(request: Request) {
 
   const filters: DashboardFilters = parseFilters(body.filters ?? {});
   const forceRegenerate = body.forceRegenerate === true;
+  const focusOverride =
+    typeof body.focusOverride === "string" && body.focusOverride.trim().length > 0
+      ? body.focusOverride.trim()
+      : undefined;
+
+  // El contexto editable se carga acá: necesitamos updated_at + el
+  // focusOverride para construir la clave de cache, y el objeto entero
+  // para armar el system prompt si toca generar uno nuevo.
+  const analysisContext = await loadAnalysisContext(supabase);
+  const ctxKey = contextCacheKey(analysisContext, focusOverride);
 
   // ---- 3. Determinar la fecha máxima de datos ----
   // Es parte de la clave de cache: si los datos del período se actualizan
@@ -96,7 +110,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const filtersHash = hashFilters(filters);
+  const filtersHash = hashFilters(filters, "default", ctxKey);
 
   // ---- 4. Lookup en cache ----
   if (!forceRegenerate) {
@@ -203,7 +217,7 @@ export async function POST(request: Request) {
     claudeResponse = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(analysisContext, focusOverride),
       messages: [{ role: "user", content: userContent }],
     });
   } catch (err) {

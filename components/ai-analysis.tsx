@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { DashboardFilters } from "@/lib/types";
 import { Button } from "@/components/tremor/button";
+import { AnalysisContextModal } from "@/components/analysis-context-modal";
 
 interface Props {
   filters: DashboardFilters;
@@ -27,6 +28,10 @@ type State =
 
 export function AiAnalysis({ filters }: Props) {
   const [state, setState] = useState<State>({ kind: "idle" });
+  // Foco del análisis: input inline editable antes de generar.
+  // Si está vacío, se usa el focus persistido en analysis_context.
+  const [focus, setFocus] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const run = async (forceRegenerate: boolean) => {
     setState({ kind: "loading" });
@@ -38,6 +43,7 @@ export function AiAnalysis({ filters }: Props) {
         body: JSON.stringify({
           filters: filtersToParams(filters),
           forceRegenerate,
+          focusOverride: focus.trim() || undefined,
         }),
       });
 
@@ -66,7 +72,12 @@ export function AiAnalysis({ filters }: Props) {
 
       <div className="px-6 py-6">
         {state.kind === "idle" && (
-          <Idle onRun={() => run(false)} />
+          <Idle
+            focus={focus}
+            onFocusChange={setFocus}
+            onRun={() => run(false)}
+            onOpenModal={() => setModalOpen(true)}
+          />
         )}
 
         {state.kind === "loading" && <LoadingSkeleton />}
@@ -86,20 +97,72 @@ export function AiAnalysis({ filters }: Props) {
           />
         )}
       </div>
+
+      <AnalysisContextModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }
 
 // ---------- Estados ----------
 
-function Idle({ onRun }: { onRun: () => void }) {
+function Idle({
+  focus,
+  onFocusChange,
+  onRun,
+  onOpenModal,
+}: {
+  focus: string;
+  onFocusChange: (v: string) => void;
+  onRun: () => void;
+  onOpenModal: () => void;
+}) {
   return (
-    <div className="flex flex-col items-start gap-4 py-2">
+    <div className="flex flex-col items-start gap-5 py-2">
       <p className="max-w-2xl text-sm leading-relaxed text-steel">
         Generá un análisis automático del período seleccionado. Claude lee
         los KPIs, las top campañas y el tráfico de GA4 visibles en este
         reporte y devuelve recomendaciones puntuales.
       </p>
+
+      <div className="w-full max-w-2xl space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <label
+            htmlFor="ai-focus-input"
+            className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary"
+          >
+            Foco de este análisis (opcional)
+          </label>
+          <button
+            type="button"
+            onClick={onOpenModal}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-light
+              transition-colors duration-150 hover:text-primary
+            "
+          >
+            Editar contexto completo
+          </button>
+        </div>
+        <textarea
+          id="ai-focus-input"
+          rows={2}
+          value={focus}
+          onChange={(e) => onFocusChange(e.target.value)}
+          placeholder="Ej.: bajar CPA en Meta sin perder volumen de leads B2B"
+          className="
+            w-full resize-y border border-border-default bg-white px-3 py-2
+            text-sm leading-relaxed text-primary
+            focus:border-primary focus:outline-none
+          "
+        />
+        <p className="text-xs text-light">
+          Si lo dejás vacío, se usa el objetivo guardado en el contexto.
+        </p>
+      </div>
+
       <Button
         type="button"
         onClick={onRun}

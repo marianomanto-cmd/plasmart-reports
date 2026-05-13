@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { DashboardFilters } from "@/lib/types";
 import { Button } from "@/components/tremor/button";
+import { AnalysisContextModal } from "@/components/analysis-context-modal";
 
 interface Props {
   filters: DashboardFilters;
@@ -37,6 +38,8 @@ const ACTIVE_SKILLS = [
 
 export function CoreyHainesAnalysis({ filters }: Props) {
   const [state, setState] = useState<State>({ kind: "idle" });
+  const [focus, setFocus] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const run = async (forceRegenerate: boolean) => {
     setState({ kind: "loading" });
@@ -47,6 +50,7 @@ export function CoreyHainesAnalysis({ filters }: Props) {
         body: JSON.stringify({
           filters: filtersToParams(filters),
           forceRegenerate,
+          focusOverride: focus.trim() || undefined,
         }),
       });
 
@@ -79,7 +83,14 @@ export function CoreyHainesAnalysis({ filters }: Props) {
       </div>
 
       <div className="px-6 py-6">
-        {state.kind === "idle" && <Idle onRun={() => run(false)} />}
+        {state.kind === "idle" && (
+          <Idle
+            focus={focus}
+            onFocusChange={setFocus}
+            onRun={() => run(false)}
+            onOpenModal={() => setModalOpen(true)}
+          />
+        )}
         {state.kind === "loading" && <LoadingSkeleton />}
         {state.kind === "error" && (
           <ErrorState message={state.message} onRetry={() => run(false)} />
@@ -92,13 +103,28 @@ export function CoreyHainesAnalysis({ filters }: Props) {
           />
         )}
       </div>
+
+      <AnalysisContextModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }
 
 // ---------- Estados ----------
 
-function Idle({ onRun }: { onRun: () => void }) {
+function Idle({
+  focus,
+  onFocusChange,
+  onRun,
+  onOpenModal,
+}: {
+  focus: string;
+  onFocusChange: (v: string) => void;
+  onRun: () => void;
+  onOpenModal: () => void;
+}) {
   return (
     <div className="flex flex-col items-start gap-5 py-2">
       <div className="max-w-2xl space-y-3">
@@ -130,6 +156,43 @@ function Idle({ onRun }: { onRun: () => void }) {
           ))}
         </div>
       </div>
+
+      <div className="w-full max-w-2xl space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <label
+            htmlFor="corey-focus-input"
+            className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary"
+          >
+            Foco de este reporte (opcional)
+          </label>
+          <button
+            type="button"
+            onClick={onOpenModal}
+            className="
+              text-[10px] font-semibold uppercase tracking-[0.18em] text-light
+              transition-colors duration-150 hover:text-primary
+            "
+          >
+            Editar contexto completo
+          </button>
+        </div>
+        <textarea
+          id="corey-focus-input"
+          rows={2}
+          value={focus}
+          onChange={(e) => onFocusChange(e.target.value)}
+          placeholder="Ej.: decidir si escalar campañas de plegado CNC o redistribuir a Search"
+          className="
+            w-full resize-y border border-border-default bg-white px-3 py-2
+            text-sm leading-relaxed text-primary
+            focus:border-primary focus:outline-none
+          "
+        />
+        <p className="text-xs text-light">
+          Si lo dejás vacío, se usa el objetivo guardado en el contexto.
+        </p>
+      </div>
+
       <Button
         type="button"
         onClick={onRun}

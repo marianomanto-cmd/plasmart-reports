@@ -9,6 +9,7 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import type {
+  AnalysisContext,
   CampaignAnomalies,
   CampaignRow,
   DashboardFilters,
@@ -17,7 +18,7 @@ import type {
   Ga4SourceMediumRow,
   PublisherComparison,
 } from "@/lib/types";
-import { ACCOUNT_CONTEXT } from "./account-context";
+import { renderAccountContext } from "./account-context";
 
 // ---- Skills aplicadas (orden importa: priorizan en el razonamiento) ----
 
@@ -72,7 +73,7 @@ function stripFrontmatter(md: string): string {
 
 // ---- System prompt ----
 
-const SYSTEM_INSTRUCTIONS = `
+const BASE_INSTRUCTIONS = `
 Sos un consejo de expertos en marketing digital aplicado a e-commerce
 industrial B2B/B2C. Cada SKILL en el bloque siguiente representa un
 framework de un especialista distinto. Aplicalos TODOS al diagnóstico
@@ -95,6 +96,8 @@ REGLAS DURAS:
 - Priorizá por impacto comercial estimado, no por orden alfabético.
 - Tené en cuenta que Plasmart factura en ARS y que el lead B2B vale
   órdenes de magnitud más que el B2C.
+- Respetá el OBJETIVO DEL PERÍODO y la DECISIÓN POR TOMAR del contexto:
+  todo el reporte debe orientarse a esa decisión.
 
 FORMATO DE RESPUESTA (markdown):
 
@@ -117,19 +120,26 @@ Entre 4 y 7 recomendaciones, cada una con esta estructura:
 **Riesgos y data faltante**
 Bullets cortos sobre qué no se puede concluir con la data disponible
 y qué tracking convendría sumar (si aplica).
-
-CONTEXTO DE LA CUENTA:
-${ACCOUNT_CONTEXT}
 `.trim();
 
 /**
- * Arma el system prompt completo: instrucciones + skills.
+ * Arma el system prompt completo: instrucciones + contexto editable +
+ * skills. focusOverride sobreescribe el campo focus del contexto
+ * persistido sin tocarlo (input inline del dashboard).
+ *
  * Devuelve el bloque listo para mandar a Anthropic con cache_control.
  */
-export async function buildCoreySystemPrompt(): Promise<string> {
+export async function buildCoreySystemPrompt(
+  ctx: AnalysisContext,
+  focusOverride?: string,
+): Promise<string> {
   const skills = await loadSkillsBlock();
+  const accountBlock = renderAccountContext(ctx, focusOverride);
   return [
-    SYSTEM_INSTRUCTIONS,
+    BASE_INSTRUCTIONS,
+    "",
+    "CONTEXTO DE LA CUENTA:",
+    accountBlock,
     "",
     "SKILLS DISPONIBLES (frameworks de Corey Haines — coreyhaines31/marketingskills, MIT):",
     "",

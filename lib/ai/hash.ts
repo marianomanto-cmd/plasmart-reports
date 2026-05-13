@@ -13,13 +13,19 @@ import type { DashboardFilters } from "@/lib/types";
  * El namespace separa caches que comparten la tabla pero responden a
  * pipelines distintos (ej: "default" vs "corey"). Sin namespace,
  * dos análisis diferentes para los mismos filtros se pisarían.
+ *
+ * contextKey representa la versión del contexto editable (updated_at)
+ * + el focusOverride inline. Si cualquiera de los dos cambia, el cache
+ * se invalida automáticamente sin requerir un manual purge.
  */
 export function hashFilters(
   filters: DashboardFilters,
   namespace = "default",
+  contextKey?: string,
 ): string {
-  // Solo incluimos `ns` si NO es "default", así los caches existentes
-  // (creados antes de existir este parámetro) siguen siendo válidos.
+  // Solo incluimos `ns` y `ctx` si están seteados, así los caches
+  // existentes (creados antes de existir estos parámetros) siguen
+  // siendo válidos cuando el contextKey no se pasa.
   const base: Record<string, unknown> = {
     from: filters.from,
     to: filters.to,
@@ -29,6 +35,7 @@ export function hashFilters(
     campaignId: filters.campaignId ?? null,
   };
   if (namespace !== "default") base.ns = namespace;
+  if (contextKey) base.ctx = contextKey;
   const canonical = JSON.stringify(base);
 
   return createHash("sha256").update(canonical).digest("hex").slice(0, 32);

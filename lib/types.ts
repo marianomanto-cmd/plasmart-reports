@@ -189,3 +189,29 @@ export interface DailyTotalsPoint {
   clicks: number;
   conversions: number;
 }
+
+// ---- Contexto editable de los análisis IA (v1.3) ----
+
+/**
+ * Espejo de la fila singleton de la tabla analysis_context.
+ * Todos los campos son strings; vacío significa "sin contenido para
+ * este bloque" y el renderer del prompt lo omite.
+ */
+export interface AnalysisContext {
+  // Bloque 1: estable (cambia rara vez)
+  company: string;
+  audience: string;
+  economics: string;
+  tracking: string;
+  // Bloque 2: foco del análisis (cambia seguido)
+  focus: string;
+  decision: string;
+  businessContext: string;
+  scope: string;
+  // Bloque 3: reglas + tono
+  rules: string;
+  outputTone: string;
+  // Versionado para invalidar cache
+  updatedAt: string;
+  updatedBy: string | null;
+}
