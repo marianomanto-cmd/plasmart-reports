@@ -13,6 +13,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { parseFilters } from "@/lib/filters";
 import {
+  fetchAdRows,
+  fetchAdsetRows,
   fetchCampaignAnomalies,
   fetchCampaignRows,
   fetchGa4Kpis,
@@ -27,7 +29,9 @@ import {
 } from "@/lib/ai/corey-prompt";
 import { contextCacheKey, loadAnalysisContext } from "@/lib/ai/account-context";
 import { rangeDays } from "@/lib/dates";
-import type { DashboardFilters } from "@/lib/types";
+import type { AnalysisGranularity, DashboardFilters } from "@/lib/types";
+
+const VALID_GRANULARITIES: AnalysisGranularity[] = ["campaign", "adset", "ad"];
 
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const MAX_TOKENS = Number(process.env.ANTHROPIC_COREY_MAX_TOKENS ?? 3500);
@@ -40,6 +44,11 @@ interface AnalyzeRequestBody {
   // Override del campo "focus" del contexto editable, solo para esta
   // corrida. Si está vacío o ausente, se usa el focus persistido.
   focusOverride?: string;
+  // Granularidad del análisis (v1.4). Default: "campaign". Si llega
+  // "adset" o "ad", se traen filas extra (solo si hay data ingestada)
+  // y se inyectan en el prompt. Se incluye en el filtersHash para que
+  // la cache no devuelva un análisis a otro nivel.
+  granularity?: AnalysisGranularity;
 }
 
 interface AnalyzeResponseBody {
@@ -79,6 +88,18 @@ export async function POST(request: Request) {
     typeof body.focusOverride === "string" && body.focusOverride.trim().length > 0
       ? body.focusOverride.trim()
       : undefined;
+  const granularity: AnalysisGranularity =
+    body.granularity && VALID_GRANULARITIES.includes(body.granularity)
+      ? body.granularity
+      : "campaign";
+
+  // Adset/ad solo aplica para Google Ads. Si el publisher no es "gads"
+  // (o no hay publisher → "Todos"), forzamos campaign para evitar payloads
+  // que combinen Meta sin granularidad disponible.
+  const effectiveGranularity: AnalysisGranularity =
+    granularity !== "campaign" && filters.publisher !== "gads"
+      ? "campaign"
+      : granularity;
 
   const analysisContext = await loadAnalysisContext(supabase);
   const ctxKey = contextCacheKey(analysisContext, focusOverride);
@@ -109,7 +130,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const filtersHash = hashFilters(filters, NAMESPACE, ctxKey);
+  // La granularidad entra en el ctxKey: dos análisis con misma data
+  // pero distinto nivel deben cachearse por separado.
+  const filtersHash = hashFilters(
+    filters,
+    NAMESPACE,
+    `${ctxKey}::g=${effectiveGranularity}`,
+  );
 
   // ---- 4. Lookup en cache ----
   if (!forceRegenerate) {
@@ -164,6 +191,8 @@ export async function POST(request: Request) {
   let ga4Top;
   let comparison;
   let anomaliesMap;
+  let adsets: Awaited<ReturnType<typeof fetchAdsetRows>> | undefined;
+  let ads: Awaited<ReturnType<typeof fetchAdRows>> | undefined;
   try {
     [kpis, topCampaigns, ga4Kpis, ga4Top, comparison, anomaliesMap] =
       await Promise.all([
@@ -174,6 +203,13 @@ export async function POST(request: Request) {
         fetchPublisherComparison(filters),
         fetchCampaignAnomalies(filters),
       ]);
+
+    // Drill-down opcional según granularidad solicitada.
+    if (effectiveGranularity === "adset") {
+      adsets = await fetchAdsetRows(filters, 30);
+    } else if (effectiveGranularity === "ad") {
+      ads = await fetchAdRows(filters, 30);
+    }
   } catch (err) {
     return NextResponse.json(
       { error: `Error obteniendo datos: ${(err as Error).message}` },
@@ -203,6 +239,9 @@ export async function POST(request: Request) {
     comparison,
     anomalies: Array.from(anomaliesMap.values()),
     comparePeriodLabel,
+    granularity: effectiveGranularity,
+    adsets,
+    ads,
   });
 
   // ---- 7. Claude ----
@@ -279,7 +318,7 @@ export async function POST(request: Request) {
     campaign_type: filters.type ?? null,
     campaign_id: filters.campaignId ?? null,
     data_max_date: maxDate,
-    model_used: `${MODEL} (corey)`,
+    model_used: `${MODEL} (corey · ${effectiveGranularity})`,
     prompt_tokens: promptTokens,
     completion_tokens: completionTokens,
     duration_ms: durationMs,

@@ -1,7 +1,12 @@
 // Tipos compartidos entre el handler y los normalizers de la Edge Function
 // ingest-reports. El código va en inglés; los comentarios, en castellano.
 
-export type Source = "gads" | "meta" | "ga4";
+export type Source =
+  | "gads"
+  | "gads_adsets"
+  | "gads_ads"
+  | "meta"
+  | "ga4";
 
 // Resumen de lo que pasó al ingerir una fuente. Lo devolvemos en el body.
 export interface IngestResult {
@@ -49,6 +54,78 @@ export interface DimCampaignRow {
 export interface CampaignFactRow {
   date: string; // YYYY-MM-DD
   campaign_id: string; // uuid resuelto desde dim_campaign
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  cost_ars: number;
+  revenue_ars: number;
+  raw_payload: Record<string, unknown>;
+}
+
+// ---- Adsets (Google Ads) ----
+
+// Fila de dim_adset. El campaign_id se resuelve después del upsert, igual
+// que campaign_id en CampaignFactRow.
+export interface DimAdsetRow {
+  campaign_external_id: string; // FK lógica vía dim_campaign.external_id
+  external_id: string;
+  name: string;
+  status: CampaignStatus;
+  status_raw: string | null;
+}
+
+// Fact a nivel ad group con external_ids; el handler resuelve a uuid.
+export interface AdsetFactWithExternal {
+  campaign_external_id: string;
+  adset_external_id: string;
+  date: string;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  cost_ars: number;
+  revenue_ars: number;
+  raw_payload: Record<string, unknown>;
+}
+
+// Fila de fact_adset_daily lista para upsert (adset_id ya resuelto).
+export interface AdsetFactRow {
+  date: string;
+  adset_id: string;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  cost_ars: number;
+  revenue_ars: number;
+  raw_payload: Record<string, unknown>;
+}
+
+// ---- Ads (Google Ads) ----
+
+export interface DimAdRow {
+  campaign_external_id: string;
+  adset_external_id: string;
+  external_id: string;
+  name: string;
+  status: CampaignStatus;
+  status_raw: string | null;
+}
+
+export interface AdFactWithExternal {
+  campaign_external_id: string;
+  adset_external_id: string;
+  ad_external_id: string;
+  date: string;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  cost_ars: number;
+  revenue_ars: number;
+  raw_payload: Record<string, unknown>;
+}
+
+export interface AdFactRow {
+  date: string;
+  ad_id: string;
   impressions: number;
   clicks: number;
   conversions: number;

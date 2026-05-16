@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { DashboardFilters } from "@/lib/types";
+import { RiSparkling2Line } from "@remixicon/react";
+import type { AnalysisGranularity, DashboardFilters } from "@/lib/types";
 import { Button } from "@/components/tremor/button";
 import { AnalysisContextModal } from "@/components/analysis-context-modal";
 
@@ -39,7 +40,16 @@ const ACTIVE_SKILLS = [
 export function CoreyHainesAnalysis({ filters }: Props) {
   const [state, setState] = useState<State>({ kind: "idle" });
   const [focus, setFocus] = useState("");
+  const [granularity, setGranularity] =
+    useState<AnalysisGranularity>("campaign");
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Adset/ad solo aplica para Google Ads. Si el usuario filtró por Meta o
+  // por "Todos", caemos automáticamente a campaign (el server hace lo mismo,
+  // pero lo replicamos acá para que la UI sea honesta).
+  const granularityAvailable = filters.publisher === "gads";
+  const effectiveGranularity: AnalysisGranularity =
+    granularityAvailable ? granularity : "campaign";
 
   const run = async (forceRegenerate: boolean) => {
     setState({ kind: "loading" });
@@ -51,6 +61,7 @@ export function CoreyHainesAnalysis({ filters }: Props) {
           filters: filtersToParams(filters),
           forceRegenerate,
           focusOverride: focus.trim() || undefined,
+          granularity: effectiveGranularity,
         }),
       });
 
@@ -69,10 +80,11 @@ export function CoreyHainesAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-primary bg-white">
-      <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
+    <div className="border-t-4 border-accent bg-white">
+      <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
         <div>
-          <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+          <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <RiSparkling2Line className="size-4 text-accent" aria-hidden="true" />
             Reporte Corey Haines
           </h3>
           <p className="mt-0.5 text-[11px] text-light">
@@ -82,11 +94,15 @@ export function CoreyHainesAnalysis({ filters }: Props) {
         <Status state={state} />
       </div>
 
-      <div className="px-6 py-6">
+      <div className="px-4 py-6 sm:px-6">
         {state.kind === "idle" && (
           <Idle
             focus={focus}
             onFocusChange={setFocus}
+            granularity={granularity}
+            onGranularityChange={setGranularity}
+            granularityAvailable={granularityAvailable}
+            currentPublisher={filters.publisher ?? null}
             onRun={() => run(false)}
             onOpenModal={() => setModalOpen(true)}
           />
@@ -117,11 +133,19 @@ export function CoreyHainesAnalysis({ filters }: Props) {
 function Idle({
   focus,
   onFocusChange,
+  granularity,
+  onGranularityChange,
+  granularityAvailable,
+  currentPublisher,
   onRun,
   onOpenModal,
 }: {
   focus: string;
   onFocusChange: (v: string) => void;
+  granularity: AnalysisGranularity;
+  onGranularityChange: (g: AnalysisGranularity) => void;
+  granularityAvailable: boolean;
+  currentPublisher: string | null;
   onRun: () => void;
   onOpenModal: () => void;
 }) {
@@ -157,6 +181,14 @@ function Idle({
         </div>
       </div>
 
+      {/* Selector de granularidad — sólo para Google Ads */}
+      <GranularityPicker
+        value={granularity}
+        onChange={onGranularityChange}
+        available={granularityAvailable}
+        currentPublisher={currentPublisher}
+      />
+
       <div className="w-full max-w-2xl space-y-2">
         <div className="flex items-baseline justify-between gap-3">
           <label
@@ -185,7 +217,7 @@ function Idle({
           className="
             w-full resize-y border border-border-default bg-white px-3 py-2
             text-sm leading-relaxed text-primary
-            focus:border-primary focus:outline-none
+            focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20
           "
         />
         <p className="text-xs text-light">
@@ -204,23 +236,103 @@ function Idle({
   );
 }
 
+function GranularityPicker({
+  value,
+  onChange,
+  available,
+  currentPublisher,
+}: {
+  value: AnalysisGranularity;
+  onChange: (g: AnalysisGranularity) => void;
+  available: boolean;
+  currentPublisher: string | null;
+}) {
+  const options: Array<{
+    g: AnalysisGranularity;
+    label: string;
+    sub: string;
+  }> = [
+    { g: "campaign", label: "Campaña", sub: "Vista por campañas" },
+    { g: "adset", label: "Ad group", sub: "Solo Google Ads" },
+    { g: "ad", label: "Ad", sub: "Solo Google Ads" },
+  ];
+
+  return (
+    <div className="w-full max-w-2xl space-y-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+        Granularidad del análisis
+      </p>
+      <div
+        role="radiogroup"
+        aria-label="Granularidad del análisis"
+        className="flex flex-wrap gap-2"
+      >
+        {options.map((o) => {
+          const disabled = !available && o.g !== "campaign";
+          const isSelected = value === o.g;
+          return (
+            <button
+              key={o.g}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              disabled={disabled}
+              onClick={() => onChange(o.g)}
+              className={`
+                flex flex-col items-start gap-0.5 border px-3 py-2 text-left
+                transition-colors duration-150
+                ${
+                  isSelected && !disabled
+                    ? "border-accent bg-accent-soft text-primary"
+                    : disabled
+                    ? "cursor-not-allowed border-border-default bg-cream text-light"
+                    : "border-border-default bg-white text-primary hover:border-accent"
+                }
+              `}
+            >
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">
+                {o.label}
+              </span>
+              <span className="text-[10px] text-light">{o.sub}</span>
+            </button>
+          );
+        })}
+      </div>
+      {!available && value !== "campaign" && (
+        <p className="text-xs text-warning">
+          Ad group / Ad están disponibles solo cuando el filtro Publisher
+          es Google Ads. Con{" "}
+          {currentPublisher === "meta" ? "Meta" : "Todos"} el reporte se
+          genera a nivel campaña.
+        </p>
+      )}
+      {available && value !== "campaign" && (
+        <p className="text-xs text-light">
+          Si todavía no se ingestó data de {value === "adset" ? "ad groups" : "ads"},
+          el reporte marca explícitamente la falta y cae a nivel campaña.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function LoadingSkeleton() {
   return (
     <div className="space-y-5 py-2">
       <div className="space-y-2">
-        <div className="h-4 w-2/5 animate-pulse bg-slate-100" />
-        <div className="h-3 w-full animate-pulse bg-slate-50" />
-        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
+        <div className="h-4 w-2/5 animate-pulse bg-border-default" />
+        <div className="h-3 w-full animate-pulse bg-border-soft" />
+        <div className="h-3 w-11/12 animate-pulse bg-border-soft" />
       </div>
       <div className="space-y-2 pt-2">
-        <div className="h-4 w-1/3 animate-pulse bg-slate-100" />
-        <div className="h-3 w-full animate-pulse bg-slate-50" />
-        <div className="h-3 w-10/12 animate-pulse bg-slate-50" />
-        <div className="h-3 w-9/12 animate-pulse bg-slate-50" />
+        <div className="h-4 w-1/3 animate-pulse bg-border-default" />
+        <div className="h-3 w-full animate-pulse bg-border-soft" />
+        <div className="h-3 w-10/12 animate-pulse bg-border-soft" />
+        <div className="h-3 w-9/12 animate-pulse bg-border-soft" />
       </div>
       <div className="space-y-2 pt-2">
-        <div className="h-3 w-full animate-pulse bg-slate-50" />
-        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
+        <div className="h-3 w-full animate-pulse bg-border-soft" />
+        <div className="h-3 w-11/12 animate-pulse bg-border-soft" />
       </div>
       <p className="pt-2 text-[11px] uppercase tracking-[0.18em] text-light">
         Aplicando frameworks · esto puede tardar 30-60 segundos…

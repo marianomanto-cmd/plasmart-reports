@@ -9,7 +9,10 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import type {
+  AdRow,
+  AdsetRow,
   AnalysisContext,
+  AnalysisGranularity,
   CampaignAnomalies,
   CampaignRow,
   DashboardFilters,
@@ -158,6 +161,12 @@ interface BuildCoreyUserContentArgs {
   comparison: PublisherComparison;
   anomalies: CampaignAnomalies[];
   comparePeriodLabel: string;
+  // Granularidad de análisis (v1.4). Si es "adset" o "ad", se incluye
+  // el bloque correspondiente con datos extra; las campañas siempre
+  // se mandan como contexto.
+  granularity: AnalysisGranularity;
+  adsets?: AdsetRow[];
+  ads?: AdRow[];
 }
 
 export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
@@ -170,6 +179,9 @@ export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
     comparison,
     anomalies,
     comparePeriodLabel,
+    granularity,
+    adsets,
+    ads,
   } = args;
 
   const topSlim = topCampaigns.slice(0, 15).map((c) => ({
@@ -232,9 +244,48 @@ export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
       : null,
   };
 
+  const adsetSlim = (adsets ?? []).slice(0, 30).map((a) => ({
+    adset: a.adsetName,
+    campaign: a.campaignName,
+    publisher: a.publisher,
+    cost_ars: round(a.cost),
+    impressions: a.impressions,
+    clicks: a.clicks,
+    conversions: round2(a.conversions),
+    ctr_pct: round2(a.ctr * 100),
+    cpc_ars: round(a.cpc),
+    cpa_ars: a.conversions > 0 ? round(a.cpa) : null,
+  }));
+
+  const adSlim = (ads ?? []).slice(0, 30).map((a) => ({
+    ad: a.adName,
+    adset: a.adsetName,
+    campaign: a.campaignName,
+    publisher: a.publisher,
+    cost_ars: round(a.cost),
+    impressions: a.impressions,
+    clicks: a.clicks,
+    conversions: round2(a.conversions),
+    ctr_pct: round2(a.ctr * 100),
+    cpc_ars: round(a.cpc),
+    cpa_ars: a.conversions > 0 ? round(a.cpa) : null,
+  }));
+
+  // Bloque "drill_down": presente solo si la granularidad lo amerita y
+  // hay filas reales. Si la granularidad es adset/ad pero el array vino
+  // vacío, igual lo mandamos con una nota — Claude debe poder reportar
+  // "no hay data de este nivel para el período".
+  const drillDown =
+    granularity === "campaign"
+      ? null
+      : granularity === "adset"
+      ? { level: "adset", rows: adsetSlim, has_data: adsetSlim.length > 0 }
+      : { level: "ad", rows: adSlim, has_data: adSlim.length > 0 };
+
   const payload = {
     period: { from: filters.from, to: filters.to },
     compare_against: comparePeriodLabel,
+    analysis_granularity: granularity,
     active_filters: {
       publisher: filters.publisher ?? null,
       campaign_type: filters.type ?? null,
@@ -257,6 +308,7 @@ export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
       top_campaigns_by_cost: topSlim,
       anomalies: anomaliesSlim,
     },
+    drill_down: drillDown,
     web_traffic_ga4: {
       totals: {
         sessions: ga4Kpis.sessions.current,
@@ -274,12 +326,21 @@ export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
     },
   };
 
+  const granularityNote =
+    granularity === "campaign"
+      ? "Analizá a nivel campaña."
+      : granularity === "adset"
+      ? "Analizá a nivel ad group (Google Ads). Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de adsets ingestada para el período y limitate al nivel campaña."
+      : "Analizá a nivel ad individual (Google Ads). Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de ads ingestada para el período y limitate al nivel campaña.";
+
   return [
     "Datos del período a analizar (en JSON):",
     "",
     "```json",
     JSON.stringify(payload, null, 2),
     "```",
+    "",
+    granularityNote,
     "",
     "Aplicá los frameworks de las skills que correspondan y devolvé el reporte siguiendo el formato indicado.",
   ].join("\n");

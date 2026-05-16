@@ -4,6 +4,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { comparisonRange } from "@/lib/dates";
 import type {
+  AdRow,
+  AdsetRow,
   AvailableFilters,
   CampaignAnomalies,
   CampaignRow,
@@ -172,6 +174,103 @@ export async function fetchCampaignRows(
   return (data ?? []).map((r: CampaignRpcRow) => ({
     campaignId: r.campaign_id,
     name: r.name,
+    publisher: r.publisher as Publisher,
+    type: r.type,
+    cost: Number(r.cost ?? 0),
+    impressions: Number(r.impressions ?? 0),
+    clicks: Number(r.clicks ?? 0),
+    conversions: Number(r.conversions ?? 0),
+    ctr: Number(r.ctr ?? 0),
+    cpc: Number(r.cpc ?? 0),
+    cpa: Number(r.cpa ?? 0),
+  }));
+}
+
+// ---------- Adsets y Ads (v1.4, solo Google Ads) ----------
+
+interface AdsetRpcRow {
+  adset_id: string;
+  adset_name: string;
+  campaign_id: string;
+  campaign_name: string;
+  publisher: string;
+  type: string;
+  cost: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+  ctr: number | string;
+  cpc: number | string;
+  cpa: number | string;
+}
+
+/**
+ * Filas agregadas a nivel ad group para el rango + filtros. Devuelve
+ * array vacío si no hay datos de adsets ingestados aún.
+ */
+export async function fetchAdsetRows(
+  filters: DashboardFilters,
+  limit?: number,
+): Promise<AdsetRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("dashboard_adset_rows", {
+    p_from: filters.from,
+    p_to: filters.to,
+    p_publisher: filters.publisher ?? null,
+    p_type: filters.type ?? null,
+    p_campaign_id: filters.campaignId ?? null,
+    p_limit: limit ?? null,
+  });
+  if (error) throw new Error(`dashboard_adset_rows: ${error.message}`);
+
+  return (data ?? []).map((r: AdsetRpcRow) => ({
+    adsetId: r.adset_id,
+    adsetName: r.adset_name,
+    campaignId: r.campaign_id,
+    campaignName: r.campaign_name,
+    publisher: r.publisher as Publisher,
+    type: r.type,
+    cost: Number(r.cost ?? 0),
+    impressions: Number(r.impressions ?? 0),
+    clicks: Number(r.clicks ?? 0),
+    conversions: Number(r.conversions ?? 0),
+    ctr: Number(r.ctr ?? 0),
+    cpc: Number(r.cpc ?? 0),
+    cpa: Number(r.cpa ?? 0),
+  }));
+}
+
+interface AdRpcRow extends AdsetRpcRow {
+  ad_id: string;
+  ad_name: string;
+}
+
+/**
+ * Filas agregadas a nivel ad para el rango + filtros. Devuelve array
+ * vacío si no hay datos de ads ingestados aún.
+ */
+export async function fetchAdRows(
+  filters: DashboardFilters,
+  limit?: number,
+): Promise<AdRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("dashboard_ad_rows", {
+    p_from: filters.from,
+    p_to: filters.to,
+    p_publisher: filters.publisher ?? null,
+    p_type: filters.type ?? null,
+    p_campaign_id: filters.campaignId ?? null,
+    p_limit: limit ?? null,
+  });
+  if (error) throw new Error(`dashboard_ad_rows: ${error.message}`);
+
+  return (data ?? []).map((r: AdRpcRow) => ({
+    adId: r.ad_id,
+    adName: r.ad_name,
+    adsetId: r.adset_id,
+    adsetName: r.adset_name,
+    campaignId: r.campaign_id,
+    campaignName: r.campaign_name,
     publisher: r.publisher as Publisher,
     type: r.type,
     cost: Number(r.cost ?? 0),

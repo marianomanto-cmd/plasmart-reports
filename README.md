@@ -52,8 +52,16 @@ nunca llegan al cliente.
 | `ANTHROPIC_MODEL` | ID del modelo (ej: `claude-sonnet-4-6`) |
 | `ANTHROPIC_MAX_TOKENS` | `1024` por default |
 
+**Env vars opcionales (sólo en la Edge Function `ingest-reports`):**
+
+| Variable | Default | Propósito |
+|---|---|---|
+| `DRIVE_FOLDER_GADS_ADSETS` | unset | Folder ID de Drive con el sheet semanal de ad groups de Google Ads. Si está vacía, la ingesta de adsets se saltea. |
+| `DRIVE_FOLDER_GADS_ADS` | unset | Folder ID de Drive con el sheet semanal de ads de Google Ads. Si está vacía, la ingesta de ads se saltea. |
+
 En Vercel las mismas variables van en Settings → Environment Variables,
-aplicadas a Production y Preview (no Development).
+aplicadas a Production y Preview (no Development). Las env vars de la
+Edge Function se setean con `supabase secrets set NOMBRE=valor`.
 
 ## Comandos
 

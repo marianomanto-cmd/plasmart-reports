@@ -190,6 +190,50 @@ export interface DailyTotalsPoint {
   conversions: number;
 }
 
+// ---- Granularidad del análisis (v1.4) ----
+
+/**
+ * Nivel de agregación para el análisis de Corey Haines.
+ * - campaign: filas de campaña (default histórico)
+ * - adset:    filas de ad group (solo Google Ads)
+ * - ad:       filas de ad individual (solo Google Ads)
+ */
+export type AnalysisGranularity = "campaign" | "adset" | "ad";
+
+export interface AdsetRow {
+  adsetId: string;
+  adsetName: string;
+  campaignId: string;
+  campaignName: string;
+  publisher: Publisher;
+  type: CampaignType;
+  cost: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  ctr: number;
+  cpc: number;
+  cpa: number;
+}
+
+export interface AdRow {
+  adId: string;
+  adName: string;
+  adsetId: string;
+  adsetName: string;
+  campaignId: string;
+  campaignName: string;
+  publisher: Publisher;
+  type: CampaignType;
+  cost: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  ctr: number;
+  cpc: number;
+  cpa: number;
+}
+
 // ---- Contexto editable de los análisis IA (v1.3) ----
 
 /**

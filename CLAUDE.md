@@ -40,7 +40,11 @@ app/ # Next.js App Router (auth)/ # Rutas públicas (login) (dashboard)/ # Rutas
 Tablas principales en Postgres (esquema simplificado):
 
 - **dim_campaign** — dimensión de campañas (id, publisher, external_id, name, type, status)
+- **dim_adset** — dimensión de ad groups (id, campaign_id, external_id, name, status) — *v1.4, sólo Google Ads*
+- **dim_ad** — dimensión de ads individuales (id, adset_id, external_id, name, status) — *v1.4, sólo Google Ads*
 - **fact_campaign_daily** — hechos diarios (date, campaign_id, impressions, clicks, conversions, cost_ars, revenue_ars)
+- **fact_adset_daily** — hechos diarios por ad group (mismas métricas) — *v1.4*
+- **fact_ad_daily** — hechos diarios por ad (mismas métricas) — *v1.4*
 - **fact_ga_daily** — datos diarios de Google Analytics 4
 - **ai_analysis_cache** — cache de respuestas de Claude por hash de filtros
 - **ingestion_log** — log de cada ejecución del ingest
@@ -50,7 +54,52 @@ Vistas materializadas:
 - **mv_campaign_monthly** — agregados mensuales
 - **mv_publisher_summary** — totales por publisher
 
+RPCs adicionales (v1.4):
+- **dashboard_adset_rows** — filas agregadas por ad group
+- **dashboard_ad_rows** — filas agregadas por ad
+
 **Importante:** la moneda es siempre ARS (Plasmart factura GAds en pesos).
+
+### Granularidad de análisis (v1.4)
+
+El reporte "Corey Haines" (`/dashboard/corey-haines`) acepta tres niveles
+via selector en la UI:
+- `campaign` (default): comportamiento histórico, todos los publishers.
+- `adset`: agrega `top adsets` al payload de Claude. Solo Google Ads — si
+  el filtro publisher no es `gads`, el server fuerza `campaign`.
+- `ad`: agrega `top ads`. Mismas reglas que adset.
+
+Si las tablas `fact_adset_daily` / `fact_ad_daily` están vacías para el
+período (porque la ingesta de adsets/ads no está configurada todavía), el
+payload manda `drill_down.has_data = false` y el prompt le dice a Claude
+que aclare la falta y caiga a nivel campaña.
+
+### Ingesta de adsets y ads (Google Ads)
+
+La Edge Function `ingest-reports` procesa dos sheets opcionales además del
+sheet de campañas:
+- Adsets: env var `DRIVE_FOLDER_GADS_ADSETS` con el folder ID de Drive.
+- Ads: env var `DRIVE_FOLDER_GADS_ADS` con el folder ID de Drive.
+
+Si las env vars no están seteadas, los sources se saltean sin generar log
+de error. Esto permite activar la granularidad progresivamente sin tocar
+la ingesta core.
+
+**Formato esperado del sheet de adsets** (10 columnas, primera fila headers):
+```
+date | campaign_id | adset_id | adset_name | status | impressions
+| clicks | cost | conversions | revenue
+```
+
+**Formato esperado del sheet de ads** (11 columnas):
+```
+date | campaign_id | adset_id | ad_id | ad_name | status
+| impressions | clicks | cost | conversions | revenue
+```
+
+Los `*_id` son los external_id de Google Ads (los mismos que ya se
+ingestan a nivel campaña). El handler resuelve los uuids haciendo join
+contra `dim_campaign.external_id` y `dim_adset.external_id`.
 
 ## Lineamientos de diseño visual
 
