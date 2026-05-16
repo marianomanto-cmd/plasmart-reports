@@ -55,7 +55,7 @@ export function KpiCard({
   // Sin comparación o flat → accent neutro.
   const stripeColor =
     !showDelta || isFavorable === null
-      ? "bg-accent"
+      ? "bg-brand"
       : isFavorable
       ? "bg-success"
       : "bg-warning";

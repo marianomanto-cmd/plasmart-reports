@@ -66,8 +66,8 @@ export function GranularityPills({
                 transition-colors duration-150
                 ${
                   isSelected
-                    ? "border-accent bg-accent-soft text-primary"
-                    : "border-border-default bg-white text-steel hover:border-accent hover:text-primary"
+                    ? "border-brand bg-brand-soft text-primary"
+                    : "border-border-default bg-white text-steel hover:border-brand hover:text-primary"
                 }
               `}
               title={o.sub}

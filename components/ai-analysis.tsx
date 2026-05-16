@@ -67,10 +67,10 @@ export function AiAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-accent bg-white">
+    <div className="border-t-4 border-brand bg-white">
       <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
         <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-          <RiSparkling2Line className="size-4 text-accent" aria-hidden="true" />
+          <RiSparkling2Line className="size-4 text-brand" aria-hidden="true" />
           Análisis de Claude
         </h3>
         <Status state={state} />
@@ -195,7 +195,7 @@ function LoadingSkeleton() {
         <div className="h-3 w-10/12 animate-pulse bg-border-soft" />
       </div>
       <p className="pt-2 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-light">
-        <RiSparkling2Line className="size-3.5 animate-pulse text-accent" aria-hidden="true" />
+        <RiSparkling2Line className="size-3.5 animate-pulse text-brand" aria-hidden="true" />
         Claude está leyendo los datos…
       </p>
     </div>
@@ -251,7 +251,7 @@ function Result({
             className="
               inline-flex items-center gap-1.5
               text-[10px] font-semibold uppercase tracking-[0.18em] text-primary
-              transition-colors duration-150 hover:text-accent
+              transition-colors duration-150 hover:text-brand
             "
           >
             <RiDownloadLine className="size-3.5" aria-hidden="true" />

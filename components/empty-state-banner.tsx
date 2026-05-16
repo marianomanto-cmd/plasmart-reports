@@ -13,8 +13,8 @@ import { Card } from "@/components/tremor/card";
 export function EmptyStateBanner() {
   return (
     <Card className="px-4 py-10 text-center sm:px-8 sm:py-12">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft">
-        <RiFilter3Line className="size-5 text-accent" aria-hidden="true" />
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft">
+        <RiFilter3Line className="size-5 text-brand" aria-hidden="true" />
       </div>
       <p className="mt-4 eyebrow-xs">Sin datos</p>
       <h3 className="mt-2 text-xl font-bold tracking-tight text-primary">

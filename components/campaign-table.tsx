@@ -195,7 +195,7 @@ function MobileSortBar({
         <select
           value={sortKey}
           onChange={(e) => onChange(e.target.value as SortKey, sortDir)}
-          className="border border-border-default bg-white px-2 py-1 text-xs font-medium text-primary focus:border-accent focus:outline-none"
+          className="border border-border-default bg-white px-2 py-1 text-xs font-medium text-primary focus:border-brand focus:outline-none"
         >
           {options.map((o) => (
             <option key={o.k} value={o.k}>

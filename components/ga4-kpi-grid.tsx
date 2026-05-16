@@ -70,7 +70,7 @@ function BounceRateCard({
 
   const stripeColor =
     !showDelta || isFavorable === null
-      ? "bg-accent"
+      ? "bg-brand"
       : isFavorable
       ? "bg-success"
       : "bg-warning";

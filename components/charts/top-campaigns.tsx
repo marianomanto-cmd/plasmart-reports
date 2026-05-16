@@ -77,7 +77,7 @@ export function TopCampaignsChart({ rows }: Props) {
               <div className="mt-2 flex items-center gap-2">
                 <span
                   className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${
-                    isGads ? "text-steel" : "text-accent"
+                    isGads ? "text-steel" : "text-brand"
                   }`}
                 >
                   {isGads ? "Google Ads" : "Meta Ads"}

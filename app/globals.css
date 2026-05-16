@@ -1,74 +1,123 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ============================================================
-   Dark mode: class-based (no auto por OS preference)
-   ------------------------------------------------------------
-   Tailwind v4 por default activa variantes `dark:` con
-   `prefers-color-scheme: dark`. Plasmart NO tiene dark mode
-   (la identidad es de alto contraste sobre fondo claro), pero
-   los componentes copy-paste de Tremor Raw vienen con variantes
-   `dark:` embebidas. Forzamos selector class-based para que
-   esas variantes queden inertes mientras no haya `.dark` en
-   `<html>` — que nunca agregamos.
+   Dark mode: class-based (Plasmart NO usa dark mode).
+   Variantes dark: de Tremor/shadcn quedan inertes.
    ============================================================ */
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================
-   Plasmart Reports — Tokens de diseño
-   Paleta industrial-elegante basada en plasmartcba.com
+   Tokens — dos sistemas conviviendo:
+   1. shadcn: background/foreground/primary/secondary/muted/accent/border.
+      Lo usan los componentes en components/ui/*.
+      "accent" en shadcn = hover/highlight neutro (slate-100), NO color brand.
+   2. Plasmart legacy: text-primary, text-steel, text-light, bg-cream,
+      bg-brand, text-brand, border-default, etc.
+      Lo usan los componentes en components/* (no en ui/).
+      "brand" en Plasmart = blue-600 — usado como acento de marca.
    ============================================================ */
 
 :root {
-  /* Paleta industrial-azul (slate + blue) — armoniza con Tremor defaults */
-  --color-primary: #0f172a;       /* slate-900: texto principal, headings */
-  --color-accent: #2563eb;        /* blue-600: acento, links, foco */
-  --color-accent-soft: #dbeafe;   /* blue-100: fondo de chips y badges activos */
-  --color-steel: #475569;         /* slate-600: texto secundario */
-  --color-light: #94a3b8;         /* slate-400: labels, metadatos */
-  --color-bg-cream: #f8fafc;      /* slate-50: fondo de bloques (off-white azulado) */
-  --color-bg-white: #ffffff;      /* Blanco puro: cards principales */
-  --color-border: #e2e8f0;        /* slate-200: bordes y divisores */
-  --color-border-soft: #f1f5f9;   /* slate-100: divisores intra-card */
-  --color-success: #059669;       /* emerald-600: métricas positivas */
-  --color-warning: #d97706;       /* amber-600: métricas a revisar */
-  --color-gads: #475569;          /* slate-600: serie Google Ads */
-  --color-meta: #2563eb;          /* blue-600: serie Meta Ads */
+  /* ---- shadcn (HSL) ---- */
+  --background: hsl(210 40% 98%);
+  --foreground: hsl(222 47% 11%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222 47% 11%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222 47% 11%);
+  --primary: hsl(222 47% 11%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(210 40% 96%);
+  --secondary-foreground: hsl(222 47% 11%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(215 16% 47%);
+  --accent: hsl(210 40% 96%);                 /* shadcn convention: hover neutro */
+  --accent-foreground: hsl(222 47% 11%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(214 32% 91%);
+  --input: hsl(214 32% 91%);
+  --ring: hsl(217 91% 60%);
+  --radius: 0.5rem;
 
-  /* Tokens semánticos */
-  --background: var(--color-bg-cream);
-  --foreground: var(--color-primary);
+  /* Sidebar (shadcn) */
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(222 47% 11%);
+  --sidebar-primary: hsl(222 47% 11%);
+  --sidebar-primary-foreground: hsl(210 40% 98%);
+  --sidebar-accent: hsl(214 100% 97%);
+  --sidebar-accent-foreground: hsl(222 47% 11%);
+  --sidebar-border: hsl(214 32% 91%);
+  --sidebar-ring: hsl(217 91% 60%);
+
+  /* ---- Plasmart legacy ---- */
+  --color-plasmart-steel: #475569;
+  --color-plasmart-light: #94a3b8;
+  --color-plasmart-cream: #f8fafc;
+  --color-plasmart-border: #e2e8f0;
+  --color-plasmart-border-soft: #f1f5f9;
+  --color-plasmart-success: #059669;
+  --color-plasmart-warning: #d97706;
+  --color-plasmart-brand: #2563eb;             /* blue-600 — acento de marca */
+  --color-plasmart-brand-soft: #dbeafe;        /* blue-100 — fondo de chips */
+  --color-plasmart-gads: #475569;
+  --color-plasmart-meta: #2563eb;
 }
 
-/* Theme inline para que las clases bg-primary, text-accent, etc. funcionen */
 @theme inline {
-  --color-primary: var(--color-primary);
-  --color-accent: var(--color-accent);
-  --color-accent-soft: var(--color-accent-soft);
-  --color-steel: var(--color-steel);
-  --color-light: var(--color-light);
-  --color-cream: var(--color-bg-cream);
-  --color-border-default: var(--color-border);
-  --color-border-soft: var(--color-border-soft);
-  --color-success: var(--color-success);
-  --color-warning: var(--color-warning);
-  --color-gads: var(--color-gads);
-  --color-meta: var(--color-meta);
-
+  /* shadcn (utilidades bg-background, text-foreground, bg-primary, etc.) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Plasmart legacy (utilidades text-steel, bg-cream, bg-brand, etc.) */
+  --color-steel: var(--color-plasmart-steel);
+  --color-light: var(--color-plasmart-light);
+  --color-cream: var(--color-plasmart-cream);
+  --color-border-default: var(--color-plasmart-border);
+  --color-border-soft: var(--color-plasmart-border-soft);
+  --color-success: var(--color-plasmart-success);
+  --color-warning: var(--color-plasmart-warning);
+  --color-brand: var(--color-plasmart-brand);
+  --color-brand-soft: var(--color-plasmart-brand-soft);
+  --color-gads: var(--color-plasmart-gads);
+  --color-meta: var(--color-plasmart-meta);
 
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-/* No dark mode: la identidad Plasmart es clara y de alto contraste */
-
 html,
 body {
-  /* Salvavidas anti-overflow horizontal: si cualquier descendiente desborda
-     (chart oversized, tabla, negative-margin trick mal calculado, etc.), el
-     scroll horizontal se contiene dentro del componente en cuestión, no se
-     propaga al viewport. */
   max-width: 100vw;
   overflow-x: hidden;
 }
@@ -81,20 +130,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headings: mayúsculas con tracking amplio, espíritu industrial */
-.heading-display {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-primary);
-}
-
 /* ============================================================
-   Eyebrows y micro-labels
-   ------------------------------------------------------------
-   Tres tamaños estandarizados para no abusar de uppercase:
-   - .eyebrow-xs (10px): labels de KPI y campos
-   - .eyebrow-sm (11px): meta info y status
+   Eyebrows y micro-labels (Plasmart)
    ============================================================ */
 
 .eyebrow-xs {
@@ -102,7 +139,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: var(--color-light);
+  color: var(--color-plasmart-light);
 }
 
 .eyebrow-sm {
@@ -110,21 +147,21 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--color-light);
+  color: var(--color-plasmart-light);
+}
+
+.heading-display {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--foreground);
 }
 
 /* ============================================================
-   Responsive: charts y tablas en mobile
-   ------------------------------------------------------------
-   Estrategia general:
-   - Tablas comparativas: NO scroll horizontal, switch a layout
-     de cards en mobile (cada fila se vuelve una mini-card).
-   - Charts: el contenedor Recharts es responsive; sólo ajustamos
-     yAxisWidth y aspect ratio via clases utilitarias.
+   Responsive: filtros full-width en mobile (legacy)
    ============================================================ */
 
 @media (max-width: 768px) {
-  /* Filtros — todos los controles ocupan 100% del ancho */
   .filters-bar-row > label {
     width: 100%;
   }

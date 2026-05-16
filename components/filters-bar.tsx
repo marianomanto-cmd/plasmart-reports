@@ -310,7 +310,7 @@ function DateField({
         className="
           border border-border-default bg-white px-3 py-2
           text-sm text-primary tabular-nums
-          focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20
+          focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
         "
       />
     </label>
@@ -344,7 +344,7 @@ function SelectField({
         className="
           border border-border-default bg-white px-3 py-2
           text-sm font-medium text-primary
-          focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20
+          focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
         "
       >
         {options.map((o) => (
@@ -367,7 +367,7 @@ function FilterChip({
   truncate?: boolean;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-primary">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary">
       <span className={truncate ? "block max-w-[200px] truncate" : ""}>
         {label}
       </span>

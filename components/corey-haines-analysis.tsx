@@ -80,11 +80,11 @@ export function CoreyHainesAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-accent bg-white">
+    <div className="border-t-4 border-brand bg-white">
       <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
         <div>
           <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <RiSparkling2Line className="size-4 text-accent" aria-hidden="true" />
+            <RiSparkling2Line className="size-4 text-brand" aria-hidden="true" />
             Reporte Corey Haines
           </h3>
           <p className="mt-0.5 text-[11px] text-light">
@@ -217,7 +217,7 @@ function Idle({
           className="
             w-full resize-y border border-border-default bg-white px-3 py-2
             text-sm leading-relaxed text-primary
-            focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20
+            focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
           "
         />
         <p className="text-xs text-light">
@@ -283,10 +283,10 @@ function GranularityPicker({
                 transition-colors duration-150
                 ${
                   isSelected && !disabled
-                    ? "border-accent bg-accent-soft text-primary"
+                    ? "border-brand bg-brand-soft text-primary"
                     : disabled
                     ? "cursor-not-allowed border-border-default bg-cream text-light"
-                    : "border-border-default bg-white text-primary hover:border-accent"
+                    : "border-border-default bg-white text-primary hover:border-brand"
                 }
               `}
             >
