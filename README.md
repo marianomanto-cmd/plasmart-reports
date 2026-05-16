@@ -58,6 +58,8 @@ nunca llegan al cliente.
 |---|---|---|
 | `DRIVE_FOLDER_GADS_ADSETS` | unset | Folder ID de Drive con el sheet semanal de ad groups de Google Ads. Si está vacía, la ingesta de adsets se saltea. |
 | `DRIVE_FOLDER_GADS_ADS` | unset | Folder ID de Drive con el sheet semanal de ads de Google Ads. Si está vacía, la ingesta de ads se saltea. |
+| `DRIVE_FOLDER_META_ADSETS` | unset | Folder ID de Drive con el sheet semanal de ad sets de Meta Ads. |
+| `DRIVE_FOLDER_META_ADS` | unset | Folder ID de Drive con el sheet semanal de ads de Meta Ads. |
 
 En Vercel las mismas variables van en Settings → Environment Variables,
 aplicadas a Production y Preview (no Development). Las env vars de la

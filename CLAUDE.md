@@ -79,32 +79,61 @@ período (porque la ingesta de adsets/ads no está configurada todavía), el
 payload manda `drill_down.has_data = false` y el prompt le dice a Claude
 que aclare la falta y caiga a nivel campaña.
 
-### Ingesta de adsets y ads (Google Ads)
+### Ingesta de adsets y ads (Google Ads + Meta Ads)
 
-La Edge Function `ingest-reports` procesa dos sheets opcionales además del
-sheet de campañas:
-- Adsets: env var `DRIVE_FOLDER_GADS_ADSETS` con el folder ID de Drive.
-- Ads: env var `DRIVE_FOLDER_GADS_ADS` con el folder ID de Drive.
+La Edge Function `ingest-reports` procesa hasta cuatro sheets opcionales
+además de los de campañas:
 
-Si las env vars no están seteadas, los sources se saltean sin generar log
-de error. Esto permite activar la granularidad progresivamente sin tocar
-la ingesta core.
+| Env var | Source | Publisher |
+|---|---|---|
+| `DRIVE_FOLDER_GADS_ADSETS` | `gads_adsets` | Google Ads |
+| `DRIVE_FOLDER_GADS_ADS` | `gads_ads` | Google Ads |
+| `DRIVE_FOLDER_META_ADSETS` | `meta_adsets` | Meta Ads |
+| `DRIVE_FOLDER_META_ADS` | `meta_ads` | Meta Ads |
 
-**Formato esperado del sheet de adsets** (10 columnas, primera fila headers):
+Si una env var no está seteada, el source se saltea sin generar log de
+error. Esto permite activar la granularidad por publisher de forma
+progresiva sin tocar la ingesta core.
+
+**Formato esperado de adsets (Google Ads, 10 columnas)** — Google Ads sí
+manda `status` por fila vía el reporte de Ads Scripts:
 ```
 date | campaign_id | adset_id | adset_name | status | impressions
 | clicks | cost | conversions | revenue
 ```
 
-**Formato esperado del sheet de ads** (11 columnas):
+**Formato esperado de ads (Google Ads, 11 columnas)**:
 ```
 date | campaign_id | adset_id | ad_id | ad_name | status
 | impressions | clicks | cost | conversions | revenue
 ```
 
-Los `*_id` son los external_id de Google Ads (los mismos que ya se
-ingestan a nivel campaña). El handler resuelve los uuids haciendo join
-contra `dim_campaign.external_id` y `dim_adset.external_id`.
+**Formato esperado de adsets (Meta, 9 columnas)** — Meta no manda
+`status` por fila desde Insights (las pausadas no devuelven datos), así
+que se omite y el normalizer defaultea a `active`:
+```
+date | campaign_id | adset_id | adset_name | impressions
+| clicks | spend | conversions | revenue
+```
+
+**Formato esperado de ads (Meta, 10 columnas)**:
+```
+date | campaign_id | adset_id | ad_id | ad_name | impressions
+| clicks | spend | conversions | revenue
+```
+
+Los `*_id` son los external_id de la red correspondiente (los mismos que
+ya se ingestan a nivel campaña). El handler resuelve los uuids haciendo
+join contra `dim_campaign.external_id` (filtrando por publisher para
+evitar colisiones entre redes) y `dim_adset.external_id`.
+
+### Refactor del ingest (v1.4.1)
+
+Las funciones `ingestAdsets(supabase, publisher, ...)` e
+`ingestAds(supabase, publisher, ...)` son agnósticas al publisher: la
+única diferencia entre gads y meta a este nivel es el `.eq("publisher", ...)`
+al resolver `campaign_id`. Por eso un mismo helper sirve para las cuatro
+fuentes opcionales (gads/meta × adset/ad).
 
 ## Lineamientos de diseño visual
 

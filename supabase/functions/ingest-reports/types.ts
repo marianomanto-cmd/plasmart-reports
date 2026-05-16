@@ -6,6 +6,8 @@ export type Source =
   | "gads_adsets"
   | "gads_ads"
   | "meta"
+  | "meta_adsets"
+  | "meta_ads"
   | "ga4";
 
 // Resumen de lo que pasó al ingerir una fuente. Lo devolvemos en el body.

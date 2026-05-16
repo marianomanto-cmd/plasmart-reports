@@ -15,6 +15,8 @@ import { normalizeGadsRows } from "./lib/normalizers/gads.ts";
 import { normalizeMetaRows } from "./lib/normalizers/meta.ts";
 import { normalizeGadsAdsetRows } from "./lib/normalizers/gads-adsets.ts";
 import { normalizeGadsAdRows } from "./lib/normalizers/gads-ads.ts";
+import { normalizeMetaAdsetRows } from "./lib/normalizers/meta-adsets.ts";
+import { normalizeMetaAdRows } from "./lib/normalizers/meta-ads.ts";
 import { fetchGa4Data, getGa4AccessToken } from "./lib/ga4-client.ts";
 import type {
   AdFactRow,
@@ -22,6 +24,7 @@ import type {
   AdsetFactRow,
   AdsetFactWithExternal,
   CampaignFactRow,
+  CampaignPublisher,
   DimAdRow,
   DimAdsetRow,
   DimCampaignRow,
@@ -33,11 +36,17 @@ import type {
 // acá: se trae directo de la Data API en un bloque aparte.
 //
 // `gads` y `meta` apuntan a folders con sheets a nivel campaña.
-// `gads_adsets` y `gads_ads` son opcionales: si las env vars
-// DRIVE_FOLDER_GADS_ADSETS / DRIVE_FOLDER_GADS_ADS no están seteadas,
-// esos source se saltean en silencio. Útil para activar la granularidad
-// progresivamente sin romper la ingesta core.
-type DriveSource = "gads" | "meta" | "gads_adsets" | "gads_ads";
+// Las 4 granularidades extra (gads_adsets / gads_ads / meta_adsets /
+// meta_ads) son opcionales: si las env vars correspondientes no están
+// seteadas, ese source se saltea en silencio. Útil para activar la
+// granularidad progresivamente sin romper la ingesta core.
+type DriveSource =
+  | "gads"
+  | "meta"
+  | "gads_adsets"
+  | "gads_ads"
+  | "meta_adsets"
+  | "meta_ads";
 
 const REQUIRED_SOURCES: Record<"gads" | "meta", string> = {
   gads: "1q0iduDYtjptDi5MQwwYgbFcv-rcZl-kW",
@@ -147,16 +156,19 @@ async function ingestCampaignSource(
   return facts.length;
 }
 
-// Ingesta de adsets (solo Google Ads, por ahora). Resuelve campaign_id
-// usando dim_campaign.external_id para cada adset y luego dim_adset.id
-// para cada fact.
-async function ingestGadsAdsets(
+// Ingesta de adsets para un publisher (gads o meta). Resuelve campaign_id
+// usando dim_campaign.external_id (filtrando por publisher para no chocar
+// con ids duplicados entre redes) y luego dim_adset.id para cada fact.
+async function ingestAdsets(
   supabase: ReturnType<typeof getSupabaseClient>,
+  publisher: CampaignPublisher,
   adsets: DimAdsetRow[],
   factsWithExternal: AdsetFactWithExternal[],
 ): Promise<number> {
+  const tag = publisher === "gads" ? "gads_adsets" : "meta_adsets";
+
   if (adsets.length === 0) {
-    console.log(`[gads_adsets] no hay adsets para upsertear`);
+    console.log(`[${tag}] no hay adsets para upsertear`);
     return 0;
   }
 
@@ -167,7 +179,7 @@ async function ingestGadsAdsets(
   const { data: campaignRows, error: campSelErr } = await supabase
     .from("dim_campaign")
     .select("id, external_id")
-    .eq("publisher", "gads")
+    .eq("publisher", publisher)
     .in("external_id", campaignExternals);
   if (campSelErr) {
     throw new Error(`Select dim_campaign falló: ${campSelErr.message}`);
@@ -194,12 +206,12 @@ async function ingestGadsAdsets(
 
   if (adsetsToUpsert.length === 0) {
     console.log(
-      `[gads_adsets] ningún adset tiene una campaign correspondiente en dim_campaign`,
+      `[${tag}] ningún adset tiene una campaign correspondiente en dim_campaign`,
     );
     return 0;
   }
 
-  console.log(`[gads_adsets] upserting ${adsetsToUpsert.length} adsets en dim_adset`);
+  console.log(`[${tag}] upserting ${adsetsToUpsert.length} adsets en dim_adset`);
   const { data: upsertedAdsets, error: adsetErr } = await supabase
     .from("dim_adset")
     .upsert(adsetsToUpsert, { onConflict: "campaign_id,external_id" })
@@ -222,7 +234,7 @@ async function ingestGadsAdsets(
     const adsetId = adsetIdByKey.get(`${campaignId}::${f.adset_external_id}`);
     if (!adsetId) {
       console.warn(
-        `[gads_adsets] sin uuid para adset ${f.adset_external_id} en campaign ${f.campaign_external_id}`,
+        `[${tag}] sin uuid para adset ${f.adset_external_id} en campaign ${f.campaign_external_id}`,
       );
       continue;
     }
@@ -239,11 +251,11 @@ async function ingestGadsAdsets(
   }
 
   if (facts.length === 0) {
-    console.log(`[gads_adsets] no hay facts para insertar`);
+    console.log(`[${tag}] no hay facts para insertar`);
     return 0;
   }
 
-  console.log(`[gads_adsets] upserting ${facts.length} facts en fact_adset_daily`);
+  console.log(`[${tag}] upserting ${facts.length} facts en fact_adset_daily`);
   const { error: factErr } = await supabase
     .from("fact_adset_daily")
     .upsert(facts, { onConflict: "date,adset_id" });
@@ -254,14 +266,19 @@ async function ingestGadsAdsets(
   return facts.length;
 }
 
-// Ingesta de ads. Resuelve campaign_id, adset_id y luego ad_id.
-async function ingestGadsAds(
+// Ingesta de ads para un publisher (gads o meta). Resuelve campaign_id,
+// adset_id y luego ad_id, todos filtrados/escopeados por publisher para
+// que no haya colisiones entre redes.
+async function ingestAds(
   supabase: ReturnType<typeof getSupabaseClient>,
+  publisher: CampaignPublisher,
   ads: DimAdRow[],
   factsWithExternal: AdFactWithExternal[],
 ): Promise<number> {
+  const tag = publisher === "gads" ? "gads_ads" : "meta_ads";
+
   if (ads.length === 0) {
-    console.log(`[gads_ads] no hay ads para upsertear`);
+    console.log(`[${tag}] no hay ads para upsertear`);
     return 0;
   }
 
@@ -272,7 +289,7 @@ async function ingestGadsAds(
   const { data: campaignRows, error: campSelErr } = await supabase
     .from("dim_campaign")
     .select("id, external_id")
-    .eq("publisher", "gads")
+    .eq("publisher", publisher)
     .in("external_id", campaignExternals);
   if (campSelErr) {
     throw new Error(`Select dim_campaign falló: ${campSelErr.message}`);
@@ -320,12 +337,12 @@ async function ingestGadsAds(
 
   if (adsToUpsert.length === 0) {
     console.log(
-      `[gads_ads] ningún ad tiene adset correspondiente en dim_adset`,
+      `[${tag}] ningún ad tiene adset correspondiente en dim_adset`,
     );
     return 0;
   }
 
-  console.log(`[gads_ads] upserting ${adsToUpsert.length} ads en dim_ad`);
+  console.log(`[${tag}] upserting ${adsToUpsert.length} ads en dim_ad`);
   const { data: upsertedAds, error: adErr } = await supabase
     .from("dim_ad")
     .upsert(adsToUpsert, { onConflict: "adset_id,external_id" })
@@ -351,7 +368,7 @@ async function ingestGadsAds(
     if (!adsetId) continue;
     const adId = adIdByKey.get(`${adsetId}::${f.ad_external_id}`);
     if (!adId) {
-      console.warn(`[gads_ads] sin uuid para ad ${f.ad_external_id}`);
+      console.warn(`[${tag}] sin uuid para ad ${f.ad_external_id}`);
       continue;
     }
     facts.push({
@@ -367,11 +384,11 @@ async function ingestGadsAds(
   }
 
   if (facts.length === 0) {
-    console.log(`[gads_ads] no hay facts para insertar`);
+    console.log(`[${tag}] no hay facts para insertar`);
     return 0;
   }
 
-  console.log(`[gads_ads] upserting ${facts.length} facts en fact_ad_daily`);
+  console.log(`[${tag}] upserting ${facts.length} facts en fact_ad_daily`);
   const { error: factErr } = await supabase
     .from("fact_ad_daily")
     .upsert(facts, { onConflict: "date,ad_id" });
@@ -413,17 +430,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
     { key: "gads", folderId: REQUIRED_SOURCES.gads },
     { key: "meta", folderId: REQUIRED_SOURCES.meta },
   ];
-  const gadsAdsetsFolder = getOptionalFolderId("DRIVE_FOLDER_GADS_ADSETS");
-  if (gadsAdsetsFolder) {
-    driveSources.push({ key: "gads_adsets", folderId: gadsAdsetsFolder });
-  } else {
-    console.log("[gads_adsets] DRIVE_FOLDER_GADS_ADSETS no seteada — salteando");
-  }
-  const gadsAdsFolder = getOptionalFolderId("DRIVE_FOLDER_GADS_ADS");
-  if (gadsAdsFolder) {
-    driveSources.push({ key: "gads_ads", folderId: gadsAdsFolder });
-  } else {
-    console.log("[gads_ads] DRIVE_FOLDER_GADS_ADS no seteada — salteando");
+  const optionalSources: Array<{
+    key: DriveSource;
+    envVar: string;
+  }> = [
+    { key: "gads_adsets", envVar: "DRIVE_FOLDER_GADS_ADSETS" },
+    { key: "gads_ads", envVar: "DRIVE_FOLDER_GADS_ADS" },
+    { key: "meta_adsets", envVar: "DRIVE_FOLDER_META_ADSETS" },
+    { key: "meta_ads", envVar: "DRIVE_FOLDER_META_ADS" },
+  ];
+  for (const { key, envVar } of optionalSources) {
+    const folderId = getOptionalFolderId(envVar);
+    if (folderId) {
+      driveSources.push({ key, folderId });
+    } else {
+      console.log(`[${key}] ${envVar} no seteada — salteando`);
+    }
   }
 
   for (const { key: sourceKey, folderId } of driveSources) {
@@ -485,10 +507,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
         );
       } else if (sourceKey === "gads_adsets") {
         const { adsets, facts } = normalizeGadsAdsetRows(rows);
-        rowsInserted = await ingestGadsAdsets(supabase, adsets, facts);
+        rowsInserted = await ingestAdsets(supabase, "gads", adsets, facts);
       } else if (sourceKey === "gads_ads") {
         const { ads, facts } = normalizeGadsAdRows(rows);
-        rowsInserted = await ingestGadsAds(supabase, ads, facts);
+        rowsInserted = await ingestAds(supabase, "gads", ads, facts);
+      } else if (sourceKey === "meta_adsets") {
+        const { adsets, facts } = normalizeMetaAdsetRows(rows);
+        rowsInserted = await ingestAdsets(supabase, "meta", adsets, facts);
+      } else if (sourceKey === "meta_ads") {
+        const { ads, facts } = normalizeMetaAdRows(rows);
+        rowsInserted = await ingestAds(supabase, "meta", ads, facts);
       }
 
       results.push({
