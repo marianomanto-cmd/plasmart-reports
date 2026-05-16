@@ -1,4 +1,5 @@
 import { LoginButton } from "./login-button";
+import { PlasmartMark } from "@/components/plasmart-mark";
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -12,6 +13,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="w-full max-w-md">
         {/* Wordmark Plasmart */}
         <div className="mb-16 text-center">
+          <PlasmartMark size={48} className="mx-auto mb-5" />
           <h1
             className="text-5xl font-bold tracking-[0.15em] text-[#0f172a]"
             style={{ letterSpacing: "0.15em" }}

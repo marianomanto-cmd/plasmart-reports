@@ -34,13 +34,11 @@ export default async function ComparativaPage({
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Comparativa
-          </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
+          <p className="eyebrow-sm">Comparativa</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
             {formatHumanRange(filters.from, filters.to)}
           </h2>
-          <p className="mt-1 text-sm text-steel">
+          <p className="mt-1.5 text-sm text-steel">
             {days} {days === 1 ? "día" : "días"} · GAds vs Meta y tráfico de GA4
           </p>
         </div>
@@ -56,13 +54,11 @@ export default async function ComparativaPage({
 
         {/* GA4 — vivía antes en /dashboard, lo movemos acá */}
         <div className="pt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Tráfico del sitio
-          </p>
-          <h3 className="mt-1 text-xl font-bold tracking-tight text-primary">
+          <p className="eyebrow-sm">Tráfico del sitio</p>
+          <h3 className="mt-2 text-xl font-bold tracking-tight text-primary sm:text-2xl">
             Google Analytics
           </h3>
-          <p className="mt-1 text-sm text-steel">
+          <p className="mt-1.5 text-sm text-steel">
             Mismo rango de fechas. Los filtros de campaña no aplican a GA4.
           </p>
         </div>

@@ -1,5 +1,7 @@
 // Top 10 campañas por inversión en el período.
-// Implementado con Tremor BarChart horizontal (Recharts, client-side).
+// Desktop: BarChart horizontal de Tremor.
+// Mobile: lista de campañas con barras CSS proporcionales — evita
+//         que un yAxisWidth de 220px destroce el layout en celulares.
 
 "use client";
 
@@ -19,43 +21,80 @@ export function TopCampaignsChart({ rows }: Props) {
     return <EmptyState />;
   }
 
-  // BarChart horizontal espera `data` con un campo `index` (texto en el eje
-  // categorial) y una `category` con el valor numérico. Para que se vean
-  // GAds y Meta con colores distintos, separamos en dos categorías (una por
-  // publisher) y rellenamos con 0 en la opuesta — así las barras se
-  // colorean según el publisher de la fila.
   const data = top.map((row) => ({
     name: truncate(row.name, 36),
-    publisher:
-      row.publisher === "gads" ? "Google Ads" : "Meta Ads",
+    publisher: row.publisher === "gads" ? "Google Ads" : "Meta Ads",
     "Google Ads": row.publisher === "gads" ? row.cost : 0,
     "Meta Ads": row.publisher === "meta" ? row.cost : 0,
   }));
 
+  const maxCost = Math.max(...top.map((r) => r.cost), 1);
+
   return (
-    <Card>
-      <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-          Top campañas por inversión
-        </h3>
+    <Card className="p-0">
+      <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
+        <h3 className="eyebrow-xs">Top campañas por inversión</h3>
         <p className="text-[11px] uppercase tracking-[0.12em] text-light tabular-nums">
           {top.length} de {rows.length}
         </p>
       </div>
 
-      <BarChart
-        data={data}
-        index="name"
-        categories={["Google Ads", "Meta Ads"]}
-        colors={["gray", "blue"]}
-        valueFormatter={(v: number) => formatCurrencyArs(v)}
-        layout="vertical"
-        type="stacked"
-        showLegend={false}
-        yAxisWidth={220}
-        barCategoryGap="20%"
-        className="h-[420px]"
-      />
+      {/* Desktop: chart Tremor */}
+      <div className="hidden sm:block sm:p-6">
+        <BarChart
+          data={data}
+          index="name"
+          categories={["Google Ads", "Meta Ads"]}
+          colors={["gray", "blue"]}
+          valueFormatter={(v: number) => formatCurrencyArs(v)}
+          layout="vertical"
+          type="stacked"
+          showLegend={false}
+          yAxisWidth={220}
+          barCategoryGap="20%"
+          className="h-[420px]"
+        />
+      </div>
+
+      {/* Mobile: lista de cards con barras CSS proporcionales */}
+      <ul className="divide-y divide-border-soft sm:hidden">
+        {top.map((row) => {
+          const pct = (row.cost / maxCost) * 100;
+          const isGads = row.publisher === "gads";
+          return (
+            <li key={row.campaignId} className="px-4 py-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span
+                  className="block min-w-0 flex-1 truncate text-sm font-medium text-primary"
+                  title={row.name}
+                >
+                  {row.name}
+                </span>
+                <span className="text-sm font-semibold tabular-nums text-primary">
+                  {formatCurrencyArs(row.cost)}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${
+                    isGads ? "text-steel" : "text-accent"
+                  }`}
+                >
+                  {isGads ? "Google Ads" : "Meta Ads"}
+                </span>
+                <div className="relative h-1.5 flex-1 bg-border-soft">
+                  <div
+                    className={`absolute inset-y-0 left-0 ${
+                      isGads ? "bg-[var(--color-gads)]" : "bg-[var(--color-meta)]"
+                    }`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </Card>
   );
 }
@@ -68,9 +107,7 @@ function truncate(s: string, n: number): string {
 function EmptyState() {
   return (
     <Card>
-      <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-        Top campañas por inversión
-      </h3>
+      <h3 className="mb-4 eyebrow-xs">Top campañas por inversión</h3>
       <div className="flex h-[200px] items-center justify-center text-sm text-light">
         Sin campañas en el rango seleccionado
       </div>

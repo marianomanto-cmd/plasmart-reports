@@ -55,28 +55,57 @@ Vistas materializadas:
 ## Lineamientos de diseño visual
 
 Identidad basada en plasmartcba.com (industrial-elegante).
+Paleta efectiva: **slate + azul Tremor** (armoniza con los componentes Tremor
+sin hacks). Los tokens viven en `app/globals.css` y se exponen como utilidades
+Tailwind via `@theme inline`.
 
-**Paleta de colores:**
-- Primary (negro): `#1A1A1A` — texto principal, headings
-- Accent (cobre): `#C9A961` — acento sutil
-- Steel: `#4A4A4A` — texto secundario
-- Light: `#8A8A8A` — labels, metadatos
-- Background light: `#F5F5F0` — fondos de bloques (cremoso, no blanco puro)
-- Border: `#D0D0D0` — divisores
-- Success: `#5C8A5C` — métricas positivas
-- Warning: `#B8704A` — métricas a revisar
-- White: `#FFFFFF` — fondo de cards
+**Paleta de colores (slate + blue):**
+- Primary `#0f172a` (slate-900) — texto principal, headings, valores de KPI
+- Accent `#2563eb` (blue-600) — links, focus rings, indicador de tab activa,
+  stripe superior de KPI cards neutras, marca destacada en el logo
+- Accent soft `#dbeafe` (blue-100) — fondo de chips de filtro activo,
+  íconos del estado vacío
+- Steel `#475569` (slate-600) — texto secundario, serie Google Ads
+- Light `#94a3b8` (slate-400) — labels, metadatos, eyebrows
+- Cream `#f8fafc` (slate-50) — fondo de página
+- White `#ffffff` — fondo de cards
+- Border `#e2e8f0` (slate-200) — bordes y divisores principales
+- Border soft `#f1f5f9` (slate-100) — divisores internos de cards
+- Success `#059669` (emerald-600) — métricas positivas y stripe favorable
+- Warning `#d97706` (amber-600) — métricas a revisar y stripe desfavorable
+- GAds series `#475569` — Google Ads en charts/listas
+- Meta series `#2563eb` — Meta Ads en charts/listas
 
 **Tipografía:** Inter (Google Fonts)
-- Headings: Inter Bold, mayúsculas, tracking +2%
-- Texto: Inter Regular 14-16px
-- Cifras de KPI: Inter Bold 32-48px, sin abreviar (mostrar 1.234.567 antes que 1.2M)
+- Headings de página: Inter Bold sentence-case (`text-2xl`/`text-3xl`),
+  tracking ajustado. Reservamos uppercase + tracking amplio para eyebrows
+  y micro-labels, no para titulares.
+- Eyebrows: clases utilitarias `.eyebrow-xs` (10px) y `.eyebrow-sm` (11px),
+  definidas en `app/globals.css`.
+- Cifras de KPI: Inter Bold 32-48px, sin abreviar.
+
+**Iconografía:** `@remixicon/react` (RiArrowRightUpLine, RiCalendarLine,
+RiFilter3Line, RiSparkling2Line, RiDownloadLine, RiRefreshLine,
+RiLogoutBoxRLine). No mezclar con emojis ni con triángulos unicode.
+
+**Patrones de layout:**
+- **KPI cards** llevan un stripe horizontal de 2px arriba (`bg-accent` por
+  default, `bg-success` o `bg-warning` cuando el delta lo amerita).
+- **Sparklines** dibujan área tenue + baseline punteada (promedio) + punto
+  destacado en el último valor.
+- **Filtros** se agrupan visualmente (Rango / Scope) con un divisor
+  vertical en desktop. Los filtros de scope activos se muestran como
+  chips abajo de la barra.
+- **Tablas en mobile**: nunca scroll horizontal — se renderiza una lista
+  de cards verticales con definition list por fila. El switch desktop/mobile
+  vive dentro de cada componente, no en CSS global.
 
 **Principios:**
 - Sobriedad industrial. Sin gradientes ni decoraciones.
 - Datos como protagonistas, chrome de UI invisible.
 - Espacio en blanco generoso.
-- Contraste alto (negro sobre claro, sin grises desvaídos).
+- Contraste alto, jerarquía clara: una sola "voz" por nivel (no abusar de
+  uppercase + tracking en headings).
 
 ## Convenciones de código
 

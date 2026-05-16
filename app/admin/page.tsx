@@ -35,10 +35,8 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         {/* Encabezado */}
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Operación
-          </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
+          <p className="eyebrow-sm">Operación</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
             Estado de las fuentes de datos
           </h2>
           <p className="mt-1 text-sm text-steel">
@@ -68,9 +66,7 @@ export default async function AdminPage() {
         {/* Acción manual */}
         <Card asChild>
           <section>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-              Ingesta manual
-            </p>
+            <p className="eyebrow-xs">Ingesta manual</p>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-steel">
               Disparar la ingesta a demanda corre las tres fuentes en
               paralelo y tarda hasta un minuto. Después de cada corrida hay
@@ -89,7 +85,7 @@ export default async function AdminPage() {
             Historial de ingestas
           </h3>
           <div className="mb-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+            <p className="eyebrow-xs">
               Historial
             </p>
             <h3 className="mt-1 text-lg font-bold tracking-tight text-primary">
@@ -101,7 +97,7 @@ export default async function AdminPage() {
 
         {/* Cómo se ejecuta */}
         <Card>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+          <p className="eyebrow-xs">
             Cómo corre el cron automático
           </p>
           <p className="mt-3 text-sm leading-relaxed text-steel">
@@ -118,7 +114,7 @@ export default async function AdminPage() {
         {/* Log de análisis generados por Claude */}
         <section aria-labelledby="ai-log-heading" className="pt-4">
           <div className="mb-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
+            <p className="eyebrow-xs">
               Análisis generados
             </p>
             <h3 id="ai-log-heading" className="mt-1 text-lg font-bold tracking-tight text-primary">

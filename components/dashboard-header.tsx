@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { RiLogoutBoxRLine } from "@remixicon/react";
+import { PlasmartMark } from "@/components/plasmart-mark";
 
 interface Props {
   userEmail: string | null | undefined;
@@ -9,14 +11,26 @@ interface Props {
 export function DashboardHeader({ userEmail, active = "dashboard" }: Props) {
   return (
     <header className="border-b border-border-default bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:gap-6 sm:px-8 sm:py-5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:gap-6 sm:px-8 sm:py-4">
         <div className="flex min-w-0 items-center gap-4 sm:gap-10">
-          <h1 className="whitespace-nowrap text-base font-bold tracking-[0.12em] text-primary sm:text-xl">
-            PLASMART
-            <span className="ml-2 hidden text-xs font-medium uppercase tracking-[0.2em] text-light sm:inline sm:ml-3">
-              Reportería
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-80 sm:gap-3"
+            aria-label="Plasmart Reportería — inicio"
+          >
+            <PlasmartMark size={26} />
+            <span className="hidden flex-col leading-none sm:flex">
+              <span className="text-[15px] font-bold tracking-[0.12em] text-primary">
+                PLASMART
+              </span>
+              <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.22em] text-light">
+                Reportería
+              </span>
             </span>
-          </h1>
+            <span className="text-sm font-bold tracking-[0.12em] text-primary sm:hidden">
+              PLASMART
+            </span>
+          </Link>
 
           <nav className="flex items-center gap-4 sm:gap-6">
             <NavLink href="/dashboard" isActive={active === "dashboard"}>
@@ -28,7 +42,7 @@ export function DashboardHeader({ userEmail, active = "dashboard" }: Props) {
           </nav>
         </div>
 
-        <div className="flex min-w-0 items-center gap-3 sm:gap-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           {userEmail && (
             <span
               className="hidden min-w-0 max-w-[180px] truncate text-sm text-steel md:inline"
@@ -41,11 +55,14 @@ export function DashboardHeader({ userEmail, active = "dashboard" }: Props) {
             <button
               type="submit"
               className="
-                whitespace-nowrap text-xs uppercase tracking-[0.15em] text-light
+                inline-flex items-center gap-1.5 whitespace-nowrap
+                text-xs font-medium text-light
                 transition-colors duration-150 hover:text-primary
               "
+              title="Cerrar sesión"
             >
-              Salir
+              <RiLogoutBoxRLine className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Salir</span>
             </button>
           </form>
         </div>

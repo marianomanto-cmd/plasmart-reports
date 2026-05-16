@@ -23,13 +23,17 @@
   /* Paleta industrial-azul (slate + blue) — armoniza con Tremor defaults */
   --color-primary: #0f172a;       /* slate-900: texto principal, headings */
   --color-accent: #2563eb;        /* blue-600: acento, links, foco */
+  --color-accent-soft: #dbeafe;   /* blue-100: fondo de chips y badges activos */
   --color-steel: #475569;         /* slate-600: texto secundario */
   --color-light: #94a3b8;         /* slate-400: labels, metadatos */
   --color-bg-cream: #f8fafc;      /* slate-50: fondo de bloques (off-white azulado) */
   --color-bg-white: #ffffff;      /* Blanco puro: cards principales */
   --color-border: #e2e8f0;        /* slate-200: bordes y divisores */
+  --color-border-soft: #f1f5f9;   /* slate-100: divisores intra-card */
   --color-success: #059669;       /* emerald-600: métricas positivas */
   --color-warning: #d97706;       /* amber-600: métricas a revisar */
+  --color-gads: #475569;          /* slate-600: serie Google Ads */
+  --color-meta: #2563eb;          /* blue-600: serie Meta Ads */
 
   /* Tokens semánticos */
   --background: var(--color-bg-cream);
@@ -40,12 +44,16 @@
 @theme inline {
   --color-primary: var(--color-primary);
   --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
   --color-steel: var(--color-steel);
   --color-light: var(--color-light);
   --color-cream: var(--color-bg-cream);
   --color-border-default: var(--color-border);
+  --color-border-soft: var(--color-border-soft);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
+  --color-gads: var(--color-gads);
+  --color-meta: var(--color-meta);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -82,82 +90,50 @@ body {
 }
 
 /* ============================================================
-   Responsive mobile (≤ 768px y ≤ 480px)
-   Sólo aplica en mobile/tablet chica; desktop (≥ 1024px) intacto.
+   Eyebrows y micro-labels
+   ------------------------------------------------------------
+   Tres tamaños estandarizados para no abusar de uppercase:
+   - .eyebrow-xs (10px): labels de KPI y campos
+   - .eyebrow-sm (11px): meta info y status
    ============================================================ */
 
-/* ------------------------------------------------------------
-   Tabla "Comparativa GAds vs Meta"
-   Reemplaza la combinación de Tailwind utilities aplicada en
-   components/publisher-comparison.tsx:
-     - wrapper: div.overflow-x-auto  ->  añade .publisher-comparison-scroll
-     - tabla:   table.w-full.text-sm ->  añade .publisher-comparison-table
-     - celdas (th/td): px-6 py-3 / py-4
-   Estrategia: preservar el lado a lado bajando padding y font-size;
-   el scroll horizontal interno queda como fallback con sombras
-   laterales para indicar contenido recortado.
-   ------------------------------------------------------------ */
-
-@media (max-width: 768px) {
-  .publisher-comparison-scroll {
-    /* Indicador visual de scroll: dos sombras-cobertor que se
-       desvanecen contra los bordes blancos. `local` hace que las
-       capas blancas se peguen al borde del contenido scrolleable
-       (desaparecen al llegar al extremo). */
-    background:
-      linear-gradient(to right, #ffffff 30%, rgba(255, 255, 255, 0)) 0 0 / 24px 100% no-repeat local,
-      linear-gradient(to left,  #ffffff 30%, rgba(255, 255, 255, 0)) 100% 0 / 24px 100% no-repeat local,
-      radial-gradient(farthest-side at 0 50%, rgba(15, 23, 42, 0.18), transparent) 0 0 / 10px 100% no-repeat scroll,
-      radial-gradient(farthest-side at 100% 50%, rgba(15, 23, 42, 0.18), transparent) 100% 0 / 10px 100% no-repeat scroll;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .publisher-comparison-table {
-    font-size: 12px; /* reemplaza text-sm (14px) en mobile */
-  }
-  .publisher-comparison-table th,
-  .publisher-comparison-table td {
-    padding-left: 0.75rem;   /* reemplaza px-6 (1.5rem) */
-    padding-right: 0.75rem;
-    padding-top: 0.625rem;   /* reemplaza py-3 (0.75rem) y py-4 (1rem) */
-    padding-bottom: 0.625rem;
-  }
+.eyebrow-xs {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-light);
 }
 
-@media (max-width: 480px) {
-  .publisher-comparison-table {
-    font-size: 11px;
-  }
-  .publisher-comparison-table th,
-  .publisher-comparison-table td {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
+.eyebrow-sm {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-light);
 }
 
-/* ------------------------------------------------------------
-   Filtros — todos los controles ocupan 100% del ancho en mobile
-   para anchos consistentes y evitar que el flex-wrap deje filas
-   con huecos raros. Anula los style={{ minWidth }} inline y los
-   w-[Npx] hardcodeados de components/filters-bar.tsx.
-   Marcadores:
-     - .filters-bar-row           -> contenedor flex-wrap raíz
-     - .filter-select-mobile-full -> <label> envolvente de Publisher/Tipo/Campaña
-   ------------------------------------------------------------ */
+/* ============================================================
+   Responsive: charts y tablas en mobile
+   ------------------------------------------------------------
+   Estrategia general:
+   - Tablas comparativas: NO scroll horizontal, switch a layout
+     de cards en mobile (cada fila se vuelve una mini-card).
+   - Charts: el contenedor Recharts es responsive; sólo ajustamos
+     yAxisWidth y aspect ratio via clases utilitarias.
+   ============================================================ */
 
 @media (max-width: 768px) {
-  /* Cualquier <label> hijo directo de la barra se estira */
+  /* Filtros — todos los controles ocupan 100% del ancho */
   .filters-bar-row > label {
     width: 100%;
   }
-  /* Inputs y selects internos full-width, sin minWidth heredado */
   .filters-bar-row select,
   .filters-bar-row input[type="date"],
   .filters-bar-row input[type="range"] {
     width: 100%;
     min-width: 0;
   }
-  /* Compat con la regla previa (los 3 selects con prop mobileFullWidth) */
   .filter-select-mobile-full {
     width: 100%;
   }

@@ -46,7 +46,7 @@ export function DashboardTabs() {
                 {isActive && (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-0 -bottom-px h-px bg-primary"
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-accent"
                   />
                 )}
               </Link>

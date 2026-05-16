@@ -1,3 +1,8 @@
+import {
+  RiArrowRightUpLine,
+  RiArrowRightDownLine,
+  RiSubtractLine,
+} from "@remixicon/react";
 import type { CompareMode, Ga4Kpis, KpiWithDelta } from "@/lib/types";
 import { KpiCard } from "./kpi-card";
 import { formatDeltaPct, formatRatioAsPct } from "@/lib/format";
@@ -63,26 +68,40 @@ function BounceRateCard({
       ? "text-success"
       : "text-warning";
 
+  const stripeColor =
+    !showDelta || isFavorable === null
+      ? "bg-accent"
+      : isFavorable
+      ? "bg-success"
+      : "bg-warning";
+
+  const DeltaIcon = isFlat
+    ? RiSubtractLine
+    : isUp
+    ? RiArrowRightUpLine
+    : RiArrowRightDownLine;
+
   const compareLabel =
     compareMode === "yoy" ? "vs año anterior" : "vs período anterior";
 
   return (
-    <Card className="min-w-0 p-4 sm:p-6">
-      <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-light sm:mb-4">
-        Bounce rate
-      </div>
+    <Card className="relative min-w-0 overflow-hidden p-4 sm:p-6">
+      <span
+        aria-hidden="true"
+        className={`absolute inset-x-0 top-0 h-0.5 ${stripeColor}`}
+      />
+
+      <div className="mb-3 eyebrow-xs sm:mb-4">Bounce rate</div>
 
       <div className="break-words text-[26px] font-bold leading-none tracking-tight text-primary tabular-nums sm:text-[40px]">
         {value}
       </div>
 
       {showDelta && (
-        <div className={`mt-4 flex items-center gap-2 text-sm tabular-nums ${deltaColor}`}>
-          <span aria-hidden="true" className="text-base leading-none">
-            {isFlat ? "·" : isUp ? "▲" : "▼"}
-          </span>
+        <div className={`mt-4 flex items-center gap-1.5 text-sm tabular-nums ${deltaColor}`}>
+          <DeltaIcon className="size-4 shrink-0" aria-hidden="true" />
           <span className="font-semibold">{formatDeltaPct(delta)}</span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-light">
+          <span className="ml-1 text-[10px] font-medium uppercase tracking-[0.16em] text-light">
             {compareLabel}
           </span>
         </div>

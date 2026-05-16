@@ -24,9 +24,7 @@ export function DataFreshnessPanel({ rows }: Props) {
         const row = byKey.get(key);
         return (
           <Card key={key}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-              {label}
-            </p>
+            <p className="eyebrow-xs">{label}</p>
             <p className="mt-3 text-[20px] font-bold leading-tight text-primary tabular-nums">
               {row?.maxDataDate
                 ? formatHumanDate(row.maxDataDate)

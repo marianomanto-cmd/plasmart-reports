@@ -204,8 +204,12 @@ y disparar una corrida con el rango deseado, en lugar de exportar manual.
 - Tooltips nativos en nombres truncados del top de campañas (3 líneas SVG).
 - Líneas del gráfico de evolución se pegan visualmente cuando GAds y Meta
   tienen valores cercanos.
-- Mobile: la app es usable en celular pero no está optimizada (KPIs apilan
-  bien, tabla con scroll horizontal).
+- Mobile: tablas (`campaign-table`, `publisher-comparison`,
+  `ga4-source-medium-table`) y el chart de top campañas usan layout de
+  cards en `<sm` para evitar scroll horizontal; los KPIs reflowean
+  a 1 columna. Si se agrega una tabla nueva, replicar el patrón
+  (lista `<ul>` de cards en mobile, `<table>` en desktop) en vez de
+  apoyarse en `overflow-x-auto`.
 - Notificaciones por email cuando falla la ingesta semanal (Fase 6.x
   pendiente, opcional).
 - Backfill GA4 vía edge function parametrizada por rango (pendiente).

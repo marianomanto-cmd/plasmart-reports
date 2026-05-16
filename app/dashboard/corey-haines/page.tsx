@@ -40,13 +40,11 @@ export default async function CoreyHainesPage({
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-light">
-            Corey Haines · Reporte experto
-          </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-primary">
+          <p className="eyebrow-sm">Corey Haines · Reporte experto</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
             {formatHumanRange(filters.from, filters.to)}
           </h2>
-          <p className="mt-1 text-sm text-steel">
+          <p className="mt-1.5 text-sm text-steel">
             {days} {days === 1 ? "día" : "días"} · {compareLabel}
           </p>
         </div>

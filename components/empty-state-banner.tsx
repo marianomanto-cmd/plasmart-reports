@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RiFilter3Line } from "@remixicon/react";
 import { Card } from "@/components/tremor/card";
 
 /**
@@ -12,10 +13,11 @@ import { Card } from "@/components/tremor/card";
 export function EmptyStateBanner() {
   return (
     <Card className="px-4 py-10 text-center sm:px-8 sm:py-12">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-        Sin datos
-      </p>
-      <h3 className="mt-3 text-xl font-bold tracking-tight text-primary">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft">
+        <RiFilter3Line className="size-5 text-accent" aria-hidden="true" />
+      </div>
+      <p className="mt-4 eyebrow-xs">Sin datos</p>
+      <h3 className="mt-2 text-xl font-bold tracking-tight text-primary">
         La combinación de filtros no devuelve resultados
       </h3>
       <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-steel">

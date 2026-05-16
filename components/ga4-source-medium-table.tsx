@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { RiArrowUpLine, RiArrowDownLine } from "@remixicon/react";
 import type { Ga4SourceMediumRow } from "@/lib/types";
 import {
   formatDecimal,
@@ -64,16 +65,70 @@ export function Ga4SourceMediumTable({ rows }: Props) {
 
   return (
     <Card className="p-0">
-      <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-          Tráfico por fuente y medio
-        </h3>
+      <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
+        <h3 className="eyebrow-xs">Tráfico por fuente y medio</h3>
         <p className="text-[11px] uppercase tracking-[0.12em] text-light tabular-nums">
           {rows.length} {rows.length === 1 ? "combinación" : "combinaciones"}
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Mobile: lista de cards */}
+      <ul className="divide-y divide-border-soft sm:hidden">
+        {sorted.map((row, i) => (
+          <li key={`${row.source}-${row.medium}-${i}`} className="px-4 py-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p
+                  className="truncate text-sm font-medium text-primary"
+                  title={row.source}
+                >
+                  {row.source || "(direct)"}
+                </p>
+                <p className="text-[11px] uppercase tracking-[0.12em] text-light">
+                  {row.medium || "(none)"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-light">
+                  Sesiones
+                </p>
+                <p className="text-sm font-bold tabular-nums text-primary">
+                  {formatInteger(row.sessions)}
+                </p>
+              </div>
+            </div>
+            <dl className="mt-2 grid grid-cols-3 gap-2 border-t border-border-soft pt-2 text-xs">
+              <div>
+                <dt className="text-[9px] font-semibold uppercase tracking-[0.14em] text-light">
+                  Usuarios
+                </dt>
+                <dd className="tabular-nums text-steel">
+                  {formatInteger(row.users)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[9px] font-semibold uppercase tracking-[0.14em] text-light">
+                  Eventos
+                </dt>
+                <dd className="tabular-nums text-steel">
+                  {formatDecimal(row.keyEvents)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[9px] font-semibold uppercase tracking-[0.14em] text-light">
+                  Bounce
+                </dt>
+                <dd className="tabular-nums text-steel">
+                  {formatRatioAsPct(row.bounceRate)}
+                </dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop: tabla */}
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
@@ -138,7 +193,6 @@ function Th({
   children: React.ReactNode;
 }) {
   const isActive = sortKey === k;
-  const arrow = isActive ? (sortDir === "asc" ? "▲" : "▼") : "";
   return (
     <th
       className={`px-4 py-3 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
@@ -147,14 +201,19 @@ function Th({
         type="button"
         onClick={() => onClick(k)}
         className={`
-          inline-flex items-center gap-1.5 uppercase tracking-[0.18em]
+          inline-flex items-center gap-1 uppercase tracking-[0.18em]
           transition-colors duration-150
           ${isActive ? "text-primary" : "hover:text-primary"}
           ${align === "right" ? "flex-row-reverse" : ""}
         `}
       >
         <span>{children}</span>
-        {arrow && <span className="text-[8px] leading-none">{arrow}</span>}
+        {isActive &&
+          (sortDir === "asc" ? (
+            <RiArrowUpLine className="size-3" aria-hidden="true" />
+          ) : (
+            <RiArrowDownLine className="size-3" aria-hidden="true" />
+          ))}
       </button>
     </th>
   );
@@ -163,9 +222,7 @@ function Th({
 function EmptyState() {
   return (
     <Card>
-      <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-        Tráfico por fuente y medio
-      </h3>
+      <h3 className="mb-4 eyebrow-xs">Tráfico por fuente y medio</h3>
       <div className="flex h-[200px] items-center justify-center text-sm text-light">
         Sin datos de GA4 en el rango seleccionado
       </div>

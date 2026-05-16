@@ -46,13 +46,19 @@ export function CostEvolutionChart({ points }: Props) {
 
   return (
     <Card>
-      <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-          Evolución de inversión diaria
-        </h3>
-        <div className="flex items-center gap-5 text-xs">
-          <LegendItem color="bg-gray-500" label="Google Ads" total={totalGads} />
-          <LegendItem color="bg-blue-500" label="Meta Ads" total={totalMeta} />
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+        <h3 className="eyebrow-xs">Evolución de inversión diaria</h3>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs">
+          <LegendItem
+            color="bg-[var(--color-gads)]"
+            label="Google Ads"
+            total={totalGads}
+          />
+          <LegendItem
+            color="bg-[var(--color-meta)]"
+            label="Meta Ads"
+            total={totalMeta}
+          />
         </div>
       </div>
 
@@ -64,8 +70,8 @@ export function CostEvolutionChart({ points }: Props) {
         valueFormatter={(v: number) => formatCurrencyArs(v)}
         showLegend={false}
         showGridLines
-        yAxisWidth={64}
-        className="h-72"
+        yAxisWidth={56}
+        className="h-64 sm:h-72"
       />
     </Card>
   );
@@ -96,9 +102,7 @@ function LegendItem({
 function EmptyState() {
   return (
     <Card>
-      <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-light">
-        Evolución de inversión diaria
-      </h3>
+      <h3 className="mb-4 eyebrow-xs">Evolución de inversión diaria</h3>
       <div className="flex h-[240px] items-center justify-center text-sm text-light">
         Sin datos en el rango seleccionado
       </div>

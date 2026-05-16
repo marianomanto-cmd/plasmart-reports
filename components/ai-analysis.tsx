@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import {
+  RiSparkling2Line,
+  RiDownloadLine,
+  RiRefreshLine,
+} from "@remixicon/react";
 import type { DashboardFilters } from "@/lib/types";
 import { Button } from "@/components/tremor/button";
 import { AnalysisContextModal } from "@/components/analysis-context-modal";
@@ -62,15 +67,16 @@ export function AiAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-primary bg-white">
-      <div className="flex items-baseline justify-between border-b border-border-default px-6 py-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+    <div className="border-t-4 border-accent bg-white">
+      <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
+        <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <RiSparkling2Line className="size-4 text-accent" aria-hidden="true" />
           Análisis de Claude
         </h3>
         <Status state={state} />
       </div>
 
-      <div className="px-6 py-6">
+      <div className="px-4 py-6 sm:px-6">
         {state.kind === "idle" && (
           <Idle
             focus={focus}
@@ -177,18 +183,19 @@ function Idle({
 function LoadingSkeleton() {
   return (
     <div className="space-y-4 py-2">
-      <div className="h-4 w-3/5 animate-pulse bg-slate-100" />
+      <div className="h-4 w-3/5 animate-pulse bg-border-default" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-slate-50" />
-        <div className="h-3 w-11/12 animate-pulse bg-slate-50" />
-        <div className="h-3 w-4/5 animate-pulse bg-slate-50" />
+        <div className="h-3 w-full animate-pulse bg-border-soft" />
+        <div className="h-3 w-11/12 animate-pulse bg-border-soft" />
+        <div className="h-3 w-4/5 animate-pulse bg-border-soft" />
       </div>
-      <div className="h-4 w-2/5 animate-pulse bg-slate-100" />
+      <div className="h-4 w-2/5 animate-pulse bg-border-default" />
       <div className="space-y-2">
-        <div className="h-3 w-full animate-pulse bg-slate-50" />
-        <div className="h-3 w-10/12 animate-pulse bg-slate-50" />
+        <div className="h-3 w-full animate-pulse bg-border-soft" />
+        <div className="h-3 w-10/12 animate-pulse bg-border-soft" />
       </div>
-      <p className="pt-2 text-[11px] uppercase tracking-[0.18em] text-light">
+      <p className="pt-2 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-light">
+        <RiSparkling2Line className="size-3.5 animate-pulse text-accent" aria-hidden="true" />
         Claude está leyendo los datos…
       </p>
     </div>
@@ -232,7 +239,7 @@ function Result({
     <div className="space-y-6">
       <MarkdownLite text={data.content} />
 
-      <div className="flex items-center justify-between border-t border-border-default pt-4">
+      <div className="flex flex-col gap-3 border-t border-border-default pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[10px] uppercase tracking-[0.18em] text-light tabular-nums">
           {data.fromCache ? "Cacheado" : "Generado"} ·{" "}
           {formatTimestamp(data.generatedAt)} · {data.modelUsed}
@@ -242,20 +249,24 @@ function Result({
             type="button"
             onClick={() => downloadAsPdf(data, filters)}
             className="
+              inline-flex items-center gap-1.5
               text-[10px] font-semibold uppercase tracking-[0.18em] text-primary
-              transition-colors duration-150 hover:text-light
+              transition-colors duration-150 hover:text-accent
             "
           >
+            <RiDownloadLine className="size-3.5" aria-hidden="true" />
             Descargar PDF
           </button>
           <button
             type="button"
             onClick={onRegenerate}
             className="
+              inline-flex items-center gap-1.5
               text-[10px] font-semibold uppercase tracking-[0.18em] text-light
               transition-colors duration-150 hover:text-primary
             "
           >
+            <RiRefreshLine className="size-3.5" aria-hidden="true" />
             Regenerar análisis
           </button>
         </div>
