@@ -62,12 +62,17 @@ RPCs adicionales (v1.4):
 
 ### Granularidad de análisis (v1.4)
 
-El reporte "Corey Haines" (`/dashboard/corey-haines`) acepta tres niveles
-via selector en la UI:
+El reporte "Corey Haines" (`/dashboard/corey-haines`) y la vista
+"Detalle" (`/dashboard/detalle`) aceptan tres niveles via selector
+en la UI:
 - `campaign` (default): comportamiento histórico, todos los publishers.
 - `adset`: agrega `top adsets` al payload de Claude. Solo Google Ads — si
   el filtro publisher no es `gads`, el server fuerza `campaign`.
 - `ad`: agrega `top ads`. Mismas reglas que adset.
+
+En `/detalle` la granularidad se persiste en la URL (`?granularity=adset`)
+para que el link sea compartible y el back del browser recupere el estado.
+En Corey Haines es estado local del componente.
 
 Si las tablas `fact_adset_daily` / `fact_ad_daily` están vacías para el
 período (porque la ingesta de adsets/ads no está configurada todavía), el
