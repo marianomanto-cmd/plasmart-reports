@@ -60,24 +60,29 @@ RPCs adicionales (v1.4):
 
 **Importante:** la moneda es siempre ARS (Plasmart factura GAds en pesos).
 
-### Granularidad de análisis (v1.4)
+### Granularidad de análisis (v1.4 / v1.5)
 
-El reporte "Corey Haines" (`/dashboard/corey-haines`) y la vista
-"Detalle" (`/dashboard/detalle`) aceptan tres niveles via selector
-en la UI:
+El reporte "Corey Haines" (`/dashboard/analysis`) y la vista
+"Paid" (`/dashboard/paid`) aceptan tres niveles via selector en la UI:
 - `campaign` (default): comportamiento histórico, todos los publishers.
-- `adset`: agrega `top adsets` al payload de Claude. Solo Google Ads — si
-  el filtro publisher no es `gads`, el server fuerza `campaign`.
+- `adset`: agrega `top adsets` al payload de Claude. Aplica a **ambos**
+  publishers (Google Ads y Meta Ads). Los registros incluyen `publisher`
+  para que el análisis pueda comparar entre redes.
 - `ad`: agrega `top ads`. Mismas reglas que adset.
 
-En `/detalle` la granularidad se persiste en la URL (`?granularity=adset`)
-para que el link sea compartible y el back del browser recupere el estado.
-En Corey Haines es estado local del componente.
+En `/paid` la granularidad se persiste en la URL (`?granularity=adset`)
+para que el link sea compartible y el back del browser recupere el
+estado. En Corey Haines es estado local del componente.
 
 Si las tablas `fact_adset_daily` / `fact_ad_daily` están vacías para el
-período (porque la ingesta de adsets/ads no está configurada todavía), el
-payload manda `drill_down.has_data = false` y el prompt le dice a Claude
-que aclare la falta y caiga a nivel campaña.
+período (porque la ingesta de adsets/ads no está configurada todavía
+para el publisher elegido), el payload manda `drill_down.has_data = false`
+y el prompt le dice a Claude que aclare la falta y caiga a nivel campaña.
+
+> **Histórico (v1.4)**: en la versión anterior adset/ad estaba limitado
+> a Google Ads y el server forzaba `campaign` si el publisher era Meta.
+> Desde v1.5, con la ingesta de adsets/ads de Meta operativa (Apps
+> Scripts contra Meta Marketing API), esta limitación se eliminó.
 
 ### Ingesta de adsets y ads (Google Ads + Meta Ads)
 

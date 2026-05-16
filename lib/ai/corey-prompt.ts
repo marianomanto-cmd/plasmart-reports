@@ -330,8 +330,8 @@ export function buildCoreyUserContent(args: BuildCoreyUserContentArgs): string {
     granularity === "campaign"
       ? "Analizá a nivel campaña."
       : granularity === "adset"
-      ? "Analizá a nivel ad group (Google Ads). Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de adsets ingestada para el período y limitate al nivel campaña."
-      : "Analizá a nivel ad individual (Google Ads). Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de ads ingestada para el período y limitate al nivel campaña.";
+      ? "Analizá a nivel ad group. Aplica tanto a Google Ads como a Meta Ads — los registros en `drill_down.rows` traen el campo `publisher` para que puedas comparar entre redes. Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de adsets ingestada para el período y limitate al nivel campaña."
+      : "Analizá a nivel ad individual. Aplica tanto a Google Ads como a Meta Ads — los registros en `drill_down.rows` traen el campo `publisher` para que puedas comparar entre redes. Las campañas siguen como contexto en `paid_campaigns`. Si `drill_down.has_data === false`, marcá explícitamente que no hay data de ads ingestada para el período y limitate al nivel campaña.";
 
   return [
     "Datos del período a analizar (en JSON):",

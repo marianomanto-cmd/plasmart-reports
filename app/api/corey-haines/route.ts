@@ -88,18 +88,14 @@ export async function POST(request: Request) {
     typeof body.focusOverride === "string" && body.focusOverride.trim().length > 0
       ? body.focusOverride.trim()
       : undefined;
-  const granularity: AnalysisGranularity =
+  // Granularidad: ya no hay restricción por publisher. Tanto gads como
+  // meta tienen ingesta de adsets/ads. Si para el período + publisher no
+  // hay data a ese nivel, el normalizer del prompt declara la falta y
+  // Claude cae a nivel campaña en el output.
+  const effectiveGranularity: AnalysisGranularity =
     body.granularity && VALID_GRANULARITIES.includes(body.granularity)
       ? body.granularity
       : "campaign";
-
-  // Adset/ad solo aplica para Google Ads. Si el publisher no es "gads"
-  // (o no hay publisher → "Todos"), forzamos campaign para evitar payloads
-  // que combinen Meta sin granularidad disponible.
-  const effectiveGranularity: AnalysisGranularity =
-    granularity !== "campaign" && filters.publisher !== "gads"
-      ? "campaign"
-      : granularity;
 
   const analysisContext = await loadAnalysisContext(supabase);
   const ctxKey = contextCacheKey(analysisContext, focusOverride);

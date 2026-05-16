@@ -44,13 +44,6 @@ export function CoreyHainesAnalysis({ filters }: Props) {
     useState<AnalysisGranularity>("campaign");
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Adset/ad solo aplica para Google Ads. Si el usuario filtró por Meta o
-  // por "Todos", caemos automáticamente a campaign (el server hace lo mismo,
-  // pero lo replicamos acá para que la UI sea honesta).
-  const granularityAvailable = filters.publisher === "gads";
-  const effectiveGranularity: AnalysisGranularity =
-    granularityAvailable ? granularity : "campaign";
-
   const run = async (forceRegenerate: boolean) => {
     setState({ kind: "loading" });
     try {
@@ -61,7 +54,7 @@ export function CoreyHainesAnalysis({ filters }: Props) {
           filters: filtersToParams(filters),
           forceRegenerate,
           focusOverride: focus.trim() || undefined,
-          granularity: effectiveGranularity,
+          granularity,
         }),
       });
 
@@ -101,8 +94,6 @@ export function CoreyHainesAnalysis({ filters }: Props) {
             onFocusChange={setFocus}
             granularity={granularity}
             onGranularityChange={setGranularity}
-            granularityAvailable={granularityAvailable}
-            currentPublisher={filters.publisher ?? null}
             onRun={() => run(false)}
             onOpenModal={() => setModalOpen(true)}
           />
@@ -135,8 +126,6 @@ function Idle({
   onFocusChange,
   granularity,
   onGranularityChange,
-  granularityAvailable,
-  currentPublisher,
   onRun,
   onOpenModal,
 }: {
@@ -144,8 +133,6 @@ function Idle({
   onFocusChange: (v: string) => void;
   granularity: AnalysisGranularity;
   onGranularityChange: (g: AnalysisGranularity) => void;
-  granularityAvailable: boolean;
-  currentPublisher: string | null;
   onRun: () => void;
   onOpenModal: () => void;
 }) {
@@ -181,12 +168,10 @@ function Idle({
         </div>
       </div>
 
-      {/* Selector de granularidad — sólo para Google Ads */}
+      {/* Selector de granularidad — aplicable a ambos publishers */}
       <GranularityPicker
         value={granularity}
         onChange={onGranularityChange}
-        available={granularityAvailable}
-        currentPublisher={currentPublisher}
       />
 
       <div className="w-full max-w-2xl space-y-2">
@@ -239,13 +224,9 @@ function Idle({
 function GranularityPicker({
   value,
   onChange,
-  available,
-  currentPublisher,
 }: {
   value: AnalysisGranularity;
   onChange: (g: AnalysisGranularity) => void;
-  available: boolean;
-  currentPublisher: string | null;
 }) {
   const options: Array<{
     g: AnalysisGranularity;
@@ -253,8 +234,8 @@ function GranularityPicker({
     sub: string;
   }> = [
     { g: "campaign", label: "Campaña", sub: "Vista por campañas" },
-    { g: "adset", label: "Ad group", sub: "Solo Google Ads" },
-    { g: "ad", label: "Ad", sub: "Solo Google Ads" },
+    { g: "adset", label: "Ad group", sub: "GAds + Meta" },
+    { g: "ad", label: "Ad", sub: "GAds + Meta" },
   ];
 
   return (
@@ -268,7 +249,6 @@ function GranularityPicker({
         className="flex flex-wrap gap-2"
       >
         {options.map((o) => {
-          const disabled = !available && o.g !== "campaign";
           const isSelected = value === o.g;
           return (
             <button
@@ -276,16 +256,13 @@ function GranularityPicker({
               type="button"
               role="radio"
               aria-checked={isSelected}
-              disabled={disabled}
               onClick={() => onChange(o.g)}
               className={`
                 flex flex-col items-start gap-0.5 border px-3 py-2 text-left
                 transition-colors duration-150
                 ${
-                  isSelected && !disabled
+                  isSelected
                     ? "border-brand bg-brand-soft text-primary"
-                    : disabled
-                    ? "cursor-not-allowed border-border-default bg-cream text-light"
                     : "border-border-default bg-white text-primary hover:border-brand"
                 }
               `}
@@ -298,18 +275,11 @@ function GranularityPicker({
           );
         })}
       </div>
-      {!available && value !== "campaign" && (
-        <p className="text-xs text-warning">
-          Ad group / Ad están disponibles solo cuando el filtro Publisher
-          es Google Ads. Con{" "}
-          {currentPublisher === "meta" ? "Meta" : "Todos"} el reporte se
-          genera a nivel campaña.
-        </p>
-      )}
-      {available && value !== "campaign" && (
+      {value !== "campaign" && (
         <p className="text-xs text-light">
-          Si todavía no se ingestó data de {value === "adset" ? "ad groups" : "ads"},
-          el reporte marca explícitamente la falta y cae a nivel campaña.
+          Si no hay datos ingestados de {value === "adset" ? "ad groups" : "ads"}
+          {" "}para el publisher elegido en este período, el reporte lo
+          declara explícitamente y cae a nivel campaña.
         </p>
       )}
     </div>
