@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { DashboardHeader } from "@/components/dashboard-header";
-import { DashboardTabs } from "@/components/dashboard-tabs";
+import { AppShell } from "@/components/app-shell/app-shell";
 
 /**
- * Layout compartido entre las tres pestañas del dashboard.
- * Renderiza header global + sub-nav de pestañas. Cada page hijo
- * solo renderiza su contenido específico.
+ * Layout principal del dashboard.
+ * Renderiza el AppShell (sidebar fija en desktop, hamburger en mobile +
+ * topbar). Las pages hijas sólo renderizan su contenido — sin headers
+ * ni tabs propios.
  */
 export default async function DashboardLayout({
   children,
@@ -17,11 +17,5 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <>
-      <DashboardHeader userEmail={user?.email} active="dashboard" />
-      <DashboardTabs />
-      {children}
-    </>
-  );
+  return <AppShell userEmail={user?.email}>{children}</AppShell>;
 }

@@ -1,13 +1,11 @@
 import { parseFilters } from "@/lib/filters";
 import {
-  fetchAvailableFilters,
   fetchCampaignRows,
   fetchDailyByPublisher,
   fetchDailyTotals,
   fetchKpis,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
 import { KpiGrid } from "@/components/kpi-grid";
 import { CostEvolutionChart } from "@/components/charts/cost-evolution";
 import { AiAnalysis } from "@/components/ai-analysis";
@@ -23,12 +21,9 @@ export default async function ResumenPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  // Necesitamos campaign rows solo para el detector de "sin datos"
-  // (sin la tabla en sí, eso vive en /detalle).
-  const [kpis, available, dailyPoints, dailyTotals, campaignRowsForCheck] =
+  const [kpis, dailyPoints, dailyTotals, campaignRowsForCheck] =
     await Promise.all([
       fetchKpis(filters),
-      fetchAvailableFilters(filters.from, filters.to, filters.publisher),
       fetchDailyByPublisher(filters),
       fetchDailyTotals(filters),
       fetchCampaignRows(filters, 1),
@@ -50,58 +45,52 @@ export default async function ResumenPage({
       : "sin comparación";
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
-        <div>
-          <p className="eyebrow-sm">Resumen del período</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-            {formatHumanRange(filters.from, filters.to)}
-          </h2>
-          <p className="mt-1.5 text-sm text-steel">
-            {days} {days === 1 ? "día" : "días"} · {compareLabel}
-          </p>
-        </div>
-
-        <FiltersBar filters={filters} available={available} />
-
-        {hasPaidData ? (
-          <>
-            <section aria-labelledby="kpis-heading">
-              <h3 id="kpis-heading" className="sr-only">
-                Indicadores principales
-              </h3>
-              <KpiGrid
-                kpis={kpis}
-                compareMode={filters.compare}
-                daily={dailyTotals}
-              />
-            </section>
-
-            <section aria-labelledby="evolution-heading">
-              <h3 id="evolution-heading" className="sr-only">
-                Evolución diaria de inversión
-              </h3>
-              <CostEvolutionChart
-                points={dailyPoints}
-                fromIso={filters.from}
-                toIso={filters.to}
-              />
-            </section>
-
-            {/* Análisis de Claude — sube de posición: ahora está
-                inmediatamente debajo del gráfico de evolución, no al final. */}
-            <section aria-labelledby="ai-heading">
-              <h3 id="ai-heading" className="sr-only">
-                Análisis automático de Claude
-              </h3>
-              <AiAnalysis filters={filters} />
-            </section>
-          </>
-        ) : (
-          <EmptyStateBanner />
-        )}
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-8 lg:px-8">
+      <div>
+        <p className="eyebrow-sm">Resumen del período</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {formatHumanRange(filters.from, filters.to)}
+        </h2>
+        <p className="mt-1.5 text-sm text-steel">
+          {days} {days === 1 ? "día" : "días"} · {compareLabel}
+        </p>
       </div>
-    </main>
+
+      {hasPaidData ? (
+        <>
+          <section aria-labelledby="kpis-heading">
+            <h3 id="kpis-heading" className="sr-only">
+              Indicadores principales
+            </h3>
+            <KpiGrid
+              kpis={kpis}
+              compareMode={filters.compare}
+              daily={dailyTotals}
+            />
+          </section>
+
+          <section aria-labelledby="evolution-heading">
+            <h3 id="evolution-heading" className="sr-only">
+              Evolución diaria de inversión
+            </h3>
+            <CostEvolutionChart
+              points={dailyPoints}
+              fromIso={filters.from}
+              toIso={filters.to}
+            />
+          </section>
+
+          <section aria-labelledby="ai-heading">
+            <h3 id="ai-heading" className="sr-only">
+              Análisis automático de Claude
+            </h3>
+            <AiAnalysis filters={filters} />
+          </section>
+        </>
+      ) : (
+        <EmptyStateBanner />
+      )}
+    </div>
   );
 }
 

@@ -1,7 +1,6 @@
 import { parseFilters } from "@/lib/filters";
-import { fetchAvailableFilters, fetchKpis } from "@/lib/queries";
+import { fetchKpis } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
 import { CoreyHainesAnalysis } from "@/components/corey-haines-analysis";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
 
@@ -17,10 +16,7 @@ export default async function CoreyHainesPage({
 
   // Necesitamos KPIs solo para detectar período sin datos. El reporte real
   // se genera del lado cliente vía /api/corey-haines.
-  const [kpis, available] = await Promise.all([
-    fetchKpis(filters),
-    fetchAvailableFilters(filters.from, filters.to, filters.publisher),
-  ]);
+  const kpis = await fetchKpis(filters);
 
   const hasPaidData =
     kpis.cost.current > 0 ||
@@ -37,32 +33,28 @@ export default async function CoreyHainesPage({
       : "sin comparación";
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
-        <div>
-          <p className="eyebrow-sm">Corey Haines · Reporte experto</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-            {formatHumanRange(filters.from, filters.to)}
-          </h2>
-          <p className="mt-1.5 text-sm text-steel">
-            {days} {days === 1 ? "día" : "días"} · {compareLabel}
-          </p>
-        </div>
-
-        <FiltersBar filters={filters} available={available} />
-
-        {hasPaidData ? (
-          <section aria-labelledby="corey-heading">
-            <h3 id="corey-heading" className="sr-only">
-              Reporte experto Corey Haines
-            </h3>
-            <CoreyHainesAnalysis filters={filters} />
-          </section>
-        ) : (
-          <EmptyStateBanner />
-        )}
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-8 lg:px-8">
+      <div>
+        <p className="eyebrow-sm">Corey Haines · Reporte experto</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {formatHumanRange(filters.from, filters.to)}
+        </h2>
+        <p className="mt-1.5 text-sm text-steel">
+          {days} {days === 1 ? "día" : "días"} · {compareLabel}
+        </p>
       </div>
-    </main>
+
+      {hasPaidData ? (
+        <section aria-labelledby="corey-heading">
+          <h3 id="corey-heading" className="sr-only">
+            Reporte experto Corey Haines
+          </h3>
+          <CoreyHainesAnalysis filters={filters} />
+        </section>
+      ) : (
+        <EmptyStateBanner />
+      )}
+    </div>
   );
 }
 

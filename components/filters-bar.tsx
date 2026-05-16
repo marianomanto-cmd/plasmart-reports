@@ -94,165 +94,165 @@ export function FiltersBar({ filters, available }: Props) {
   }, [available.campaigns, filters.campaignId]);
 
   return (
-    <div className="sticky top-0 z-20 -mx-4 border-b border-border-default bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80 sm:-mx-8">
-      <div className="px-4 py-4 sm:px-8">
-        <div className="flex flex-wrap items-end gap-x-4 gap-y-3 filters-bar-row">
-          {/* ----- Grupo 1: rango temporal ----- */}
-          <GroupLabel icon={<RiCalendarLine className="size-3.5" />}>
-            Rango
-          </GroupLabel>
+    <div className="space-y-6">
+      {/* ----- Grupo 1: rango temporal ----- */}
+      <FilterGroup
+        label="Rango temporal"
+        icon={<RiCalendarLine className="size-3.5" />}
+      >
+        <SelectField
+          label="Tipo de rango"
+          value={rangeMode}
+          options={[
+            { value: "exact", label: "Fechas exactas" },
+            { value: "period", label: "Período" },
+          ]}
+          onChange={(v) => setRangeMode(v as RangeMode)}
+        />
 
-          <SelectField
-            label="Tipo de rango"
-            value={rangeMode}
-            options={[
-              { value: "exact", label: "Fechas exactas" },
-              { value: "period", label: "Período" },
-            ]}
-            onChange={(v) => setRangeMode(v as RangeMode)}
-            minWidth={150}
-          />
-
-          {rangeMode === "exact" ? (
-            <>
-              <DateField
-                label="Desde"
-                value={filters.from}
-                max={filters.to}
-                onChange={(v) => update({ from: v })}
-              />
-              <DateField
-                label="Hasta"
-                value={filters.to}
-                min={filters.from}
-                onChange={(v) => update({ to: v })}
-              />
-            </>
-          ) : (
-            <PeriodSlider
-              from={filters.from}
-              to={filters.to}
-              onCommit={(newFrom) => update({ from: newFrom })}
+        {rangeMode === "exact" ? (
+          <div className="grid grid-cols-2 gap-3">
+            <DateField
+              label="Desde"
+              value={filters.from}
+              max={filters.to}
+              onChange={(v) => update({ from: v })}
             />
-          )}
-
-          <SelectField
-            label="Comparar contra"
-            value={filters.compare}
-            options={[
-              { value: "previous", label: "Período anterior" },
-              { value: "yoy", label: "Año anterior" },
-              { value: "none", label: "Sin comparación" },
-            ]}
-            onChange={(v) => update({ compare: v as CompareMode })}
-            minWidth={170}
-          />
-
-          {/* Divisor vertical entre grupos. En mobile la barra ocupa
-              full-width y el divisor estorba; lo escondemos abajo de sm. */}
-          <span
-            aria-hidden="true"
-            className="hidden h-10 w-px bg-border-default sm:block"
-          />
-
-          {/* ----- Grupo 2: scope ----- */}
-          <GroupLabel icon={<RiFilter3Line className="size-3.5" />}>
-            Scope
-          </GroupLabel>
-
-          <SelectField
-            label="Publisher"
-            value={filters.publisher ?? ""}
-            options={[
-              { value: "", label: "Todos" },
-              { value: "gads", label: "Google Ads" },
-              { value: "meta", label: "Meta Ads" },
-            ]}
-            onChange={(v) =>
-              update({ publisher: v ? (v as Publisher) : undefined })
-            }
-            mobileFullWidth
-          />
-
-          <SelectField
-            label="Tipo"
-            value={filters.type ?? ""}
-            options={[
-              { value: "", label: "Todos" },
-              ...available.types.map((t) => ({
-                value: t,
-                label: t.replace(/_/g, " ").toUpperCase(),
-              })),
-            ]}
-            onChange={(v) => update({ type: v || undefined })}
-            minWidth={150}
-            mobileFullWidth
-          />
-
-          <SelectField
-            label="Campaña"
-            value={filters.campaignId ?? ""}
-            options={[
-              { value: "", label: "Todas" },
-              ...campaignOptions.map((c) => ({ value: c.id, label: c.name })),
-            ]}
-            onChange={(v) => update({ campaignId: v || undefined })}
-            minWidth={260}
-            mobileFullWidth
-          />
-
-          <div className="ml-auto flex items-center gap-3">
-            {isPending && (
-              <span className="text-[11px] uppercase tracking-[0.16em] text-light">
-                Actualizando…
-              </span>
-            )}
+            <DateField
+              label="Hasta"
+              value={filters.to}
+              min={filters.from}
+              onChange={(v) => update({ to: v })}
+            />
           </div>
+        ) : (
+          <PeriodSlider
+            from={filters.from}
+            to={filters.to}
+            onCommit={(newFrom) => update({ from: newFrom })}
+          />
+        )}
+
+        <SelectField
+          label="Comparar contra"
+          value={filters.compare}
+          options={[
+            { value: "previous", label: "Período anterior" },
+            { value: "yoy", label: "Año anterior" },
+            { value: "none", label: "Sin comparación" },
+          ]}
+          onChange={(v) => update({ compare: v as CompareMode })}
+        />
+      </FilterGroup>
+
+      {/* ----- Grupo 2: scope ----- */}
+      <FilterGroup
+        label="Scope"
+        icon={<RiFilter3Line className="size-3.5" />}
+      >
+        <SelectField
+          label="Publisher"
+          value={filters.publisher ?? ""}
+          options={[
+            { value: "", label: "Todos" },
+            { value: "gads", label: "Google Ads" },
+            { value: "meta", label: "Meta Ads" },
+          ]}
+          onChange={(v) =>
+            update({ publisher: v ? (v as Publisher) : undefined })
+          }
+        />
+
+        <SelectField
+          label="Tipo"
+          value={filters.type ?? ""}
+          options={[
+            { value: "", label: "Todos" },
+            ...available.types.map((t) => ({
+              value: t,
+              label: t.replace(/_/g, " ").toUpperCase(),
+            })),
+          ]}
+          onChange={(v) => update({ type: v || undefined })}
+        />
+
+        <SelectField
+          label="Campaña"
+          value={filters.campaignId ?? ""}
+          options={[
+            { value: "", label: "Todas" },
+            ...campaignOptions.map((c) => ({ value: c.id, label: c.name })),
+          ]}
+          onChange={(v) => update({ campaignId: v || undefined })}
+        />
+      </FilterGroup>
+
+      {/* ----- Footer del drawer ----- */}
+      <div className="flex items-center justify-between border-t border-border-default pt-4">
+        <div className="text-xs text-muted-foreground">
+          {isPending ? "Actualizando…" : hasActive ? "Filtros aplicados" : "Sin filtros"}
         </div>
-
-        {/* ----- Chips de filtros activos + botón limpiar ----- */}
         {hasActive && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {filters.publisher && (
-              <FilterChip
-                label={
-                  filters.publisher === "gads" ? "Google Ads" : "Meta Ads"
-                }
-                onClear={() => update({ publisher: undefined })}
-              />
-            )}
-            {filters.type && (
-              <FilterChip
-                label={filters.type.replace(/_/g, " ").toUpperCase()}
-                onClear={() => update({ type: undefined })}
-              />
-            )}
-            {filters.campaignId && (
-              <FilterChip
-                label={activeCampaignName ?? "Campaña"}
-                onClear={() => update({ campaignId: undefined })}
-                truncate
-              />
-            )}
-            <button
-              type="button"
-              onClick={() =>
-                update({
-                  publisher: undefined,
-                  type: undefined,
-                  campaignId: undefined,
-                })
-              }
-              className="
-                ml-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-steel
-                transition-colors duration-150 hover:text-primary
-              "
-            >
-              Limpiar todo
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() =>
+              update({
+                publisher: undefined,
+                type: undefined,
+                campaignId: undefined,
+              })
+            }
+            className="text-xs font-semibold text-foreground underline-offset-4 hover:underline"
+          >
+            Limpiar scope
+          </button>
         )}
       </div>
+
+      {/* ----- Chips de filtros activos (siempre visibles abajo del header) ----- */}
+      {hasActive && (
+        <div className="flex flex-wrap items-center gap-2">
+          {filters.publisher && (
+            <FilterChip
+              label={filters.publisher === "gads" ? "Google Ads" : "Meta Ads"}
+              onClear={() => update({ publisher: undefined })}
+            />
+          )}
+          {filters.type && (
+            <FilterChip
+              label={filters.type.replace(/_/g, " ").toUpperCase()}
+              onClear={() => update({ type: undefined })}
+            />
+          )}
+          {filters.campaignId && (
+            <FilterChip
+              label={activeCampaignName ?? "Campaña"}
+              onClear={() => update({ campaignId: undefined })}
+              truncate
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FilterGroup({
+  label,
+  icon,
+  children,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <div className="space-y-3">{children}</div>
     </div>
   );
 }
@@ -308,9 +308,9 @@ function DateField({
         max={max}
         onChange={(e) => onChange(e.target.value)}
         className="
-          border border-border-default bg-white px-3 py-2
-          text-sm text-primary tabular-nums
-          focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
+          w-full rounded-md border border-border bg-card px-3 py-2
+          text-sm text-foreground tabular-nums
+          focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20
         "
       />
     </label>
@@ -322,29 +322,22 @@ function SelectField({
   value,
   options,
   onChange,
-  minWidth = 160,
-  mobileFullWidth = false,
 }: {
   label: string;
   value: string;
   options: Array<{ value: string; label: string }>;
   onChange: (v: string) => void;
-  minWidth?: number;
-  mobileFullWidth?: boolean;
 }) {
   return (
-    <label
-      className={`flex flex-col${mobileFullWidth ? " filter-select-mobile-full" : ""}`}
-    >
+    <label className="flex flex-col">
       <FieldLabel>{label}</FieldLabel>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{ minWidth }}
         className="
-          border border-border-default bg-white px-3 py-2
-          text-sm font-medium text-primary
-          focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
+          w-full min-w-0 rounded-md border border-border bg-card px-3 py-2
+          text-sm font-medium text-foreground
+          focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20
         "
       >
         {options.map((o) => (
@@ -367,16 +360,16 @@ function FilterChip({
   truncate?: boolean;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary">
-      <span className={truncate ? "block max-w-[200px] truncate" : ""}>
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-foreground">
+      <span className={truncate ? "block max-w-[140px] truncate" : ""}>
         {label}
       </span>
       <button
         type="button"
         onClick={onClear}
         className="
-          rounded-full p-0.5 text-steel transition-colors duration-150
-          hover:bg-white/60 hover:text-primary
+          rounded-full p-0.5 text-muted-foreground transition-colors duration-150
+          hover:bg-card/60 hover:text-foreground
         "
         aria-label={`Quitar filtro ${label}`}
       >
@@ -420,36 +413,34 @@ function PeriodSlider({
   return (
     <label className="flex flex-col">
       <FieldLabel>Período</FieldLabel>
-      <div className="flex items-center gap-4 border border-border-default bg-white px-3 py-2">
-        <div className="flex flex-col gap-0.5">
-          <input
-            type="range"
-            min={PERIOD_MIN}
-            max={PERIOD_MAX}
-            step={1}
-            value={days}
-            list={presetsListId}
-            onChange={(e) => setDraftDays(Number(e.target.value))}
-            onPointerUp={commit}
-            onKeyUp={commit}
-            onBlur={commit}
-            className="w-full accent-[#2563eb] sm:w-[260px]"
-            aria-label="Cantidad de días del período"
-          />
-          <datalist id={presetsListId}>
-            {PERIOD_PRESETS.map((p) => (
-              <option key={p} value={p} label={`${p}`} />
-            ))}
-          </datalist>
-        </div>
-        <div className="flex flex-col leading-tight">
-          <span className="text-sm font-semibold text-primary tabular-nums whitespace-nowrap">
+      <div className="flex flex-col gap-2 rounded-md border border-border bg-card px-3 py-3">
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm font-semibold text-foreground tabular-nums">
             Últimos {days} {days === 1 ? "día" : "días"}
           </span>
-          <span className="text-[11px] text-light tabular-nums whitespace-nowrap">
-            {formatDateShort(previewFrom)} — {formatDateShort(to)}
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDateShort(previewFrom)} → {formatDateShort(to)}
           </span>
         </div>
+        <input
+          type="range"
+          min={PERIOD_MIN}
+          max={PERIOD_MAX}
+          step={1}
+          value={days}
+          list={presetsListId}
+          onChange={(e) => setDraftDays(Number(e.target.value))}
+          onPointerUp={commit}
+          onKeyUp={commit}
+          onBlur={commit}
+          className="w-full accent-[#2563eb]"
+          aria-label="Cantidad de días del período"
+        />
+        <datalist id={presetsListId}>
+          {PERIOD_PRESETS.map((p) => (
+            <option key={p} value={p} label={`${p}`} />
+          ))}
+        </datalist>
       </div>
     </label>
   );

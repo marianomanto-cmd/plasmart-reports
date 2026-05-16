@@ -2,12 +2,10 @@ import { parseFilters } from "@/lib/filters";
 import {
   fetchAdRows,
   fetchAdsetRows,
-  fetchAvailableFilters,
   fetchCampaignAnomalies,
   fetchCampaignRows,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { FiltersBar } from "@/components/filters-bar";
 import { GranularityPills } from "@/components/granularity-pills";
 import { TopCampaignsChart } from "@/components/charts/top-campaigns";
 import { TopAdsetsChart } from "@/components/charts/top-adsets";
@@ -38,19 +36,9 @@ export default async function DetallePage({
   const granularity = parseGranularity(params.granularity);
   const days = rangeDays(filters.from, filters.to);
 
-  // Available filters siempre se traen — son para la FiltersBar.
-  const availablePromise = fetchAvailableFilters(
-    filters.from,
-    filters.to,
-    filters.publisher,
-  );
-
   // Branch según granularidad: traemos sólo lo que la vista necesita.
   if (granularity === "adset") {
-    const [available, adsetRows] = await Promise.all([
-      availablePromise,
-      fetchAdsetRows(filters),
-    ]);
+    const adsetRows = await fetchAdsetRows(filters);
 
     return (
       <DetallePageShell
@@ -63,7 +51,6 @@ export default async function DetallePage({
             ? `${days} ${days === 1 ? "día" : "días"} · ad group por ad group`
             : `${days} ${days === 1 ? "día" : "días"} · sin datos a este nivel`
         }
-        available={available}
       >
         {adsetRows.length > 0 ? (
           <>
@@ -88,10 +75,7 @@ export default async function DetallePage({
   }
 
   if (granularity === "ad") {
-    const [available, adRows] = await Promise.all([
-      availablePromise,
-      fetchAdRows(filters),
-    ]);
+    const adRows = await fetchAdRows(filters);
 
     return (
       <DetallePageShell
@@ -104,7 +88,6 @@ export default async function DetallePage({
             ? `${days} ${days === 1 ? "día" : "días"} · ad por ad`
             : `${days} ${days === 1 ? "día" : "días"} · sin datos a este nivel`
         }
-        available={available}
       >
         {adRows.length > 0 ? (
           <>
@@ -129,8 +112,7 @@ export default async function DetallePage({
   }
 
   // ---- Granularidad por default: campañas ----
-  const [available, allCampaignRows, anomalies] = await Promise.all([
-    availablePromise,
+  const [allCampaignRows, anomalies] = await Promise.all([
     fetchCampaignRows(filters),
     fetchCampaignAnomalies(filters),
   ]);
@@ -145,7 +127,6 @@ export default async function DetallePage({
       granularity={granularity}
       eyebrow="Detalle de campañas"
       subtitle={`${days} ${days === 1 ? "día" : "días"} · campaña por campaña`}
-      available={available}
     >
       {hasData ? (
         <>
@@ -173,11 +154,9 @@ export default async function DetallePage({
 
 function DetallePageShell({
   filters,
-  days,
   granularity,
   eyebrow,
   subtitle,
-  available,
   children,
 }: {
   filters: ReturnType<typeof parseFilters>;
@@ -185,27 +164,22 @@ function DetallePageShell({
   granularity: AnalysisGranularity;
   eyebrow: string;
   subtitle: string;
-  available: Awaited<ReturnType<typeof fetchAvailableFilters>>;
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
-        <div>
-          <p className="eyebrow-sm">{eyebrow}</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-            {formatHumanRange(filters.from, filters.to)}
-          </h2>
-          <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
-        </div>
-
-        <FiltersBar filters={filters} available={available} />
-
-        <GranularityPills current={granularity} />
-
-        {children}
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-8 lg:px-8">
+      <div>
+        <p className="eyebrow-sm">{eyebrow}</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {formatHumanRange(filters.from, filters.to)}
+        </h2>
+        <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
       </div>
-    </main>
+
+      <GranularityPills current={granularity} />
+
+      {children}
+    </div>
   );
 }
 
@@ -222,7 +196,7 @@ function NoDrillDownBanner({
   return (
     <div className="border border-border-default bg-white px-4 py-10 text-center sm:px-8 sm:py-12">
       <p className="eyebrow-xs">Sin datos a este nivel</p>
-      <h3 className="mt-3 text-xl font-bold tracking-tight text-primary">
+      <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground">
         No hay {levelLabel} para el período y filtros seleccionados
       </h3>
       <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-steel">

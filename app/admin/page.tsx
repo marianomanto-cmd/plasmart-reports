@@ -1,10 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
 import {
   fetchAiAnalysisLog,
   fetchDataFreshness,
   fetchIngestionLog,
 } from "@/lib/admin-queries";
-import { DashboardHeader } from "@/components/dashboard-header";
 import { IngestionLogTable } from "@/components/ingestion-log-table";
 import { DataFreshnessPanel } from "@/components/data-freshness-panel";
 import { ForceIngestButton } from "@/components/force-ingest-button";
@@ -14,11 +12,6 @@ import { Card } from "@/components/tremor/card";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const [rows, freshness, aiLog] = await Promise.all([
     fetchIngestionLog(20),
     fetchDataFreshness(),
@@ -29,10 +22,7 @@ export default async function AdminPage() {
   const failedInLast20 = rows.filter((r) => r.status === "failed").length;
 
   return (
-    <main className="min-h-screen bg-background">
-      <DashboardHeader userEmail={user?.email} active="admin" />
-
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
         {/* Encabezado */}
         <div>
           <p className="eyebrow-sm">Operación</p>
@@ -128,8 +118,7 @@ export default async function AdminPage() {
           </div>
           <AiAnalysisLogTable rows={aiLog} />
         </section>
-      </div>
-    </main>
+    </div>
   );
 }
 
