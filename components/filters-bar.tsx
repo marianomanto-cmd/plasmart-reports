@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { RiCalendarLine, RiFilter3Line, RiCloseLine } from "@remixicon/react";
+import { RiCloseLine } from "@remixicon/react";
 import type {
   AvailableFilters,
   CompareMode,
@@ -11,6 +11,7 @@ import type {
 } from "@/lib/types";
 import { buildSearchString } from "@/lib/filters";
 import { parseIsoDate, rangeDays, toIsoDate } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 
 type RangeMode = "exact" | "period";
 
@@ -41,14 +42,17 @@ interface Props {
 }
 
 /**
- * Barra de filtros sticky. Cualquier cambio reescribe la URL via router.replace,
- * lo que dispara un re-render del Server Component padre con datos nuevos.
+ * Barra de filtros inline para usar al tope de cada página.
+ * Cualquier cambio reescribe la URL via router.replace, lo que dispara
+ * un re-render del Server Component padre con datos nuevos.
  *
- * Cascada: cambiar publisher resetea type y campaign; cambiar type resetea campaign.
+ * Cascada: cambiar publisher resetea type y campaign; cambiar type
+ * resetea campaign.
  *
- * Layout: dos grupos visuales separados por un divisor:
- *   - Rango temporal: tipo de rango, fechas (o slider) y comparación.
- *   - Scope: publisher, tipo, campaña.
+ * Layout:
+ *   - Mobile (<sm): stack vertical full-width.
+ *   - Desktop (≥sm): grid responsive con auto-fit, todos los controles
+ *     visibles sin scroll. Los chips de filtros activos van debajo.
  */
 export function FiltersBar({ filters, available }: Props) {
   const router = useRouter();
@@ -58,7 +62,6 @@ export function FiltersBar({ filters, available }: Props) {
 
   const update = (patch: Partial<DashboardFilters>) => {
     const next: DashboardFilters = { ...filters, ...patch };
-
     if (patch.publisher !== undefined && patch.publisher !== filters.publisher) {
       next.type = undefined;
       next.campaignId = undefined;
@@ -66,14 +69,12 @@ export function FiltersBar({ filters, available }: Props) {
     if (patch.type !== undefined && patch.type !== filters.type) {
       next.campaignId = undefined;
     }
-
     const qs = buildSearchString(next);
     startTransition(() => {
       router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
     });
   };
 
-  // Las campañas mostradas dependen de los otros filtros activos
   const campaignOptions = useMemo(
     () =>
       available.campaigns
@@ -84,24 +85,24 @@ export function FiltersBar({ filters, available }: Props) {
 
   const hasActive = Boolean(filters.publisher || filters.type || filters.campaignId);
 
-  // Para mostrar el chip de campaña con su nombre amigable
   const activeCampaignName = useMemo(() => {
     if (!filters.campaignId) return null;
     return (
-      available.campaigns.find((c) => c.id === filters.campaignId)?.name ??
-      null
+      available.campaigns.find((c) => c.id === filters.campaignId)?.name ?? null
     );
   }, [available.campaigns, filters.campaignId]);
 
   return (
-    <div className="space-y-6">
-      {/* ----- Grupo 1: rango temporal ----- */}
-      <FilterGroup
-        label="Rango temporal"
-        icon={<RiCalendarLine className="size-3.5" />}
+    <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
+      <div
+        className={cn(
+          "grid gap-3",
+          // Mobile: 1 col. sm: 2 cols. lg: layout horizontal con flex
+          "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[auto_auto_auto_1fr_auto_auto] lg:items-end",
+        )}
       >
         <SelectField
-          label="Tipo de rango"
+          label="Rango"
           value={rangeMode}
           options={[
             { value: "exact", label: "Fechas exactas" },
@@ -111,7 +112,7 @@ export function FiltersBar({ filters, available }: Props) {
         />
 
         {rangeMode === "exact" ? (
-          <div className="grid grid-cols-2 gap-3">
+          <>
             <DateField
               label="Desde"
               value={filters.from}
@@ -124,13 +125,15 @@ export function FiltersBar({ filters, available }: Props) {
               min={filters.from}
               onChange={(v) => update({ to: v })}
             />
-          </div>
+          </>
         ) : (
-          <PeriodSlider
-            from={filters.from}
-            to={filters.to}
-            onCommit={(newFrom) => update({ from: newFrom })}
-          />
+          <div className="sm:col-span-2 lg:col-span-2">
+            <PeriodSlider
+              from={filters.from}
+              to={filters.to}
+              onCommit={(newFrom) => update({ from: newFrom })}
+            />
+          </div>
         )}
 
         <SelectField
@@ -143,13 +146,7 @@ export function FiltersBar({ filters, available }: Props) {
           ]}
           onChange={(v) => update({ compare: v as CompareMode })}
         />
-      </FilterGroup>
 
-      {/* ----- Grupo 2: scope ----- */}
-      <FilterGroup
-        label="Scope"
-        icon={<RiFilter3Line className="size-3.5" />}
-      >
         <SelectField
           label="Publisher"
           value={filters.publisher ?? ""}
@@ -176,42 +173,22 @@ export function FiltersBar({ filters, available }: Props) {
           onChange={(v) => update({ type: v || undefined })}
         />
 
-        <SelectField
-          label="Campaña"
-          value={filters.campaignId ?? ""}
-          options={[
-            { value: "", label: "Todas" },
-            ...campaignOptions.map((c) => ({ value: c.id, label: c.name })),
-          ]}
-          onChange={(v) => update({ campaignId: v || undefined })}
-        />
-      </FilterGroup>
-
-      {/* ----- Footer del drawer ----- */}
-      <div className="flex items-center justify-between border-t border-border-default pt-4">
-        <div className="text-xs text-muted-foreground">
-          {isPending ? "Actualizando…" : hasActive ? "Filtros aplicados" : "Sin filtros"}
+        <div className="sm:col-span-2 lg:col-span-6">
+          <SelectField
+            label="Campaña"
+            value={filters.campaignId ?? ""}
+            options={[
+              { value: "", label: "Todas" },
+              ...campaignOptions.map((c) => ({ value: c.id, label: c.name })),
+            ]}
+            onChange={(v) => update({ campaignId: v || undefined })}
+          />
         </div>
-        {hasActive && (
-          <button
-            type="button"
-            onClick={() =>
-              update({
-                publisher: undefined,
-                type: undefined,
-                campaignId: undefined,
-              })
-            }
-            className="text-xs font-semibold text-foreground underline-offset-4 hover:underline"
-          >
-            Limpiar scope
-          </button>
-        )}
       </div>
 
-      {/* ----- Chips de filtros activos (siempre visibles abajo del header) ----- */}
-      {hasActive && (
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Chips de filtros activos + estado + limpiar */}
+      {(hasActive || isPending) && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           {filters.publisher && (
             <FilterChip
               label={filters.publisher === "gads" ? "Google Ads" : "Meta Ads"}
@@ -231,55 +208,37 @@ export function FiltersBar({ filters, available }: Props) {
               truncate
             />
           )}
+          {hasActive && (
+            <button
+              type="button"
+              onClick={() =>
+                update({
+                  publisher: undefined,
+                  type: undefined,
+                  campaignId: undefined,
+                })
+              }
+              className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Limpiar
+            </button>
+          )}
+          {isPending && (
+            <span className="ml-auto text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Actualizando…
+            </span>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function FilterGroup({
-  label,
-  icon,
-  children,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        {icon}
-        {label}
-      </div>
-      <div className="space-y-3">{children}</div>
-    </div>
-  );
-}
-
 // ---------- Sub-componentes ----------
-
-function GroupLabel({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className="hidden h-9 items-end gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-light sm:inline-flex"
-    >
-      {icon}
-      {children}
-    </span>
-  );
-}
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-light">
+    <span className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
       {children}
     </span>
   );
@@ -299,7 +258,7 @@ function DateField({
   onChange: (v: string) => void;
 }) {
   return (
-    <label className="flex flex-col">
+    <label className="flex min-w-0 flex-col">
       <FieldLabel>{label}</FieldLabel>
       <input
         type="date"
@@ -308,7 +267,7 @@ function DateField({
         max={max}
         onChange={(e) => onChange(e.target.value)}
         className="
-          w-full rounded-md border border-border bg-card px-3 py-2
+          h-9 w-full min-w-0 rounded-md border border-border bg-background px-2.5
           text-sm text-foreground tabular-nums
           focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20
         "
@@ -329,13 +288,13 @@ function SelectField({
   onChange: (v: string) => void;
 }) {
   return (
-    <label className="flex flex-col">
+    <label className="flex min-w-0 flex-col">
       <FieldLabel>{label}</FieldLabel>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="
-          w-full min-w-0 rounded-md border border-border bg-card px-3 py-2
+          h-9 w-full min-w-0 truncate rounded-md border border-border bg-background px-2.5
           text-sm font-medium text-foreground
           focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20
         "
@@ -360,17 +319,14 @@ function FilterChip({
   truncate?: boolean;
 }) {
   return (
-    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-foreground">
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-0.5 text-[11px] font-medium text-foreground">
       <span className={truncate ? "block max-w-[140px] truncate" : ""}>
         {label}
       </span>
       <button
         type="button"
         onClick={onClear}
-        className="
-          rounded-full p-0.5 text-muted-foreground transition-colors duration-150
-          hover:bg-card/60 hover:text-foreground
-        "
+        className="rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-card/60 hover:text-foreground"
         aria-label={`Quitar filtro ${label}`}
       >
         <RiCloseLine className="size-3" aria-hidden="true" />
@@ -379,11 +335,6 @@ function FilterChip({
   );
 }
 
-/**
- * Slider para elegir un período en días, anclado a la fecha "Hasta" actual.
- * Mientras se arrastra, sólo actualiza el estado local (preview); commitea
- * el cambio a la URL en pointerup / keyup para evitar refetchs en cascada.
- */
 function PeriodSlider({
   from,
   to,
@@ -413,15 +364,7 @@ function PeriodSlider({
   return (
     <label className="flex flex-col">
       <FieldLabel>Período</FieldLabel>
-      <div className="flex flex-col gap-2 rounded-md border border-border bg-card px-3 py-3">
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm font-semibold text-foreground tabular-nums">
-            Últimos {days} {days === 1 ? "día" : "días"}
-          </span>
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {formatDateShort(previewFrom)} → {formatDateShort(to)}
-          </span>
-        </div>
+      <div className="flex h-9 items-center gap-3 rounded-md border border-border bg-background px-2.5">
         <input
           type="range"
           min={PERIOD_MIN}
@@ -433,7 +376,7 @@ function PeriodSlider({
           onPointerUp={commit}
           onKeyUp={commit}
           onBlur={commit}
-          className="w-full accent-[#2563eb]"
+          className="min-w-0 flex-1 accent-[#2563eb]"
           aria-label="Cantidad de días del período"
         />
         <datalist id={presetsListId}>
@@ -441,6 +384,12 @@ function PeriodSlider({
             <option key={p} value={p} label={`${p}`} />
           ))}
         </datalist>
+        <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-foreground">
+          {days}d
+        </span>
+        <span className="hidden whitespace-nowrap text-[10px] tabular-nums text-muted-foreground sm:inline">
+          {formatDateShort(previewFrom)} → {formatDateShort(to)}
+        </span>
       </div>
     </label>
   );

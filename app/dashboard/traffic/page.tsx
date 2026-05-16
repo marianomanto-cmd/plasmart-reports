@@ -3,6 +3,7 @@ import { fetchGa4Kpis, fetchGa4SourceMedium } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
 import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
 import { Ga4SourceMediumTable } from "@/components/ga4-source-medium-table";
+import { InlineFilters } from "@/components/inline-filters";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -39,6 +40,8 @@ export default async function TrafficPage({
           aplican a esta vista (GA4 no diferencia tráfico pago vs orgánico).
         </p>
       </div>
+
+      <InlineFilters />
 
       <Ga4KpiGrid kpis={ga4Kpis} compareMode={filters.compare} />
       <Ga4SourceMediumTable rows={ga4Rows} />

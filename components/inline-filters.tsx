@@ -9,12 +9,11 @@ import { parseFilters } from "@/lib/filters";
 import type { AvailableFilters } from "@/lib/types";
 
 /**
- * Wrapper de la FiltersBar para vivir adentro del drawer del topbar.
- * Auto-fetchea los `available` desde la API (en vez de recibirlos por
- * prop como en el patrón original SSR). Lee los filters actuales desde
- * la URL.
+ * FiltersBar para usar inline al tope de cada página, auto-fetcheando
+ * las opciones disponibles desde la API. Sin prop drilling desde el
+ * server component.
  */
-export function DrawerFilters() {
+export function InlineFilters() {
   const searchParams = useSearchParams();
   const filters = parseFilters(Object.fromEntries(searchParams.entries()));
 
@@ -32,9 +31,8 @@ export function DrawerFilters() {
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
-        if (data.error) {
-          setError(data.error);
-        } else {
+        if (data.error) setError(data.error);
+        else {
           setAvailable(data as AvailableFilters);
           setError(null);
         }
@@ -50,19 +48,23 @@ export function DrawerFilters() {
 
   if (error) {
     return (
-      <p className="text-sm text-destructive">
-        No pudimos cargar las opciones de filtros: {error}
-      </p>
+      <div className="rounded-lg border border-destructive/30 bg-card p-3 text-sm text-destructive">
+        No pudimos cargar los filtros: {error}
+      </div>
     );
   }
 
   if (!available) {
     return (
-      <div className="space-y-3">
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-9 w-full" />
+      <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <Skeleton className="h-2.5 w-16" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

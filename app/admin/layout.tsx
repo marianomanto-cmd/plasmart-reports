@@ -11,9 +11,5 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <AppShell userEmail={user?.email} showFilters={false}>
-      {children}
-    </AppShell>
-  );
+  return <AppShell userEmail={user?.email}>{children}</AppShell>;
 }

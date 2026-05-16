@@ -8,6 +8,7 @@ import {
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
 import { GranularityPills } from "@/components/granularity-pills";
+import { InlineFilters } from "@/components/inline-filters";
 import { PublisherComparisonTable } from "@/components/publisher-comparison";
 import { TopCampaignsChart } from "@/components/charts/top-campaigns";
 import { TopAdsetsChart } from "@/components/charts/top-adsets";
@@ -170,6 +171,8 @@ function PaidShell({
         </h2>
         <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
       </div>
+
+      <InlineFilters />
 
       <GranularityPills current={granularity} />
 

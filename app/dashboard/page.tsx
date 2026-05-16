@@ -14,6 +14,7 @@ import { KpiGrid } from "@/components/kpi-grid";
 import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
 import { CostEvolutionChart } from "@/components/charts/cost-evolution";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
+import { InlineFilters } from "@/components/inline-filters";
 import { Button } from "@/components/ui/button";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -61,6 +62,8 @@ export default async function ResumenPage({
           {days} {days === 1 ? "día" : "días"} · {compareLabel}
         </p>
       </div>
+
+      <InlineFilters />
 
       {hasPaidData ? (
         <>

@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  Menu,
-  LogOut,
-  Filter,
-} from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,22 +20,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { PlasmartMark } from "@/components/plasmart-mark";
 import { SidebarNav } from "./sidebar-nav";
 
 interface Props {
   userEmail: string | null | undefined;
-  /** Render del contenido del drawer de filtros. Si no se pasa, el botón
-   *  "Filtros" no se renderiza. */
-  filtersSlot?: React.ReactNode;
-  /** Etiqueta corta del rango activo (ej "16 may → 22 may"). Opcional. */
-  periodLabel?: string;
 }
 
-export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
+export function Topbar({ userEmail }: Props) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const initials = userEmail
     ? userEmail
@@ -87,7 +76,7 @@ export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
         </SheetContent>
       </Sheet>
 
-      {/* Marca (visible en mobile cuando se cierra el sheet; en desktop la marca vive en el sidebar) */}
+      {/* Marca (mobile sólo — desktop la marca vive en el sidebar) */}
       <Link
         href="/dashboard"
         className="flex items-center gap-2 md:hidden"
@@ -99,49 +88,7 @@ export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
         </span>
       </Link>
 
-      {/* Período activo — chip clickeable que abre el drawer de filtros */}
-      {periodLabel && (
-        <div className="hidden min-w-0 items-center gap-2 md:flex">
-          <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-            Período
-          </span>
-          <span className="truncate text-sm font-medium tabular-nums text-foreground">
-            {periodLabel}
-          </span>
-        </div>
-      )}
-
       <div className="ml-auto flex items-center gap-1 sm:gap-2">
-        {/* Botón Filtros — abre drawer lateral */}
-        {filtersSlot && (
-          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                aria-label="Abrir filtros"
-              >
-                <Filter className="size-4" />
-                <span className="hidden sm:inline">Filtros</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
-            >
-              <SheetHeader className="border-b border-border px-5 py-4">
-                <SheetTitle>Filtros</SheetTitle>
-              </SheetHeader>
-              <div className="flex-1 overflow-y-auto px-5 py-5">
-                {filtersSlot}
-              </div>
-            </SheetContent>
-          </Sheet>
-        )}
-
-        <Separator orientation="vertical" className="hidden h-6 sm:block" />
-
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
