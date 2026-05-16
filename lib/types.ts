@@ -39,6 +39,11 @@ export interface DashboardFilters {
   publisher?: Publisher;
   type?: CampaignType;
   campaignId?: string;
+  /** Nivel de drill-down. Default "campaign". Aplica a /paid (qué tabla
+   *  se muestra) y a /analysis (qué nivel analiza Claude). Ignorado por
+   *  /dashboard (overview) y /traffic, pero queda en la URL igual para
+   *  que persista al navegar entre vistas. */
+  granularity?: AnalysisGranularity;
 }
 
 // ---- KPI cards ----

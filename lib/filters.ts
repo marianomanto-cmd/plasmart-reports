@@ -2,6 +2,7 @@
 // Valores inválidos se descartan silenciosamente para no romper el render.
 
 import type {
+  AnalysisGranularity,
   CompareMode,
   DashboardFilters,
   Publisher,
@@ -10,6 +11,11 @@ import { defaultRange, isValidIsoDate } from "@/lib/dates";
 
 const VALID_PUBLISHERS: ReadonlyArray<Publisher> = ["gads", "meta"];
 const VALID_COMPARE: ReadonlyArray<CompareMode> = ["previous", "yoy", "none"];
+const VALID_GRANULARITY: ReadonlyArray<AnalysisGranularity> = [
+  "campaign",
+  "adset",
+  "ad",
+];
 
 type Raw = Record<string, string | string[] | undefined>;
 
@@ -56,7 +62,14 @@ export function parseFilters(searchParams: Raw): DashboardFilters {
       ? campaignRaw
       : undefined;
 
-  return { from, to, compare, publisher, type, campaignId };
+  const granularityRaw = pickStr(searchParams.granularity);
+  const granularity = VALID_GRANULARITY.includes(
+    granularityRaw as AnalysisGranularity,
+  )
+    ? (granularityRaw as AnalysisGranularity)
+    : undefined;
+
+  return { from, to, compare, publisher, type, campaignId, granularity };
 }
 
 /**
@@ -73,5 +86,9 @@ export function buildSearchString(filters: Partial<DashboardFilters>): string {
   if (filters.publisher) params.set("publisher", filters.publisher);
   if (filters.type) params.set("type", filters.type);
   if (filters.campaignId) params.set("campaign", filters.campaignId);
+  // "campaign" es el default → no lo serializamos, mantiene URLs cortas.
+  if (filters.granularity && filters.granularity !== "campaign") {
+    params.set("granularity", filters.granularity);
+  }
   return params.toString();
 }

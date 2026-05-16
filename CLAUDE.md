@@ -60,29 +60,37 @@ RPCs adicionales (v1.4):
 
 **Importante:** la moneda es siempre ARS (Plasmart factura GAds en pesos).
 
-### Granularidad de análisis (v1.4 / v1.5)
+### Granularidad de análisis (v1.6)
 
-El reporte "Corey Haines" (`/dashboard/analysis`) y la vista
-"Paid" (`/dashboard/paid`) aceptan tres niveles via selector en la UI:
-- `campaign` (default): comportamiento histórico, todos los publishers.
-- `adset`: agrega `top adsets` al payload de Claude. Aplica a **ambos**
-  publishers (Google Ads y Meta Ads). Los registros incluyen `publisher`
-  para que el análisis pueda comparar entre redes.
-- `ad`: agrega `top ads`. Mismas reglas que adset.
+La granularidad es un **filtro global** más, vive en la `FiltersBar`
+junto a Publisher / Tipo / Campaña, y se persiste en la URL como
+`?granularity=adset|ad` (el default `campaign` no se serializa).
 
-En `/paid` la granularidad se persiste en la URL (`?granularity=adset`)
-para que el link sea compartible y el back del browser recupere el
-estado. En Corey Haines es estado local del componente.
+Las opciones son:
+- `campaign` (default): vista por campañas.
+- `adset`: vista por ad groups (aplica a Google Ads y Meta Ads).
+- `ad`: vista por ads individuales (aplica a ambos publishers).
+
+Cada vista consume el filtro como mejor le sirve:
+- `/dashboard/paid` muestra la tabla y el top chart correspondientes
+  al nivel elegido. Comparativa GAds vs Meta sólo se muestra cuando el
+  publisher es "todos".
+- `/dashboard/analysis` (Corey Haines + AI rápido) toma la granularidad
+  del filtro y le manda a Claude el drill_down correspondiente. No hay
+  selector específico en la vista — el filtro global la setea.
+- `/dashboard` (overview) y `/dashboard/traffic` ignoran la granularidad
+  (KPIs agregados y tráfico GA4 no tienen ese eje), pero el valor
+  persiste en la URL al navegar.
 
 Si las tablas `fact_adset_daily` / `fact_ad_daily` están vacías para el
-período (porque la ingesta de adsets/ads no está configurada todavía
-para el publisher elegido), el payload manda `drill_down.has_data = false`
-y el prompt le dice a Claude que aclare la falta y caiga a nivel campaña.
+período + publisher elegido, el payload manda `drill_down.has_data =
+false` y el prompt le dice a Claude que aclare la falta y caiga a
+nivel campaña en el output.
 
-> **Histórico (v1.4)**: en la versión anterior adset/ad estaba limitado
-> a Google Ads y el server forzaba `campaign` si el publisher era Meta.
-> Desde v1.5, con la ingesta de adsets/ads de Meta operativa (Apps
-> Scripts contra Meta Marketing API), esta limitación se eliminó.
+> **Histórico**: en v1.4 adset/ad estaba limitado a Google Ads. En v1.5
+> se extendió a Meta. En v1.6 se eliminaron los selectores duplicados
+> (Pills en /paid, Picker en CoreyHainesAnalysis) y se consolidó como
+> un campo más de la FiltersBar.
 
 ### Ingesta de adsets y ads (Google Ads + Meta Ads)
 

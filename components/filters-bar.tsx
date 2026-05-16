@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { RiCloseLine } from "@remixicon/react";
 import type {
+  AnalysisGranularity,
   AvailableFilters,
   CompareMode,
   DashboardFilters,
@@ -83,7 +84,12 @@ export function FiltersBar({ filters, available }: Props) {
     [available.campaigns, filters.publisher, filters.type],
   );
 
-  const hasActive = Boolean(filters.publisher || filters.type || filters.campaignId);
+  const hasActive = Boolean(
+    filters.publisher ||
+      filters.type ||
+      filters.campaignId ||
+      (filters.granularity && filters.granularity !== "campaign"),
+  );
 
   const activeCampaignName = useMemo(() => {
     if (!filters.campaignId) return null;
@@ -96,9 +102,9 @@ export function FiltersBar({ filters, available }: Props) {
     <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
       <div
         className={cn(
-          "grid gap-3",
-          // Mobile: 1 col. sm: 2 cols. lg: layout horizontal con flex
-          "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[auto_auto_auto_1fr_auto_auto] lg:items-end",
+          "grid gap-3 items-end",
+          // Mobile 1, sm 2, md 3, lg 4 columnas
+          "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
         )}
       >
         <SelectField
@@ -127,7 +133,7 @@ export function FiltersBar({ filters, available }: Props) {
             />
           </>
         ) : (
-          <div className="sm:col-span-2 lg:col-span-2">
+          <div className="sm:col-span-2 md:col-span-2 lg:col-span-2">
             <PeriodSlider
               from={filters.from}
               to={filters.to}
@@ -161,6 +167,19 @@ export function FiltersBar({ filters, available }: Props) {
         />
 
         <SelectField
+          label="Granularidad"
+          value={filters.granularity ?? "campaign"}
+          options={[
+            { value: "campaign", label: "Campañas" },
+            { value: "adset", label: "Ad groups" },
+            { value: "ad", label: "Ads" },
+          ]}
+          onChange={(v) =>
+            update({ granularity: v as AnalysisGranularity })
+          }
+        />
+
+        <SelectField
           label="Tipo"
           value={filters.type ?? ""}
           options={[
@@ -173,7 +192,7 @@ export function FiltersBar({ filters, available }: Props) {
           onChange={(v) => update({ type: v || undefined })}
         />
 
-        <div className="sm:col-span-2 lg:col-span-6">
+        <div className="sm:col-span-2 md:col-span-3 lg:col-span-4">
           <SelectField
             label="Campaña"
             value={filters.campaignId ?? ""}
@@ -208,6 +227,14 @@ export function FiltersBar({ filters, available }: Props) {
               truncate
             />
           )}
+          {filters.granularity && filters.granularity !== "campaign" && (
+            <FilterChip
+              label={
+                filters.granularity === "adset" ? "Ad groups" : "Ads"
+              }
+              onClear={() => update({ granularity: "campaign" })}
+            />
+          )}
           {hasActive && (
             <button
               type="button"
@@ -216,6 +243,7 @@ export function FiltersBar({ filters, available }: Props) {
                   publisher: undefined,
                   type: undefined,
                   campaignId: undefined,
+                  granularity: "campaign",
                 })
               }
               className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"

@@ -7,7 +7,6 @@ import {
   fetchPublisherComparison,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { GranularityPills } from "@/components/granularity-pills";
 import { InlineFilters } from "@/components/inline-filters";
 import { PublisherComparisonTable } from "@/components/publisher-comparison";
 import { TopCampaignsChart } from "@/components/charts/top-campaigns";
@@ -20,14 +19,6 @@ import { EmptyStateBanner } from "@/components/empty-state-banner";
 import type { AnalysisGranularity, DashboardFilters, Publisher } from "@/lib/types";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-function parseGranularity(
-  raw: string | string[] | undefined,
-): AnalysisGranularity {
-  const v = Array.isArray(raw) ?  raw[0] : raw;
-  if (v === "adset" || v === "ad") return v;
-  return "campaign";
-}
 
 interface PaidViewProps {
   /** Si se setea, fuerza el publisher para esta vista (usado por las sub-rutas
@@ -59,7 +50,8 @@ export async function PaidView({
   const filters: DashboardFilters = forcePublisher
     ? { ...baseFilters, publisher: forcePublisher }
     : baseFilters;
-  const granularity = parseGranularity(params.granularity);
+  // La granularidad ahora viene del filtro global (FiltersBar).
+  const granularity: AnalysisGranularity = filters.granularity ?? "campaign";
   const days = rangeDays(filters.from, filters.to);
 
   // Comparativa se omite si forzamos publisher (no tiene sentido comparar
@@ -153,7 +145,6 @@ function PaidShell({
   eyebrow,
   subtitle,
   filters,
-  granularity,
   children,
 }: {
   eyebrow: string;
@@ -173,8 +164,6 @@ function PaidShell({
       </div>
 
       <InlineFilters />
-
-      <GranularityPills current={granularity} />
 
       {children}
     </div>

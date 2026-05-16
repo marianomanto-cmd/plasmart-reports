@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { RiSparkling2Line } from "@remixicon/react";
-import type { AnalysisGranularity, DashboardFilters } from "@/lib/types";
+import type { DashboardFilters } from "@/lib/types";
 import { Button } from "@/components/tremor/button";
 import { AnalysisContextModal } from "@/components/analysis-context-modal";
 
@@ -40,9 +40,12 @@ const ACTIVE_SKILLS = [
 export function CoreyHainesAnalysis({ filters }: Props) {
   const [state, setState] = useState<State>({ kind: "idle" });
   const [focus, setFocus] = useState("");
-  const [granularity, setGranularity] =
-    useState<AnalysisGranularity>("campaign");
   const [modalOpen, setModalOpen] = useState(false);
+
+  // La granularidad viene del filtro global (FiltersBar). El server
+  // también lee `granularity` del body para incluirla en el filtersHash
+  // de la cache.
+  const granularity = filters.granularity ?? "campaign";
 
   const run = async (forceRegenerate: boolean) => {
     setState({ kind: "loading" });
@@ -93,7 +96,6 @@ export function CoreyHainesAnalysis({ filters }: Props) {
             focus={focus}
             onFocusChange={setFocus}
             granularity={granularity}
-            onGranularityChange={setGranularity}
             onRun={() => run(false)}
             onOpenModal={() => setModalOpen(true)}
           />
@@ -125,17 +127,22 @@ function Idle({
   focus,
   onFocusChange,
   granularity,
-  onGranularityChange,
   onRun,
   onOpenModal,
 }: {
   focus: string;
   onFocusChange: (v: string) => void;
-  granularity: AnalysisGranularity;
-  onGranularityChange: (g: AnalysisGranularity) => void;
+  granularity: "campaign" | "adset" | "ad";
   onRun: () => void;
   onOpenModal: () => void;
 }) {
+  const granularityLabel =
+    granularity === "campaign"
+      ? "campañas"
+      : granularity === "adset"
+      ? "ad groups"
+      : "ads";
+
   return (
     <div className="flex flex-col items-start gap-5 py-2">
       <div className="max-w-2xl space-y-3">
@@ -149,9 +156,13 @@ function Idle({
           >
             Corey Haines marketing skills
           </a>{" "}
-          a los datos del período seleccionado. Devuelve diagnóstico,
-          recomendaciones priorizadas con justificación, tests sugeridos y
-          gaps de medición.
+          a los datos del período y filtros seleccionados arriba. Devuelve
+          diagnóstico, recomendaciones priorizadas con justificación, tests
+          sugeridos y gaps de medición.
+        </p>
+        <p className="text-xs text-light">
+          Granularidad actual: <span className="font-semibold text-steel">{granularityLabel}</span>
+          {" "}— cambiala desde el selector "Granularidad" en los filtros de arriba.
         </p>
         <div className="flex flex-wrap gap-1.5">
           {ACTIVE_SKILLS.map((s) => (
@@ -167,12 +178,6 @@ function Idle({
           ))}
         </div>
       </div>
-
-      {/* Selector de granularidad — aplicable a ambos publishers */}
-      <GranularityPicker
-        value={granularity}
-        onChange={onGranularityChange}
-      />
 
       <div className="w-full max-w-2xl space-y-2">
         <div className="flex items-baseline justify-between gap-3">
@@ -217,71 +222,6 @@ function Idle({
       >
         Generar reporte
       </Button>
-    </div>
-  );
-}
-
-function GranularityPicker({
-  value,
-  onChange,
-}: {
-  value: AnalysisGranularity;
-  onChange: (g: AnalysisGranularity) => void;
-}) {
-  const options: Array<{
-    g: AnalysisGranularity;
-    label: string;
-    sub: string;
-  }> = [
-    { g: "campaign", label: "Campaña", sub: "Vista por campañas" },
-    { g: "adset", label: "Ad group", sub: "GAds + Meta" },
-    { g: "ad", label: "Ad", sub: "GAds + Meta" },
-  ];
-
-  return (
-    <div className="w-full max-w-2xl space-y-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-        Granularidad del análisis
-      </p>
-      <div
-        role="radiogroup"
-        aria-label="Granularidad del análisis"
-        className="flex flex-wrap gap-2"
-      >
-        {options.map((o) => {
-          const isSelected = value === o.g;
-          return (
-            <button
-              key={o.g}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => onChange(o.g)}
-              className={`
-                flex flex-col items-start gap-0.5 border px-3 py-2 text-left
-                transition-colors duration-150
-                ${
-                  isSelected
-                    ? "border-brand bg-brand-soft text-primary"
-                    : "border-border-default bg-white text-primary hover:border-brand"
-                }
-              `}
-            >
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">
-                {o.label}
-              </span>
-              <span className="text-[10px] text-light">{o.sub}</span>
-            </button>
-          );
-        })}
-      </div>
-      {value !== "campaign" && (
-        <p className="text-xs text-light">
-          Si no hay datos ingestados de {value === "adset" ? "ad groups" : "ads"}
-          {" "}para el publisher elegido en este período, el reporte lo
-          declara explícitamente y cae a nivel campaña.
-        </p>
-      )}
     </div>
   );
 }
