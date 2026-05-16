@@ -26,8 +26,9 @@ export function AiAnalysisLogTable({ rows }: Props) {
   }
 
   return (
-    <Card className="overflow-x-auto p-0">
-      <div className="grid min-w-[720px] grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light">
+    <Card className="p-0">
+      {/* Header sólo en desktop */}
+      <div className="hidden grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-4 border-b border-border-default px-5 py-3 text-[10px] uppercase tracking-[0.18em] text-light sm:grid">
         <span className="font-semibold">Fecha</span>
         <span className="font-semibold">Período · filtros · usuario</span>
         <span className="font-semibold text-right">Tokens in</span>
@@ -36,20 +37,21 @@ export function AiAnalysisLogTable({ rows }: Props) {
         <span className="font-semibold text-right">Ver</span>
       </div>
 
-      <ul className="min-w-[720px]">
+      <ul>
         {rows.map((row) => (
           <li
             key={row.id}
             className="border-b border-border-default/60 last:border-0"
           >
             <details className="group">
+              {/* Desktop: summary grid horizontal */}
               <summary
                 className="
-                  grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto]
+                  hidden cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto]
                   items-center gap-x-4 px-5 py-3 text-sm
-                  hover:bg-cream/50
-                  list-none
+                  hover:bg-cream/50 list-none
                   [&::-webkit-details-marker]:hidden
+                  sm:grid
                 "
               >
                 <span className="text-steel tabular-nums whitespace-nowrap">
@@ -82,7 +84,43 @@ export function AiAnalysisLogTable({ rows }: Props) {
                 </span>
               </summary>
 
-              <div className="border-t border-border-default/60 bg-cream/30 px-5 py-5">
+              {/* Mobile: summary vertical card */}
+              <summary
+                className="
+                  flex cursor-pointer flex-col gap-1.5 px-4 py-3 text-sm
+                  hover:bg-cream/50 list-none
+                  [&::-webkit-details-marker]:hidden
+                  sm:hidden
+                "
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-medium text-primary">
+                    {formatPeriod(row.periodFrom, row.periodTo)}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-light">
+                    Abrir
+                  </span>
+                </div>
+                <p className="truncate text-[11px] text-light">
+                  {formatTimestamp(row.generatedAt)} · {describeFilters(row)}
+                </p>
+                <p className="truncate text-[11px] text-light">
+                  {row.userEmail}
+                </p>
+                <div className="mt-1 grid grid-cols-3 gap-2 border-t border-border-soft pt-2 text-[10px] text-light">
+                  <span>
+                    In · <span className="tabular-nums text-steel">{row.promptTokens !== null ? formatInteger(row.promptTokens) : "—"}</span>
+                  </span>
+                  <span>
+                    Out · <span className="tabular-nums text-steel">{row.completionTokens !== null ? formatInteger(row.completionTokens) : "—"}</span>
+                  </span>
+                  <span className="text-right">
+                    {duration(row.durationMs)}
+                  </span>
+                </div>
+              </summary>
+
+              <div className="border-t border-border-default/60 bg-cream/30 px-4 py-5 sm:px-5">
                 <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[10px] uppercase tracking-[0.18em] text-light">
                   <span>Modelo: <span className="text-steel">{row.modelUsed}</span></span>
                   {row.dataMaxDate && (

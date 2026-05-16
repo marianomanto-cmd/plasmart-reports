@@ -22,7 +22,43 @@ export function IngestionLogTable({ rows }: Props) {
 
   return (
     <Card className="p-0">
-      <div className="overflow-x-auto">
+      {/* Mobile: lista de cards */}
+      <ul className="divide-y divide-border-soft sm:hidden">
+        {rows.map((row) => (
+          <li key={row.id} className="px-4 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-primary">
+                  {sourceLabel(row.source)}
+                </p>
+                <p className="mt-0.5 text-[11px] tabular-nums text-light">
+                  {formatTimestamp(row.startedAt)} · {duration(row.startedAt, row.finishedAt)}
+                </p>
+              </div>
+              <StatusBadge status={row.status} />
+            </div>
+            <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-border-soft pt-2 text-xs">
+              <span className="text-light">Filas</span>
+              <span className="font-semibold tabular-nums text-primary">
+                {row.rowsInserted !== null ? formatInteger(row.rowsInserted) : "—"}
+              </span>
+            </div>
+            {(row.errorMessage || row.fileName) && (
+              <p
+                className={`mt-2 break-words text-[11px] ${
+                  row.errorMessage ? "text-warning" : "text-steel"
+                }`}
+                title={row.errorMessage ?? row.fileName ?? undefined}
+              >
+                {row.errorMessage ?? row.fileName}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop: tabla */}
+      <div className="hidden sm:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border-default text-[10px] uppercase tracking-[0.18em] text-light">
@@ -114,7 +150,7 @@ function StatusBadge({ status }: { status: IngestionLogRow["status"] }) {
   return (
     <span
       className={`
-        inline-block border px-2 py-0.5
+        inline-block whitespace-nowrap border px-2 py-0.5
         text-[10px] font-semibold uppercase tracking-[0.15em]
         ${cfg.className}
       `}
@@ -129,7 +165,11 @@ function StatusBadge({ status }: { status: IngestionLogRow["status"] }) {
 function sourceLabel(source: string): string {
   const map: Record<string, string> = {
     gads: "Google Ads",
+    gads_adsets: "Google Ads · Adsets",
+    gads_ads: "Google Ads · Ads",
     meta: "Meta Ads",
+    meta_adsets: "Meta Ads · Adsets",
+    meta_ads: "Meta Ads · Ads",
     ga4: "Google Analytics",
   };
   return map[source] ?? source;

@@ -64,7 +64,10 @@ export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
             <Menu className="size-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0">
+        <SheetContent
+          side="left"
+          className="flex w-[80%] max-w-72 flex-col gap-0 overflow-hidden p-0"
+        >
           <SheetHeader className="border-b border-sidebar-border px-4 py-4">
             <SheetTitle className="flex items-center gap-2.5">
               <PlasmartMark size={22} />
@@ -78,7 +81,7 @@ export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
               </span>
             </SheetTitle>
           </SheetHeader>
-          <div className="flex h-[calc(100%-72px)] flex-col px-3 py-3">
+          <div className="flex-1 overflow-y-auto px-3 py-3">
             <SidebarNav onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </SheetContent>
@@ -125,12 +128,14 @@ export function Topbar({ userEmail, filtersSlot, periodLabel }: Props) {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-full max-w-md overflow-y-auto sm:max-w-md"
+              className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
             >
-              <SheetHeader>
+              <SheetHeader className="border-b border-border px-5 py-4">
                 <SheetTitle>Filtros</SheetTitle>
               </SheetHeader>
-              <div className="mt-4">{filtersSlot}</div>
+              <div className="flex-1 overflow-y-auto px-5 py-5">
+                {filtersSlot}
+              </div>
             </SheetContent>
           </Sheet>
         )}

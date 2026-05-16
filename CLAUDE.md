@@ -135,12 +135,52 @@ Las funciones `ingestAdsets(supabase, publisher, ...)` e
 al resolver `campaign_id`. Por eso un mismo helper sirve para las cuatro
 fuentes opcionales (gads/meta × adset/ad).
 
+## Estructura de rutas (v1.5)
+
+| Ruta | Contenido | Sidebar item |
+|---|---|---|
+| `/dashboard` | Overview: KPIs paid + GA4, chart evolución, CTA al análisis | Overview |
+| `/dashboard/paid` | Comparativa GAds vs Meta + selector granularidad + top + tabla | Paid |
+| `/dashboard/paid/gads` | Idem, publisher forzado a gads | ↳ Google Ads |
+| `/dashboard/paid/meta` | Idem, publisher forzado a meta | ↳ Meta Ads |
+| `/dashboard/traffic` | GA4: KPIs + tabla source/medium | Tráfico |
+| `/dashboard/analysis` | Hub IA con toggle rápido / experto (Corey Haines) | Análisis |
+| `/admin` | Log de ingestas, freshness, log de IA | Admin |
+
+Rutas legacy (`/dashboard/comparativa`, `/dashboard/detalle`,
+`/dashboard/corey-haines`) **redirigen** preservando los search params, no
+se borran de un saque para no romper bookmarks ni linkeos previos.
+
+## AppShell (v1.5)
+
+Layout principal en `components/app-shell/`:
+
+- **Sidebar** fija a la izquierda en desktop (≥md), oculta en mobile
+  (accesible vía hamburger en el topbar que abre un Sheet de shadcn).
+  Items: Overview / Paid (con sub-items GAds y Meta) / Tráfico /
+  Análisis, más Admin separado abajo. Preserva query params al navegar.
+- **Topbar** persistente con marca (mobile), chip de período activo
+  (desktop), botón Filtros que abre drawer lateral, menu de usuario.
+- **Filtros en drawer**: la `FiltersBar` ya no vive sticky en cada
+  página. Va en un Sheet lateral que se abre desde el topbar. Auto-
+  fetchea los `available filters` via `/api/filters/available` (cliente).
+- Las pages bajo `/dashboard/*` y `/admin/*` no renderizan más su propio
+  `<main>` ni filtros inline — heredan todo del AppShell.
+
 ## Lineamientos de diseño visual
 
 Identidad basada en plasmartcba.com (industrial-elegante).
-Paleta efectiva: **slate + azul Tremor** (armoniza con los componentes Tremor
-sin hacks). Los tokens viven en `app/globals.css` y se exponen como utilidades
-Tailwind via `@theme inline`.
+Paleta efectiva: **slate + azul** con dos sistemas de tokens conviviendo:
+- **shadcn** (HSL): `background/foreground/primary/secondary/muted/
+  accent/border` + `sidebar-*`. Usado por componentes en `components/ui/`.
+- **Plasmart legacy** (hex via aliases): `text-steel`, `text-light`,
+  `bg-cream`, `border-default`, `border-soft`, `bg-brand`, `bg-brand-soft`,
+  `text-success`, `text-warning`, `bg-gads`, `bg-meta`. Usado por
+  componentes legacy en `components/*` (no `ui/`).
+
+⚠️ **Importante**: "accent" en shadcn = hover neutro slate-100, NO color
+brand. "brand" en Plasmart = blue-600 (lo que en versiones anteriores
+del proyecto se llamaba "accent" — se renombró para no chocar).
 
 **Paleta de colores (slate + blue):**
 - Primary `#0f172a` (slate-900) — texto principal, headings, valores de KPI

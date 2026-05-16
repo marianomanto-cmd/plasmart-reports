@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import type { AnalysisGranularity } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface Props {
   current: AnalysisGranularity;
@@ -10,16 +11,18 @@ interface Props {
   paramName?: string;
 }
 
-const OPTIONS: Array<{ g: AnalysisGranularity; label: string; sub: string }> = [
-  { g: "campaign", label: "Campañas", sub: "Todos los publishers" },
-  { g: "adset", label: "Ad groups", sub: "Datos disponibles cuando hay ingesta" },
-  { g: "ad", label: "Ads", sub: "Datos disponibles cuando hay ingesta" },
+const OPTIONS: Array<{ g: AnalysisGranularity; label: string }> = [
+  { g: "campaign", label: "Campañas" },
+  { g: "adset", label: "Ad groups" },
+  { g: "ad", label: "Ads" },
 ];
 
 /**
- * Pills para elegir la granularidad de la vista. Escribe el valor en la
- * URL (`?granularity=adset`) preservando los demás query params, así el
- * link es compartible y el back del browser recupera el estado.
+ * Pills para elegir la granularidad de la vista. Escribe el valor en
+ * la URL (`?granularity=adset`) preservando los demás query params.
+ *
+ * Mobile: las 3 pills se distribuyen en 3 columnas iguales (full width
+ * del contenedor padre). Desktop: pills compactas inline.
  */
 export function GranularityPills({
   current,
@@ -33,7 +36,7 @@ export function GranularityPills({
   const setGranularity = (g: AnalysisGranularity) => {
     const next = new URLSearchParams(searchParams.toString());
     if (g === "campaign") {
-      next.delete(paramName); // default: limpia la URL
+      next.delete(paramName);
     } else {
       next.set(paramName, g);
     }
@@ -44,12 +47,12 @@ export function GranularityPills({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="eyebrow-xs mr-1">Granularidad</span>
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <span className="eyebrow-xs">Granularidad</span>
       <div
         role="radiogroup"
         aria-label="Granularidad de la vista"
-        className="flex flex-wrap gap-1"
+        className="grid grid-cols-3 gap-1 rounded-md border border-border bg-card p-0.5 sm:inline-grid sm:w-auto"
       >
         {OPTIONS.map((o) => {
           const isSelected = current === o.g;
@@ -60,17 +63,12 @@ export function GranularityPills({
               role="radio"
               aria-checked={isSelected}
               onClick={() => setGranularity(o.g)}
-              className={`
-                inline-flex items-center gap-2 border px-3 py-1.5
-                text-xs font-semibold uppercase tracking-[0.12em]
-                transition-colors duration-150
-                ${
-                  isSelected
-                    ? "border-brand bg-brand-soft text-primary"
-                    : "border-border-default bg-white text-steel hover:border-brand hover:text-primary"
-                }
-              `}
-              title={o.sub}
+              className={cn(
+                "rounded px-3 py-1.5 text-xs font-semibold transition-colors",
+                isSelected
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
             >
               {o.label}
             </button>
@@ -78,7 +76,9 @@ export function GranularityPills({
         })}
       </div>
       {isPending && (
-        <span className="eyebrow-xs text-light">Actualizando…</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          Actualizando…
+        </span>
       )}
     </div>
   );
