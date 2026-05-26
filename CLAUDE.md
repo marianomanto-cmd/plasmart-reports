@@ -153,7 +153,10 @@ las cuenta como "Resultados" / conversaciones de mensajería, NO como
 "Conversiones" (esa métrica depende de eventos de píxel/web que no se
 disparan acá → daría 0). Los extractores de Apps Script las traen del
 `action_type` `onsite_conversion.messaging_conversation_started_7d` y las
-escriben en la columna `conversions` que la ingesta ya consume.
+escriben en la columna `conversions` que la ingesta ya consume. Ese
+`action_type` ya agrega todas las plataformas de mensajería (WhatsApp +
+Messenger + Instagram Direct) en un solo número, así que no hay que sumar
+métricas por canal.
 
 Por eso, en Meta, `conversions` y el CPA derivado (`cost / conversions`)
 significan **consultas de WhatsApp** y **costo por consulta**. Las

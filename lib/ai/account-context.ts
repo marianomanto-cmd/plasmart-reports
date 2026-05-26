@@ -24,7 +24,8 @@ export const FALLBACK_CONTEXT: AnalysisContext = {
     "B2C: arquitectos, diseñadores, herreros, particulares con proyectos. B2B: industria metalmecánica, fabricantes de equipos, talleres. El cliente B2B vale órdenes de magnitud más que el B2C.",
   economics:
     "Moneda: pesos argentinos (ARS). Frecuencia de revisión: semanal. Mantener costos por adquisición sostenibles dadas las márgenes industriales.",
-  tracking: "Cuentas activas: Google Ads, Meta Ads, GA4 (tráfico web).",
+  tracking:
+    "Cuentas activas: Google Ads, Meta Ads, GA4 (tráfico web). En Meta las campañas optimizan para mensajería: la métrica 'conversiones' son conversaciones de mensajería iniciadas (consultas, sumando todas las plataformas de mensajería — WhatsApp y Messenger), NO conversiones de píxel/web. Por eso el CPA de Meta es 'costo por consulta'. Las campañas de Meta con objetivo de alcance/awareness muestran 0 conversiones por diseño: evaluarlas por alcance, CPM y CTR, no por conversiones. En Google Ads, 'conversiones' mantiene su sentido habitual.",
   focus: "",
   decision: "",
   businessContext: "",

@@ -102,6 +102,13 @@ con el `action_type`:
 onsite_conversion.messaging_conversation_started_7d
 ```
 
+> **WhatsApp + Messenger en un solo número.** Este `action_type` es la
+> métrica *agregada* de "conversaciones de mensajería iniciadas": ya suma
+> todas las plataformas (WhatsApp, Messenger e Instagram Direct). No hay
+> que agregar métricas por canal — y NO conviene sumar otras ventanas de
+> atribución (`_1d`, `_28d`) porque son las mismas conversaciones contadas
+> con otra ventana → duplicaría.
+
 El helper `sumActions(row.actions, [...])` suma los `value` de los
 `action_type` que nos interesan. La lista que usamos para la columna
 `conversions` es:
