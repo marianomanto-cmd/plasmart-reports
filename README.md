@@ -123,11 +123,12 @@ supabase/
 5. **Análisis IA** se dispara on-demand (botón en `/dashboard`),
    cachea por hash de filtros + última fecha de datos.
 
-> **Conversiones de Meta = consultas de WhatsApp.** Las campañas de Meta
+> **Conversiones de Meta = consultas de mensajería.** Las campañas de Meta
 > optimizan para mensajería, así que la columna `conversions` trae las
-> conversaciones de WhatsApp (`action_type`
-> `onsite_conversion.messaging_conversation_started_7d`), no conversiones
-> de píxel. El CPA de Meta es entonces "costo por consulta". Ver
+> conversaciones de mensajería iniciadas (`action_type`
+> `onsite_conversion.messaging_conversation_started_7d`, que ya agrega
+> WhatsApp + Messenger + Instagram Direct), no conversiones de píxel. El
+> CPA de Meta es entonces "costo por consulta". Ver
 > `docs/extractores-appscript.md`.
 
 ## Cómo cambiar cosas comunes
