@@ -140,6 +140,32 @@ ya se ingestan a nivel campaña). El handler resuelve los uuids haciendo
 join contra `dim_campaign.external_id` (filtrando por publisher para
 evitar colisiones entre redes) y `dim_adset.external_id`.
 
+Los Sheets de Meta en Drive los generan tres apps de **Google Apps
+Script** (una por nivel: campañas / ad sets / ads) que consultan la Meta
+Marketing API y escriben el formato de columnas de arriba. No viven en
+este repo pero su fuente y operación están documentadas en
+`docs/extractores-appscript.md`.
+
+### Conversiones de Meta = consultas de WhatsApp
+
+Las campañas de Meta de Plasmart buscan **consultas por WhatsApp**. Meta
+las cuenta como "Resultados" / conversaciones de mensajería, NO como
+"Conversiones" (esa métrica depende de eventos de píxel/web que no se
+disparan acá → daría 0). Los extractores de Apps Script las traen del
+`action_type` `onsite_conversion.messaging_conversation_started_7d` y las
+escriben en la columna `conversions` que la ingesta ya consume.
+
+Por eso, en Meta, `conversions` y el CPA derivado (`cost / conversions`)
+significan **consultas de WhatsApp** y **costo por consulta**. Las
+campañas de alcance (objetivo awareness) quedan en 0 conversiones por
+diseño: se juzgan por reach/CPM, no por conversiones. El contexto de IA
+(campo `tracking`) debería aclararlo para que Claude no las lea como
+"ineficientes".
+
+> No usamos la columna "Results" de Meta directo: es polimórfica (cambia
+> de significado según el objetivo de cada campaña). Por eso sumamos
+> `action_type` específicos.
+
 ### Refactor del ingest (v1.4.1)
 
 Las funciones `ingestAdsets(supabase, publisher, ...)` e

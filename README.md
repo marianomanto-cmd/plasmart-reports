@@ -108,15 +108,27 @@ supabase/
 
 ## Flujo de datos
 
-1. **Cron diario** (lunes a domingo, 06:00 ART): `pg_cron` invoca
+1. **Extractores** (lunes 04:00 ART): los Sheets de Meta en Drive los
+   generan tres apps de **Google Apps Script** (campañas / ad sets / ads)
+   que consultan la Meta Marketing API. Google Ads genera los suyos vía
+   *Google Ads Scripts*; GA4 lo trae la edge function directo de la API.
+   Detalle en `docs/extractores-appscript.md`.
+2. **Cron diario** (lunes a domingo, 06:00 ART): `pg_cron` invoca
    `ingest-reports` vía HTTP.
-2. **Edge function** lee Sheets de Drive (GAds, Meta) y la API de GA4,
-   normaliza y hace upsert en `dim_campaign`, `fact_campaign_daily`,
-   `fact_ga_daily`.
-3. **Dashboard** consulta vistas y RPCs via Supabase, renderiza con
+3. **Edge function** lee el Sheet más reciente de cada carpeta de Drive
+   (GAds, Meta) y la API de GA4, normaliza y hace upsert en
+   `dim_campaign`, `fact_campaign_daily`, `fact_ga_daily`.
+4. **Dashboard** consulta vistas y RPCs via Supabase, renderiza con
    Server Components.
-4. **Análisis IA** se dispara on-demand (botón en `/dashboard`),
+5. **Análisis IA** se dispara on-demand (botón en `/dashboard`),
    cachea por hash de filtros + última fecha de datos.
+
+> **Conversiones de Meta = consultas de WhatsApp.** Las campañas de Meta
+> optimizan para mensajería, así que la columna `conversions` trae las
+> conversaciones de WhatsApp (`action_type`
+> `onsite_conversion.messaging_conversation_started_7d`), no conversiones
+> de píxel. El CPA de Meta es entonces "costo por consulta". Ver
+> `docs/extractores-appscript.md`.
 
 ## Cómo cambiar cosas comunes
 
@@ -196,6 +208,11 @@ function captura por default):
 
 Para GA4 conviene modificar la edge function para aceptar `?from=&to=`
 y disparar una corrida con el rango deseado, en lugar de exportar manual.
+
+Para **Meta** el camino más limpio no es SQL manual sino subir `DAYS_BACK`
+en los extractores de Apps Script, correr `main()` una vez y forzar la
+ingesta: el upsert por `(date, *_id)` reescribe el histórico en el lugar.
+Paso a paso en `docs/extractores-appscript.md`.
 
 ## Operación
 
