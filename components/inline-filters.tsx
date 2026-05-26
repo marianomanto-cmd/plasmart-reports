@@ -6,16 +6,24 @@ import { useSearchParams } from "next/navigation";
 import { FiltersBar } from "@/components/filters-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseFilters } from "@/lib/filters";
-import type { AvailableFilters } from "@/lib/types";
+import type { AvailableFilters, Publisher } from "@/lib/types";
 
 /**
  * FiltersBar para usar inline al tope de cada página, auto-fetcheando
  * las opciones disponibles desde la API. Sin prop drilling desde el
  * server component.
+ *
+ * `lockedPublisher` lo pasan las sub-rutas /paid/gads y /paid/meta: oculta
+ * el selector de Publisher (redundante ahí) y escopea las campañas.
  */
-export function InlineFilters() {
+export function InlineFilters({
+  lockedPublisher,
+}: {
+  lockedPublisher?: Publisher;
+}) {
   const searchParams = useSearchParams();
   const filters = parseFilters(Object.fromEntries(searchParams.entries()));
+  const effectivePublisher = lockedPublisher ?? filters.publisher;
 
   const [available, setAvailable] = useState<AvailableFilters | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +33,7 @@ export function InlineFilters() {
     const params = new URLSearchParams();
     params.set("from", filters.from);
     params.set("to", filters.to);
-    if (filters.publisher) params.set("publisher", filters.publisher);
+    if (effectivePublisher) params.set("publisher", effectivePublisher);
 
     fetch(`/api/filters/available?${params.toString()}`)
       .then((r) => r.json())
@@ -44,7 +52,7 @@ export function InlineFilters() {
     return () => {
       cancelled = true;
     };
-  }, [filters.from, filters.to, filters.publisher]);
+  }, [filters.from, filters.to, effectivePublisher]);
 
   if (error) {
     return (
@@ -69,5 +77,11 @@ export function InlineFilters() {
     );
   }
 
-  return <FiltersBar filters={filters} available={available} />;
+  return (
+    <FiltersBar
+      filters={filters}
+      available={available}
+      lockedPublisher={lockedPublisher}
+    />
+  );
 }

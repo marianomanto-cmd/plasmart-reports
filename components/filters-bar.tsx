@@ -40,6 +40,10 @@ function formatDateShort(iso: string): string {
 interface Props {
   filters: DashboardFilters;
   available: AvailableFilters;
+  /** Si se setea, la vista ya está fijada a ese publisher (sub-rutas
+   *  /paid/gads y /paid/meta): se oculta el selector de Publisher y se
+   *  escopean las campañas a ese publisher. */
+  lockedPublisher?: Publisher;
 }
 
 /**
@@ -55,7 +59,7 @@ interface Props {
  *   - Desktop (≥sm): grid responsive con auto-fit, todos los controles
  *     visibles sin scroll. Los chips de filtros activos van debajo.
  */
-export function FiltersBar({ filters, available }: Props) {
+export function FiltersBar({ filters, available, lockedPublisher }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -76,16 +80,18 @@ export function FiltersBar({ filters, available }: Props) {
     });
   };
 
+  const effectivePublisher = lockedPublisher ?? filters.publisher;
+
   const campaignOptions = useMemo(
     () =>
       available.campaigns
-        .filter((c) => !filters.publisher || c.publisher === filters.publisher)
+        .filter((c) => !effectivePublisher || c.publisher === effectivePublisher)
         .filter((c) => !filters.type || c.type === filters.type),
-    [available.campaigns, filters.publisher, filters.type],
+    [available.campaigns, effectivePublisher, filters.type],
   );
 
   const hasActive = Boolean(
-    filters.publisher ||
+    (!lockedPublisher && filters.publisher) ||
       filters.type ||
       filters.campaignId ||
       (filters.granularity && filters.granularity !== "campaign"),
@@ -153,18 +159,20 @@ export function FiltersBar({ filters, available }: Props) {
           onChange={(v) => update({ compare: v as CompareMode })}
         />
 
-        <SelectField
-          label="Publisher"
-          value={filters.publisher ?? ""}
-          options={[
-            { value: "", label: "Todos" },
-            { value: "gads", label: "Google Ads" },
-            { value: "meta", label: "Meta Ads" },
-          ]}
-          onChange={(v) =>
-            update({ publisher: v ? (v as Publisher) : undefined })
-          }
-        />
+        {!lockedPublisher && (
+          <SelectField
+            label="Publisher"
+            value={filters.publisher ?? ""}
+            options={[
+              { value: "", label: "Todos" },
+              { value: "gads", label: "Google Ads" },
+              { value: "meta", label: "Meta Ads" },
+            ]}
+            onChange={(v) =>
+              update({ publisher: v ? (v as Publisher) : undefined })
+            }
+          />
+        )}
 
         <SelectField
           label="Granularidad"
@@ -208,7 +216,7 @@ export function FiltersBar({ filters, available }: Props) {
       {/* Chips de filtros activos + estado + limpiar */}
       {(hasActive || isPending) && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          {filters.publisher && (
+          {!lockedPublisher && filters.publisher && (
             <FilterChip
               label={filters.publisher === "gads" ? "Google Ads" : "Meta Ads"}
               onClear={() => update({ publisher: undefined })}
@@ -240,7 +248,7 @@ export function FiltersBar({ filters, available }: Props) {
               type="button"
               onClick={() =>
                 update({
-                  publisher: undefined,
+                  ...(lockedPublisher ? {} : { publisher: undefined }),
                   type: undefined,
                   campaignId: undefined,
                   granularity: "campaign",

@@ -74,6 +74,7 @@ export async function PaidView({
         subtitle={subtitle ?? defaultSubtitle(days, granularity)}
         filters={filters}
         granularity={granularity}
+        lockedPublisher={forcePublisher}
       >
         {comparison && <PublisherComparisonTable data={comparison} />}
         {adsetRows.length > 0 ? (
@@ -100,6 +101,7 @@ export async function PaidView({
         subtitle={subtitle ?? defaultSubtitle(days, granularity)}
         filters={filters}
         granularity={granularity}
+        lockedPublisher={forcePublisher}
       >
         {comparison && <PublisherComparisonTable data={comparison} />}
         {adRows.length > 0 ? (
@@ -127,6 +129,7 @@ export async function PaidView({
       subtitle={subtitle ?? defaultSubtitle(days, granularity)}
       filters={filters}
       granularity={granularity}
+      lockedPublisher={forcePublisher}
     >
       {comparison && <PublisherComparisonTable data={comparison} />}
       {allCampaignRows.length > 0 ? (
@@ -145,12 +148,14 @@ function PaidShell({
   eyebrow,
   subtitle,
   filters,
+  lockedPublisher,
   children,
 }: {
   eyebrow: string;
   subtitle: string;
   filters: DashboardFilters;
   granularity: AnalysisGranularity;
+  lockedPublisher?: Publisher;
   children: React.ReactNode;
 }) {
   return (
@@ -163,7 +168,7 @@ function PaidShell({
         <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
       </div>
 
-      <InlineFilters />
+      <InlineFilters lockedPublisher={lockedPublisher} />
 
       {children}
     </div>
