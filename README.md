@@ -131,6 +131,15 @@ supabase/
 > CPA de Meta es entonces "costo por consulta". Ver
 > `docs/extractores-appscript.md`.
 
+> **Conversiones de Google Ads = proxy de clic, NO comparable 1:1 con
+> Meta.** Google sólo ve el clic al botón de WhatsApp, no la conversación
+> (que pasa en WhatsApp, fuera de Google), así que sobre-cuenta respecto
+> de las consultas reales. Además, la columna "Conversiones" suma las
+> acciones marcadas como primarias: cuidado con *key events* de GA4
+> auto-importados que la inflan (sobre todo en Performance Max), y con
+> valores de conversión sintéticos que vuelven ficticio el ROAS de GAds.
+> Detalle en `CLAUDE.md` → "Conversiones de Google Ads".
+
 ## Cómo cambiar cosas comunes
 
 ### Cambiar el horario del cron
@@ -214,6 +223,13 @@ Para **Meta** el camino más limpio no es SQL manual sino subir `DAYS_BACK`
 en los extractores de Apps Script, correr `main()` una vez y forzar la
 ingesta: el upsert por `(date, *_id)` reescribe el histórico en el lugar.
 Paso a paso en `docs/extractores-appscript.md`.
+
+Para **Google Ads** vale el mismo patrón: ampliar la ventana del Google
+Ads Script, re-exportar y forzar la ingesta. Sirve especialmente para
+corregir conversiones históricas mal medidas, porque cambiar qué acciones
+de conversión cuentan como primarias en Google Ads **recalcula la columna
+"Conversiones" también para fechas pasadas** — al re-pulear, la historia
+llega ya corregida y el upsert la pisa.
 
 ## Operación
 

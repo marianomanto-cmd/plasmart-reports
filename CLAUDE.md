@@ -169,6 +169,34 @@ diseño: se juzgan por reach/CPM, no por conversiones. El contexto de IA
 > de significado según el objetivo de cada campaña). Por eso sumamos
 > `action_type` específicos.
 
+### Conversiones de Google Ads = proxy de clic, no comparable con Meta
+
+La columna `conversions` de Google Ads suma las **acciones de conversión
+marcadas como primarias** ("se incluye en Conversiones") en la cuenta.
+Dos cosas a tener presentes:
+
+1. **Es un proxy, no la consulta real.** El objetivo del sitio es generar
+   consultas por WhatsApp, pero Google **no puede ver la conversación**
+   (pasa en WhatsApp, fuera de Google): a lo sumo cuenta el *clic* al
+   botón de WhatsApp. Por eso sobre-cuenta respecto de las consultas
+   efectivas. A diferencia de Meta —que sí ve las conversaciones
+   iniciadas— las conversiones de GAds y Meta **no son la misma unidad**:
+   el dashboard las muestra lado a lado pero NO hay que compararlas 1:1.
+
+2. **Cuidado con lo que se cuenta como primaria.** Un *key event* de GA4
+   auto-importado (vista de página, scroll, etc.) marcado como conversión
+   primaria infla el número muchísimo, sobre todo en Performance Max, que
+   optimiza agresivamente hacia lo que se le diga que cuente. En may-2026
+   esto disparó >1.000 "conversiones"/semana ficticias en una PMax hasta
+   que se sacó el key event auto-importado del set de primarias.
+
+> Cambiar qué acciones cuentan como primarias **recalcula la columna
+> "Conversiones" también para fechas pasadas**. Por eso, para corregir
+> histórico mal medido, alcanza con re-exportar el rango con el Google Ads
+> Script y re-ingestar (el upsert pisa). El **valor de conversión** suele
+> ser sintético (un valor fijo asignado por lead), así que el revenue/ROAS
+> de GAds es un proxy, no facturación real.
+
 ### Refactor del ingest (v1.4.1)
 
 Las funciones `ingestAdsets(supabase, publisher, ...)` e
