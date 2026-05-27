@@ -10,13 +10,15 @@ Leyenda: ✅ hecho · 🚧 en curso · ⏳ pendiente · ⏸️ diferido
 
 ---
 
-## Fase 8.0 — Banco y preparación  ⏳ (oficina, mañana)
+## Fase 8.0 — Banco y preparación  🚧
 - [ ] Carpetas `/plasmart-content/banco/` y `/videos/` creadas y compartidas
       con el Service Account *(manual, lo hace Mariano en Drive)*
 - [ ] Imágenes de Instagram volcadas al banco *(manual)*
-- [ ] Migration aditiva: `content_image`, `content_post`, `render_job`,
+- [x] Migration aditiva: `content_image`, `content_post`, `render_job`,
       `worker_heartbeat` + enums + RLS (sólo tablas nuevas)
-- [ ] RPC `claim_render_job` (lock atómico de la cola)
+- [x] RPC `claim_render_job` (lock atómico de la cola)
+- [ ] **Aplicar** la migration en la base del Preview (`supabase db reset`
+      local primero) *(lo corre Mariano)*
 
 ## Fase 8.1 — Kit de movimientos y render base (8GB)  ✅
 - [x] Kit de ladrillos Remotion parametrizable con tokens de marca
@@ -30,11 +32,14 @@ Leyenda: ✅ hecho · 🚧 en curso · ⏳ pendiente · ⏸️ diferido
 - [ ] **Aceptación final en la PC**: validar parallax real con fotos del banco
       en la placa de 8GB *(lo corre Mariano)*
 
-## Fase 8.2 — Cerebro editorial + dirección de arte  ⏳ (oficina, mañana)
-- [ ] Auto-análisis de imágenes con Claude vision (subject/orientation/etc.)
-- [ ] Calendario rotativo por pilares y pesos
-- [ ] Director de arte: genera `render_spec` + caption
-- [ ] Ruta `/contenido` con botón "generar contenido" → crea `render_job`
+## Fase 8.2 — Cerebro editorial + dirección de arte  🚧
+- [x] Auto-análisis de imágenes con Claude vision (`/api/contenido/sync-banco`)
+- [x] Calendario rotativo por pilares y pesos (`lib/content/pillars.ts`)
+- [x] Director de arte: genera `render_spec` + caption (`lib/content/anthropic.ts`)
+- [x] Ruta `/contenido` con botón "generar contenido" → crea `render_job`
+- [x] Extras de UI: sincronizar banco, regenerar, marcar publicado, descartar,
+      preview de video/imagen vía Drive, indicador online/offline del worker
+- [ ] **Aceptación en el Preview** (mañana, con tablas + banco + envs)
 
 ## Fase 8.3 — Worker local y seguridad  🚧
 - [ ] Servicio de polling en la PC (toma jobs pending)
