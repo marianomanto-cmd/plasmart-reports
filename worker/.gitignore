@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Salidas de render (MP4 locales) y cache de bundling de Remotion
+out/
+.remotion/
+
+# Depth maps generados localmente
+assets/depth/
+
+# Credenciales — NUNCA commitear
+.env
+.env.local
+*.json.key
+service-account*.json
+
+# Logs
+*.log

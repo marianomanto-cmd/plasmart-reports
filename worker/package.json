@@ -1,0 +1,32 @@
+{
+  "name": "plasmart-content-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Worker local de render para el motor de contenido de Plasmart (Fase 8). Corre en la PC con GPU; NUNCA se deploya a Vercel.",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "render:sample": "tsx src/render-sample.ts",
+    "render:file": "tsx src/render-file.ts",
+    "studio": "remotion studio remotion/index.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.0",
+    "@remotion/renderer": "^4.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@supabase/supabase-js": "^2.105.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tsx": "^4.19.0",
+    "typescript": "^5"
+  }
+}
