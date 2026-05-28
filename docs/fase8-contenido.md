@@ -3,6 +3,13 @@
 Qué hay que configurar para que `/contenido` funcione en el Preview. Todo es
 **aditivo**: no toca env vars, rutas ni tablas de producción.
 
+Mapa de docs del feature:
+
+- **`docs/plasmart-fase8-motor-contenido.md`** — la spec completa del motor.
+- **este doc** — setup operativo (Drive, migration, envs).
+- **`../CHECKLIST.md`** — estado vivo del branch y handoff entre sesiones.
+- **`../worker/README.md`** — todo lo que vive en la PC del taller.
+
 ## 1. Carpetas de Drive (manual)
 
 Crear dentro del mismo Drive de reportería y **compartir en lectura con el

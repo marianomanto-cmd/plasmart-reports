@@ -61,6 +61,18 @@ nunca llegan al cliente.
 | `DRIVE_FOLDER_META_ADSETS` | unset | Folder ID de Drive con el sheet semanal de ad sets de Meta Ads. |
 | `DRIVE_FOLDER_META_ADS` | unset | Folder ID de Drive con el sheet semanal de ads de Meta Ads. |
 
+**Env vars del motor de contenido (Fase 8, branch — sólo Preview por ahora):**
+
+| Variable | Default | Propósito |
+|---|---|---|
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | — | Service Account JSON en una línea, para que la API route lea el banco de Drive (reusar el mismo SA de la ingesta). |
+| `DRIVE_FOLDER_BANCO` | — | Folder ID de Drive de `/plasmart-content/banco/`. |
+| `ANTHROPIC_CONTENT_MODEL` | `claude-haiku-4-5` | Modelo del cerebro editorial (visión + JSON). |
+
+> El **worker** (carpeta `worker/`) corre en la PC del taller, NO se deploya
+> a Vercel y tiene sus propias env vars en `worker/.env`. Ver
+> `docs/fase8-contenido.md` y `worker/README.md` para el setup completo.
+
 En Vercel las mismas variables van en Settings → Environment Variables,
 aplicadas a Production y Preview (no Development). Las env vars de la
 Edge Function se setean con `supabase secrets set NOMBRE=valor`.
@@ -82,18 +94,22 @@ npx supabase functions deploy ingest-reports   # deploy edge function
 ```
 app/                       # Next.js App Router
   api/
-    analyze/route.ts       # POST → llama a Claude para analizar
-    ingest/run/route.ts    # POST → dispara la edge function ingest-reports
-  auth/                    # callback OAuth y logout
-  admin/                   # /admin: log de ingestas, freshness, botón forzar
-  dashboard/               # /dashboard: reporte completo
-  login/                   # /login: wordmark + botón Google
+    analyze/route.ts         # POST → llama a Claude para analizar
+    ingest/run/route.ts      # POST → dispara la edge function ingest-reports
+    contenido/               # API del motor de contenido (Fase 8, branch)
+  auth/                      # callback OAuth y logout
+  admin/                     # /admin: log de ingestas, freshness, botón forzar
+  dashboard/                 # /dashboard: reporte completo
+  login/                     # /login: wordmark + botón Google
+  (content)/contenido/       # /contenido: motor de contenido (Fase 8, branch)
 components/                # Componentes React (server + client mezclados)
   charts/                  # SVG vanilla (cost-evolution, top-campaigns)
   ai-analysis.tsx          # Bloque del análisis de Claude
 lib/
-  supabase/                # Clientes browser, server, middleware
+  supabase/                # Clientes browser, server, admin (service-role)
   ai/                      # Builder del prompt + hash de cache
+  content/                 # Motor de contenido: pilares, prompts, render_spec (Fase 8)
+  google/                  # Cliente Drive en Node (sólo lectura, Fase 8)
   queries.ts               # Capa de queries del dashboard (RPCs)
   admin-queries.ts         # Queries de /admin
   types.ts                 # Tipos del dominio
@@ -104,6 +120,8 @@ proxy.ts                   # Middleware de Next: refresca sesión + guard de dom
 supabase/
   migrations/              # SQL versionado
   functions/ingest-reports # Edge Function que ingesta de Drive y GA4
+worker/                    # Worker local de render (Fase 8, NUNCA a Vercel) — ver worker/README.md
+docs/                      # Docs de extractores, Fase 8, sesiones
 ```
 
 ## Flujo de datos
@@ -212,7 +230,10 @@ function captura por default):
 1. Exportar el reporte desde el publisher (Google Ads, Meta) con
    granularidad diaria.
 2. Generar el SQL de upsert (idempotente) y ejecutarlo en el SQL Editor.
-   Patrón en `docs/backfill-gads.sql` (ejemplo del backfill de mar–may 2026).
+   Patrón de upsert: `insert into fact_campaign_daily (...) values (...) on
+   conflict (date, campaign_id) do update set ...` — los normalizers de la
+   ingesta (`supabase/functions/ingest-reports/lib/normalizers/`) sirven de
+   referencia para qué campos pisar.
 3. Refrescar las vistas materializadas:
    `select refresh_all_materialized_views();`
 
@@ -257,6 +278,10 @@ llega ya corregida y el upsert la pisa.
 - Notificaciones por email cuando falla la ingesta semanal (Fase 6.x
   pendiente, opcional).
 - Backfill GA4 vía edge function parametrizada por rango (pendiente).
+- **Fase 8 — Motor de contenido para redes** (🚧 en branch
+  `claude/intelligent-tesla-Q1i6k`): genera IG Stories/Reels desde un banco
+  de fotos en Drive con Claude Haiku como director de arte + Remotion en una
+  PC local. Ver `docs/fase8-contenido.md` y `CHECKLIST.md`.
 
 ## Workflow de desarrollo
 

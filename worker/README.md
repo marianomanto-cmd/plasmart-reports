@@ -8,6 +8,14 @@ IG Stories/Reels en MP4 9:16 con motion graphics de marca.
 > ejecuta a mano (o como servicio) en la PC. Es **outbound-only**: hace
 > polling a Supabase, nunca abre puertos ni recibe conexiones.
 
+Mapa de docs del feature:
+
+- **`docs/plasmart-fase8-motor-contenido.md`** — la spec completa del motor.
+- **`docs/fase8-contenido.md`** — setup operativo (Drive, migration, envs de
+  Vercel) y cómo funciona `/contenido`.
+- **`../CHECKLIST.md`** — estado vivo del branch y handoff entre sesiones.
+- **este README** — todo lo que vive en la PC del taller.
+
 ## Estado por sub-fase
 
 - **8.1 — Kit Remotion + render base ✅** (este commit). Renderiza un

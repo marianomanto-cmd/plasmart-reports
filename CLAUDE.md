@@ -22,17 +22,41 @@ recomendaciones puntuales.
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Next.js 15 (App Router) + TypeScript + Tailwind + Tremor |
+| Frontend | Next.js 16 (App Router) + TypeScript + Tailwind v4 |
 | Backend | Supabase (Postgres + Auth + Edge Functions) |
 | Hosting | Vercel (plan Hobby) |
-| IA | Claude API (modelo a definir en Fase 5) |
+| IA | Claude API · Sonnet 4.6 (dashboard) + Haiku 4.5 (motor de contenido) |
 | Auth | Supabase Auth con Google OAuth, dominio @transfil.com.ar |
+| Render de video | Remotion + (opcional) Depth Anything · corre en la PC del taller, **nunca en Vercel** |
 
 ## Estructura del proyecto
+
 ```
-
-app/ # Next.js App Router (auth)/ # Rutas públicas (login) (dashboard)/ # Rutas autenticadas api/ # API routes (server-side) components/ # React components ui/ # Componentes base charts/ # Visualizaciones filters/ # Barra de filtros lib/ supabase/ # Cliente Supabase (server + client) anthropic/ # Cliente y prompts de Claude utils/ # Helpers supabase/ migrations/ # Migrations Postgres versionadas functions/ # Edge Functions ingest-reports/ # Lee Sheets de Drive y popula la DB analyze-snapshot/ # Llama a Claude para análisis public/ # Assets estáticos
-
+app/                            # Next.js App Router
+  (content)/contenido/          # Motor de contenido (Fase 8, branch)
+  admin/                        # /admin: log de ingestas, freshness
+  api/                          # API routes (server-side)
+    contenido/                  # endpoints del motor de contenido
+  auth/                         # callback OAuth y logout
+  dashboard/                    # /dashboard/*: reporte completo
+  login/
+components/
+  ui/                           # shadcn base
+  charts/                       # SVG vanilla
+  app-shell/                    # sidebar + topbar del dashboard
+lib/
+  supabase/                     # clientes browser, server, admin (service-role)
+  ai/                           # prompts del dashboard
+  content/                      # cerebro editorial, prompts, render_spec (Fase 8)
+  google/                       # cliente Drive en Node (Fase 8)
+  queries.ts, admin-queries.ts, types.ts, filters.ts, format.ts
+proxy.ts                        # middleware Next: sesión + guard de dominio
+supabase/
+  migrations/                   # SQL versionado
+  functions/ingest-reports/     # Edge Function que ingesta de Drive y GA4
+worker/                         # Worker local de render (Fase 8, NUNCA a Vercel)
+docs/                           # extractores Apps Script, fase8, sesiones
+public/                         # assets estáticos
 ```
 
 ## Modelo de datos
@@ -49,6 +73,12 @@ Tablas principales en Postgres (esquema simplificado):
 - **ai_analysis_cache** — cache de respuestas de Claude por hash de filtros
 - **ingestion_log** — log de cada ejecución del ingest
 
+**Motor de contenido (Fase 8, branch):**
+- **content_image** — banco de fotos (drive_file_id, subject, orientation, composition jsonb, motion_potential, times_used, analyzed_at)
+- **content_post** — post generado (pillar, image_id, caption, render_spec jsonb, status, video_file_id)
+- **render_job** — cola para el worker (status pending/processing/done/error, worker_id, lock)
+- **worker_heartbeat** — última actividad de la PC de render (para indicador online/offline)
+
 Vistas materializadas:
 - **mv_campaign_weekly** — agregados semanales
 - **mv_campaign_monthly** — agregados mensuales
@@ -57,6 +87,11 @@ Vistas materializadas:
 RPCs adicionales (v1.4):
 - **dashboard_adset_rows** — filas agregadas por ad group
 - **dashboard_ad_rows** — filas agregadas por ad
+
+RPCs del motor de contenido (Fase 8):
+- **claim_render_job(p_worker_id)** — toma atómicamente el próximo job pending
+  con `FOR UPDATE SKIP LOCKED` y lo marca processing. Lo llama el worker (con
+  service role) en cada poll.
 
 **Importante:** la moneda es siempre ARS (Plasmart factura GAds en pesos).
 
@@ -216,10 +251,15 @@ fuentes opcionales (gads/meta × adset/ad).
 | `/dashboard/traffic` | GA4: KPIs + tabla source/medium | Tráfico |
 | `/dashboard/analysis` | Hub IA con toggle rápido / experto (Corey Haines) | Análisis |
 | `/admin` | Log de ingestas, freshness, log de IA | Admin |
+| `/contenido` *(Fase 8, branch)* | Motor de contenido: generar/listar IG Stories/Reels | (no en sidebar) |
 
 Rutas legacy (`/dashboard/comparativa`, `/dashboard/detalle`,
 `/dashboard/corey-haines`) **redirigen** preservando los search params, no
 se borran de un saque para no romper bookmarks ni linkeos previos.
+
+`/contenido` vive en su propio route group (`app/(content)/`) con layout
+propio: **no usa el AppShell** del dashboard. Es deliberado — el feature está
+aislado del resto y se entra por URL directa. Auth ya la cubre el middleware.
 
 ## AppShell (v1.5)
 
@@ -236,6 +276,41 @@ Layout principal en `components/app-shell/`:
   fetchea los `available filters` via `/api/filters/available` (cliente).
 - Las pages bajo `/dashboard/*` y `/admin/*` no renderizan más su propio
   `<main>` ni filtros inline — heredan todo del AppShell.
+
+## Motor de contenido (Fase 8 — en branch)
+
+Feature en desarrollo en la rama `claude/intelligent-tesla-Q1i6k`. Genera IG
+Stories/Reels (9:16, 10-15s, MP4 silencioso para ponerle audio en IG/TikTok)
+a partir de un banco de fotos en Drive. **Aditivo**: no toca rutas, tablas ni
+env vars existentes.
+
+Dos partes que se deployan distinto:
+
+1. **Lado app (Vercel)** — `/contenido`, `lib/content/*`, `lib/google/*`,
+   `lib/supabase/admin.ts`, `app/api/contenido/*`, migration de las 4 tablas.
+   Claude Haiku 4.5 con visión hace de "director de arte": elige el pilar
+   del día (rotación ponderada sin repetir el anterior), elige una foto del
+   banco no usada y produce un `render_spec` (recorte 9:16, movimiento,
+   parallax, caption). Inserta `content_post` (draft) + `render_job` (pending).
+2. **Lado worker (PC)** — `worker/` (package separado, NUNCA a Vercel).
+   Kit de "ladrillos" Remotion parametrizable por el `render_spec`:
+   recorte 9:16 cover sin bandas, Ken Burns, parallax 2.5D por máscara de
+   profundidad (Depth Anything), caption con tokens de marca. El worker
+   hace polling outbound a Supabase (`claim_render_job`), renderiza, sube
+   el MP4 a Drive `/videos/` y marca el post `rendered`. Outbound-only:
+   cero puertos abiertos en la PC.
+
+Pilares de contenido (sección 3 de la spec, mismos keys que el enum
+`content_subject`): `panel_contexto` (35%) · `calado_detalle` (25%) ·
+`luz_sombra` (15%) · `proceso` (15%) · `material` (10%).
+
+**Tokens de marca del VIDEO** (distintos del dashboard): negro `#1A1A1A`,
+cobre `#C9A961`, crema `#F5F5F0`, Inter mayúsculas con tracking amplio.
+Hardcodeados en `worker/remotion/tokens.ts` — no se confunden con la paleta
+slate+blue del dashboard.
+
+Setup y plan de aceptación en `docs/fase8-contenido.md` y `CHECKLIST.md`.
+Spec completa en `docs/plasmart-fase8-motor-contenido.md`.
 
 ## Lineamientos de diseño visual
 
@@ -325,19 +400,20 @@ RiLogoutBoxRLine). No mezclar con emojis ni con triángulos unicode.
 
 ## Plan por fases
 
-El desarrollo está organizado en 7 fases. Resumen:
+El dashboard original se organizó en 7 fases. Está en producción y se itera
+semana a semana; las fases viejas se dan por completas.
 
-- **Fase 0 (✅ completa):** Preparación de cuentas e infra (GitHub, Supabase, Vercel, Anthropic, Google)
-- **Fase 1 (en curso):** Configuración de fuentes de datos en Drive
-- **Fase 2:** Modelo de datos y Edge Function de ingesta
-- **Fase 3:** Frontend base, layout, autenticación
-- **Fase 4:** Dashboard de KPIs, filtros, gráficos
-- **Fase 5:** Motor de análisis con Claude
-- **Fase 6:** Refinamientos y monitoreo
-- **Fase 7:** Lanzamiento
+- **Fases 0-7 (✅ en producción):** Preparación → fuentes en Drive → modelo
+  de datos + ingesta → frontend + auth → dashboard de KPIs/filtros/gráficos →
+  análisis con Claude → refinamientos/monitoreo → lanzamiento.
+- **Fase 8 (🚧 en branch):** Motor de contenido para redes (ver sección
+  "Motor de contenido" arriba). Sub-fases: 8.0 banco + tablas · 8.1 kit
+  Remotion + render base · 8.2 cerebro editorial + UI `/contenido` ·
+  8.3 worker local + seguridad · 8.4 capa IA headless (diferida a la 24GB) ·
+  8.5 refinamientos.
 
-**Regla:** no avanzar de fase si los criterios de aceptación de la actual
-no están cumplidos.
+**Regla:** no avanzar de sub-fase si los criterios de aceptación de la
+actual no están cumplidos.
 
 ## Features pospuestas
 
