@@ -9,12 +9,14 @@ import {
 import { rangeDays } from "@/lib/dates";
 import { InlineFilters } from "@/components/inline-filters";
 import { PublisherComparisonTable } from "@/components/publisher-comparison";
-import { TopCampaignsChart } from "@/components/charts/top-campaigns";
 import { TopAdsetsChart } from "@/components/charts/top-adsets";
 import { TopAdsChart } from "@/components/charts/top-ads";
 import { CampaignTable } from "@/components/campaign-table";
 import { AdsetTable } from "@/components/adset-table";
 import { AdTable } from "@/components/ad-table";
+import { SpendDistribution } from "@/components/cockpit/spend-distribution";
+import { EfficiencyQuadrant } from "@/components/cockpit/efficiency-quadrant";
+import { buildSpendDistribution, buildEfficiencyPoints } from "@/lib/insights";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
 import type { AnalysisGranularity, DashboardFilters, Publisher } from "@/lib/types";
 
@@ -123,6 +125,18 @@ export async function PaidView({
     fetchCampaignAnomalies(filters),
   ]);
 
+  const distribution = buildSpendDistribution(allCampaignRows, anomalies, 8);
+  const efficiency = buildEfficiencyPoints(allCampaignRows);
+  const gadsCost = allCampaignRows
+    .filter((r) => r.publisher === "gads")
+    .reduce((s, r) => s + r.cost, 0);
+  const split =
+    distribution.total > 0
+      ? `GAds ${Math.round((gadsCost / distribution.total) * 100)}% · Meta ${Math.round(
+          ((distribution.total - gadsCost) / distribution.total) * 100,
+        )}%`
+      : undefined;
+
   return (
     <PaidShell
       eyebrow={eyebrow}
@@ -134,7 +148,14 @@ export async function PaidView({
       {comparison && <PublisherComparisonTable data={comparison} />}
       {allCampaignRows.length > 0 ? (
         <>
-          <TopCampaignsChart rows={allCampaignRows.slice(0, 10)} />
+          <div className="grid grid-cols-12 gap-3 sm:gap-4">
+            <div className="col-span-12 lg:col-span-5">
+              <SpendDistribution data={distribution} right={split} />
+            </div>
+            <div className="col-span-12 lg:col-span-7">
+              <EfficiencyQuadrant points={efficiency} />
+            </div>
+          </div>
           <CampaignTable rows={allCampaignRows} anomalies={anomalies} />
         </>
       ) : (

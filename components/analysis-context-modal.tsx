@@ -260,10 +260,10 @@ export function AnalysisContextModal({ open, onClose, onSaved }: Props) {
         <div className="max-h-[60vh] overflow-y-auto px-8 py-6">
           {loadState.kind === "loading" && (
             <div className="space-y-3 py-4">
-              <div className="h-3 w-2/5 animate-pulse bg-slate-100" />
-              <div className="h-20 w-full animate-pulse bg-slate-50" />
-              <div className="h-3 w-1/3 animate-pulse bg-slate-100" />
-              <div className="h-20 w-full animate-pulse bg-slate-50" />
+              <div className="h-3 w-2/5 animate-pulse bg-white/10" />
+              <div className="h-20 w-full animate-pulse bg-white/5" />
+              <div className="h-3 w-1/3 animate-pulse bg-white/10" />
+              <div className="h-20 w-full animate-pulse bg-white/5" />
             </div>
           )}
 
