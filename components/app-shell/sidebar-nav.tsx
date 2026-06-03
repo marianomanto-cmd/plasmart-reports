@@ -23,10 +23,10 @@ interface NavLink {
 }
 
 const PRIMARY: NavLink[] = [
-  { href: "/dashboard", label: "Overview", icon: RiDashboardLine },
+  { href: "/dashboard", label: "Resumen", icon: RiDashboardLine },
   {
     href: "/dashboard/paid",
-    label: "Paid",
+    label: "Campañas",
     icon: RiLineChartLine,
     children: [
       { href: "/dashboard/paid/gads", label: "Google Ads" },
@@ -34,7 +34,7 @@ const PRIMARY: NavLink[] = [
     ],
   },
   { href: "/dashboard/traffic", label: "Tráfico", icon: RiGlobalLine },
-  { href: "/dashboard/analysis", label: "Análisis", icon: RiSparkling2Line },
+  { href: "/dashboard/analysis", label: "Análisis IA", icon: RiSparkling2Line },
 ];
 
 const SECONDARY: NavLink[] = [

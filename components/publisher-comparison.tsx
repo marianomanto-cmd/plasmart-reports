@@ -178,7 +178,7 @@ function MobilePublisherCard({
   metrics: Array<{ label: string; value: string; emphasis?: boolean }>;
 }) {
   return (
-    <div className="border border-border-default bg-white p-3">
+    <div className="border border-border-default bg-card p-3">
       <div className="mb-3 flex items-center gap-2">
         <span aria-hidden="true" className={`h-2 w-2 ${accent}`} />
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">

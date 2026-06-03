@@ -10,7 +10,7 @@ interface Props {
 
 export function DashboardHeader({ userEmail, active = "dashboard" }: Props) {
   return (
-    <header className="border-b border-border-default bg-white">
+    <header className="border-b border-border-default bg-card">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:gap-6 sm:px-8 sm:py-4">
         <div className="flex min-w-0 items-center gap-4 sm:gap-10">
           <Link

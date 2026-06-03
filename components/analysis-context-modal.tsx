@@ -242,7 +242,7 @@ export function AnalysisContextModal({ open, onClose, onSaved }: Props) {
         if (e.target === e.currentTarget && saveState.kind !== "saving") onClose();
       }}
     >
-      <div className="relative w-full max-w-3xl bg-white shadow-xl">
+      <div className="relative w-full max-w-3xl bg-card shadow-xl">
         <header className="border-b border-border-default px-8 py-6">
           <h2
             id="analysis-context-title"
@@ -260,10 +260,10 @@ export function AnalysisContextModal({ open, onClose, onSaved }: Props) {
         <div className="max-h-[60vh] overflow-y-auto px-8 py-6">
           {loadState.kind === "loading" && (
             <div className="space-y-3 py-4">
-              <div className="h-3 w-2/5 animate-pulse bg-slate-100" />
-              <div className="h-20 w-full animate-pulse bg-slate-50" />
-              <div className="h-3 w-1/3 animate-pulse bg-slate-100" />
-              <div className="h-20 w-full animate-pulse bg-slate-50" />
+              <div className="h-3 w-2/5 animate-pulse bg-white/10" />
+              <div className="h-20 w-full animate-pulse bg-white/5" />
+              <div className="h-3 w-1/3 animate-pulse bg-white/10" />
+              <div className="h-20 w-full animate-pulse bg-white/5" />
             </div>
           )}
 
@@ -365,10 +365,10 @@ function FieldRow({
         onChange={onChange}
         disabled={disabled}
         className="
-          w-full resize-y border border-border-default bg-white px-3 py-2
+          w-full resize-y border border-border-default bg-card px-3 py-2
           text-sm leading-relaxed text-primary
           focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
-          disabled:bg-slate-50
+          disabled:bg-secondary
         "
       />
     </div>
