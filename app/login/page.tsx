@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </div>
 
         {/* Card de login */}
-        <div className="border border-[#e2e8f0] bg-white p-10">
+        <div className="border border-[#e2e8f0] bg-card p-10">
           <h2 className="mb-2 text-xs uppercase tracking-[0.2em] text-[#94a3b8]">
             Acceso interno
           </h2>

@@ -2,8 +2,14 @@
 @import "tw-animate-css";
 
 /* ============================================================
-   Dark mode: class-based (Plasmart NO usa dark mode).
-   Variantes dark: de Tremor/shadcn quedan inertes.
+   Tema: "Plasmart Control Room" (dark).
+   El dashboard como panel de control de una máquina de corte:
+   acero oscuro + acento plasma (naranja incandescente) + sistema
+   de estado verde/ámbar/rojo + numerales monoespaciados.
+
+   El proyecto ahora es dark-first. El <html> lleva class="dark"
+   para activar las variantes dark: de Tremor/shadcn; las CSS vars
+   de :root ya traen los valores oscuros.
    ============================================================ */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -11,61 +17,62 @@
    Tokens — dos sistemas conviviendo:
    1. shadcn: background/foreground/primary/secondary/muted/accent/border.
       Lo usan los componentes en components/ui/*.
-      "accent" en shadcn = hover/highlight neutro (slate-100), NO color brand.
-   2. Plasmart legacy: text-primary, text-steel, text-light, bg-cream,
-      bg-brand, text-brand, border-default, etc.
+      "accent" en shadcn = hover/highlight neutro, NO color de marca.
+   2. Plasmart: text-primary, text-steel, text-light, bg-cream,
+      bg-brand (= plasma), border-default, gads/meta (series), etc.
       Lo usan los componentes en components/* (no en ui/).
-      "brand" en Plasmart = blue-600 — usado como acento de marca.
    ============================================================ */
 
 :root {
-  /* ---- shadcn (HSL) ---- */
-  --background: hsl(210 40% 98%);
-  --foreground: hsl(222 47% 11%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222 47% 11%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222 47% 11%);
-  --primary: hsl(222 47% 11%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(210 40% 96%);
-  --secondary-foreground: hsl(222 47% 11%);
-  --muted: hsl(210 40% 96%);
-  --muted-foreground: hsl(215 16% 47%);
-  --accent: hsl(210 40% 96%);                 /* shadcn convention: hover neutro */
-  --accent-foreground: hsl(222 47% 11%);
-  --destructive: hsl(0 72% 51%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(214 32% 91%);
-  --input: hsl(214 32% 91%);
-  --ring: hsl(217 91% 60%);
-  --radius: 0.5rem;
+  /* ---- shadcn (dark) ---- */
+  --background: #0a0e14;            /* acero casi negro */
+  --foreground: #e6edf3;            /* texto alto énfasis */
+  --card: #121a24;                  /* superficie de card */
+  --card-foreground: #e6edf3;
+  --popover: #16202c;
+  --popover-foreground: #e6edf3;
+  --primary: #e6edf3;              /* texto/elemento primario (near-white) */
+  --primary-foreground: #0a0e14;
+  --secondary: #1b2734;
+  --secondary-foreground: #e6edf3;
+  --muted: #16202c;
+  --muted-foreground: #94a3b8;     /* slate-400: sobre dark da >6:1 */
+  --accent: #1b2734;               /* hover neutro */
+  --accent-foreground: #e6edf3;
+  --destructive: #f87171;          /* rojo aclarado para dark */
+  --destructive-foreground: #0a0e14;
+  --border: #1e2a36;
+  --input: #1e2a36;
+  --ring: #ff6a2c;                 /* foco = plasma */
+  --radius: 0.75rem;
 
   /* Sidebar (shadcn) */
-  --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(222 47% 11%);
-  --sidebar-primary: hsl(222 47% 11%);
-  --sidebar-primary-foreground: hsl(210 40% 98%);
-  --sidebar-accent: hsl(214 100% 97%);
-  --sidebar-accent-foreground: hsl(222 47% 11%);
-  --sidebar-border: hsl(214 32% 91%);
-  --sidebar-ring: hsl(217 91% 60%);
+  --sidebar: #0c121a;
+  --sidebar-foreground: #e6edf3;
+  --sidebar-primary: #ff6a2c;
+  --sidebar-primary-foreground: #0a0e14;
+  --sidebar-accent: #16202c;        /* item activo */
+  --sidebar-accent-foreground: #e6edf3;
+  --sidebar-border: #1e2a36;
+  --sidebar-ring: #ff6a2c;
 
-  /* ---- Plasmart legacy ---- */
-  --color-plasmart-steel: #475569;
-  /* slate-500: labels/metadata/eyebrows. Subido desde slate-400 (#94a3b8)
-     para cumplir contraste WCAG AA (4.5:1) sobre fondos claros — el 400
-     daba ~2.6:1 y fallaba incluso para texto grande. Ver docs/auditoria-ui-ux.md */
-  --color-plasmart-light: #64748b;
-  --color-plasmart-cream: #f8fafc;
-  --color-plasmart-border: #e2e8f0;
-  --color-plasmart-border-soft: #f1f5f9;
-  --color-plasmart-success: #059669;
-  --color-plasmart-warning: #d97706;
-  --color-plasmart-brand: #2563eb;             /* blue-600 — acento de marca */
-  --color-plasmart-brand-soft: #dbeafe;        /* blue-100 — fondo de chips */
-  --color-plasmart-gads: #475569;
-  --color-plasmart-meta: #2563eb;
+  /* ---- Plasmart ---- */
+  --color-plasmart-steel: #b8c4d0;        /* texto secundario */
+  --color-plasmart-light: #94a3b8;        /* labels/metadatos/eyebrows (slate-400, ok en dark) */
+  --color-plasmart-cream: #131b25;        /* superficie tenue / hover / zebra */
+  --color-plasmart-border: #1e2a36;       /* hairline principal */
+  --color-plasmart-border-soft: #18222e;  /* divisor interno */
+  --color-plasmart-success: #34d399;      /* emerald aclarado */
+  --color-plasmart-warning: #fbbf24;      /* amber */
+  --color-plasmart-danger: #f87171;       /* red */
+  --color-plasmart-brand: #ff6a2c;        /* PLASMA — acento de marca/acción */
+  --color-plasmart-brand-soft: #2a1710;   /* fondo de chips (plasma tint oscuro) */
+  --color-plasmart-gads: #38bdf8;         /* serie Google Ads (cyan) */
+  --color-plasmart-meta: #a78bfa;         /* serie Meta Ads (violet) */
+
+  /* Superficies extra del cockpit */
+  --color-plasmart-surface-2: #16202c;    /* superficie elevada */
+  --color-plasmart-glow: rgba(255, 106, 44, 0.30);
 }
 
 @theme inline {
@@ -103,20 +110,25 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Plasmart legacy (utilidades text-steel, bg-cream, bg-brand, etc.) */
+  /* Plasmart (utilidades text-steel, bg-cream, bg-brand, bg-plasma, etc.) */
   --color-steel: var(--color-plasmart-steel);
   --color-light: var(--color-plasmart-light);
   --color-cream: var(--color-plasmart-cream);
+  --color-surface-2: var(--color-plasmart-surface-2);
   --color-border-default: var(--color-plasmart-border);
   --color-border-soft: var(--color-plasmart-border-soft);
   --color-success: var(--color-plasmart-success);
   --color-warning: var(--color-plasmart-warning);
+  --color-danger: var(--color-plasmart-danger);
   --color-brand: var(--color-plasmart-brand);
+  --color-plasma: var(--color-plasmart-brand);
   --color-brand-soft: var(--color-plasmart-brand-soft);
+  --color-plasma-soft: var(--color-plasmart-brand-soft);
   --color-gads: var(--color-plasmart-gads);
   --color-meta: var(--color-plasmart-meta);
 
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
 }
 
 html,
@@ -126,15 +138,28 @@ body {
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(1100px 560px at 82% -8%, rgba(255, 106, 44, 0.06), transparent 60%),
+    radial-gradient(820px 460px at -8% 6%, rgba(56, 189, 248, 0.05), transparent 55%),
+    var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Numerales de datos en mono (instrument-panel feel) */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+.font-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ============================================================
-   Eyebrows y micro-labels (Plasmart)
+   Eyebrows y micro-labels
    ============================================================ */
 
 .eyebrow-xs {
@@ -155,9 +180,34 @@ body {
 
 .heading-display {
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
   color: var(--foreground);
+}
+
+/* ============================================================
+   Utilidades del cockpit
+   ============================================================ */
+
+/* Stripe superior incandescente para cards destacadas */
+.glow-stripe::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-plasmart-brand),
+    transparent
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Card con borde hairline + leve gradiente vertical */
+.surface-card {
+  background: linear-gradient(180deg, var(--card), #0e151d);
+  border: 1px solid var(--border);
 }
 
 /* ============================================================
@@ -185,9 +235,6 @@ body {
 
 /* ============================================================
    Accesibilidad: respetar prefers-reduced-motion.
-   Neutraliza transiciones/animaciones (incluidas las de Recharts/
-   Tremor y los hover de tablas) para usuarios que pidieron menos
-   movimiento. Los datos siguen siendo legibles de inmediato.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,

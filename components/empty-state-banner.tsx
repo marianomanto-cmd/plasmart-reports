@@ -29,10 +29,10 @@ export function EmptyStateBanner() {
         <Link
           href="/dashboard"
           className="
-            inline-block rounded-md border border-primary px-5 py-2.5
-            text-[11px] font-semibold uppercase tracking-[0.18em] text-primary
-            transition-colors duration-150 hover:bg-primary hover:text-white
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2
+            inline-block rounded-md border border-brand/50 bg-brand-soft px-5 py-2.5
+            text-[11px] font-semibold uppercase tracking-[0.18em] text-brand
+            transition-colors duration-150 hover:bg-brand hover:text-primary-foreground
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background
           "
         >
           Limpiar filtros

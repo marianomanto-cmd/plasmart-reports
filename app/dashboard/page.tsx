@@ -1,25 +1,32 @@
-import Link from "next/link";
-import { RiSparkling2Line } from "@remixicon/react";
-
 import { parseFilters } from "@/lib/filters";
 import {
+  fetchCampaignAnomalies,
   fetchCampaignRows,
   fetchDailyByPublisher,
   fetchDailyTotals,
   fetchGa4Kpis,
   fetchKpis,
 } from "@/lib/queries";
+import {
+  buildAlerts,
+  buildEfficiencyPoints,
+  buildFunnel,
+  buildSpendDistribution,
+} from "@/lib/insights";
 import { rangeDays } from "@/lib/dates";
-import { KpiGrid } from "@/components/kpi-grid";
-import { Ga4KpiGrid } from "@/components/ga4-kpi-grid";
-import { CostEvolutionChart } from "@/components/charts/cost-evolution";
-import { EmptyStateBanner } from "@/components/empty-state-banner";
 import { InlineFilters } from "@/components/inline-filters";
-import { Button } from "@/components/ui/button";
+import { EmptyStateBanner } from "@/components/empty-state-banner";
+import { HeadlineStrip } from "@/components/cockpit/headline-strip";
+import { AlertFeed } from "@/components/cockpit/alert-feed";
+import { FunnelChart } from "@/components/cockpit/funnel-chart";
+import { SpendDistribution } from "@/components/cockpit/spend-distribution";
+import { EfficiencyQuadrant } from "@/components/cockpit/efficiency-quadrant";
+import { CostEvolutionChart } from "@/components/charts/cost-evolution";
+import { AiAnalysis } from "@/components/ai-analysis";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function ResumenPage({
+export default async function CockpitPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -27,118 +34,113 @@ export default async function ResumenPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const [kpis, ga4Kpis, dailyPoints, dailyTotals, campaignRowsForCheck] =
+  const [kpis, ga4Kpis, dailyPoints, dailyTotals, rows, anomalies] =
     await Promise.all([
       fetchKpis(filters),
       fetchGa4Kpis(filters),
       fetchDailyByPublisher(filters),
       fetchDailyTotals(filters),
-      fetchCampaignRows(filters, 1),
+      fetchCampaignRows(filters),
+      fetchCampaignAnomalies(filters),
     ]);
 
   const hasPaidData =
     kpis.cost.current > 0 ||
-    kpis.impressions.current > 0 ||
     kpis.clicks.current > 0 ||
     kpis.conversions.current > 0 ||
-    campaignRowsForCheck.length > 0;
+    rows.length > 0;
 
   const days = rangeDays(filters.from, filters.to);
   const compareLabel =
     filters.compare === "yoy"
-      ? "comparado contra el mismo rango del año pasado"
+      ? "vs el mismo rango del año pasado"
       : filters.compare === "previous"
-      ? `comparado contra los ${days} días previos`
-      : "sin comparación";
+        ? `vs los ${days} días previos`
+        : "sin comparación";
+
+  // Derivaciones del cockpit
+  const alerts = buildAlerts(rows, anomalies);
+  const distribution = buildSpendDistribution(rows, anomalies);
+  const funnel = buildFunnel(kpis);
+  const efficiency = buildEfficiencyPoints(rows);
+
+  const gadsCost = rows
+    .filter((r) => r.publisher === "gads")
+    .reduce((s, r) => s + r.cost, 0);
+  const total = distribution.total;
+  const split =
+    total > 0
+      ? `GAds ${Math.round((gadsCost / total) * 100)}% · Meta ${Math.round(
+          ((total - gadsCost) / total) * 100,
+        )}%`
+      : undefined;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-8 lg:px-8">
-      <div>
-        <p className="eyebrow-sm">Resumen del período</p>
-        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+    <div className="mx-auto max-w-[1400px] space-y-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <header>
+        <div className="eyebrow-sm" style={{ color: "var(--color-plasma)" }}>
+          Cockpit · cómo vamos y qué mirar
+        </div>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {formatHumanRange(filters.from, filters.to)}
-        </h2>
+        </h1>
         <p className="mt-1.5 text-sm text-steel">
-          {days} {days === 1 ? "día" : "días"} · {compareLabel}
+          {days} {days === 1 ? "día" : "días"} · {compareLabel} · Corte láser y
+          plasma · Córdoba
         </p>
-      </div>
+      </header>
 
       <InlineFilters />
 
       {hasPaidData ? (
         <>
-          <section aria-labelledby="paid-kpis">
-            <div className="mb-3 flex items-baseline justify-between">
-              <h3 id="paid-kpis" className="eyebrow-xs">
-                Performance pagada
-              </h3>
+          <HeadlineStrip
+            kpis={kpis}
+            ga4={ga4Kpis}
+            daily={dailyTotals}
+            compareMode={filters.compare}
+          />
+
+          <div className="grid grid-cols-12 gap-3 sm:gap-4">
+            <div className="col-span-12 lg:col-span-8">
+              <AlertFeed alerts={alerts} />
             </div>
-            <KpiGrid
-              kpis={kpis}
-              compareMode={filters.compare}
-              daily={dailyTotals}
-            />
-          </section>
-
-          <section aria-labelledby="ga4-kpis">
-            <div className="mb-3 flex items-baseline justify-between">
-              <h3 id="ga4-kpis" className="eyebrow-xs">
-                Tráfico del sitio (GA4)
-              </h3>
+            <div className="col-span-12 lg:col-span-4">
+              <FunnelChart stages={funnel} />
             </div>
-            <Ga4KpiGrid kpis={ga4Kpis} compareMode={filters.compare} />
-          </section>
 
-          <section aria-labelledby="evolution-heading">
-            <h3 id="evolution-heading" className="sr-only">
-              Evolución diaria de inversión
-            </h3>
-            <CostEvolutionChart
-              points={dailyPoints}
-              fromIso={filters.from}
-              toIso={filters.to}
-            />
-          </section>
+            <div className="col-span-12 lg:col-span-5">
+              <SpendDistribution data={distribution} right={split} />
+            </div>
+            <div className="col-span-12 lg:col-span-7">
+              <EfficiencyQuadrant points={efficiency} />
+            </div>
 
-          {/* CTA al hub de análisis IA — vive en /dashboard/analysis */}
-          <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <RiSparkling2Line className="size-4 text-brand" aria-hidden="true" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    ¿Necesitás un análisis?
-                  </h3>
-                </div>
-                <p className="max-w-2xl text-sm leading-relaxed text-steel">
-                  Generá un diagnóstico rápido o un reporte experto Corey
-                  Haines del período actual desde el hub de análisis.
-                </p>
+            <div className="col-span-12">
+              <section aria-labelledby="trend-heading">
+                <h2 id="trend-heading" className="sr-only">
+                  Tendencia diaria de inversión
+                </h2>
+                <CostEvolutionChart
+                  points={dailyPoints}
+                  fromIso={filters.from}
+                  toIso={filters.to}
+                />
+              </section>
+            </div>
+
+            <div className="col-span-12">
+              <div className="surface-card overflow-hidden rounded-xl">
+                <AiAnalysis filters={filters} />
               </div>
-              <Button asChild className="shrink-0">
-                <Link href={withQs("/dashboard/analysis", filters)}>
-                  Ir al análisis
-                </Link>
-              </Button>
             </div>
-          </section>
+          </div>
         </>
       ) : (
         <EmptyStateBanner />
       )}
     </div>
   );
-}
-
-function withQs(href: string, filters: ReturnType<typeof parseFilters>): string {
-  const qs = new URLSearchParams();
-  qs.set("from", filters.from);
-  qs.set("to", filters.to);
-  if (filters.compare !== "previous") qs.set("compare", filters.compare);
-  if (filters.publisher) qs.set("publisher", filters.publisher);
-  if (filters.type) qs.set("type", filters.type);
-  if (filters.campaignId) qs.set("campaign", filters.campaignId);
-  return `${href}?${qs.toString()}`;
 }
 
 function formatHumanRange(from: string, to: string): string {

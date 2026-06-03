@@ -67,7 +67,7 @@ export function AiAnalysis({ filters }: Props) {
   };
 
   return (
-    <div className="border-t-4 border-brand bg-white">
+    <div className="border-t-4 border-brand bg-card">
       <div className="flex items-baseline justify-between border-b border-border-default px-4 py-4 sm:px-6">
         <h3 className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           <RiSparkling2Line className="size-4 text-brand" aria-hidden="true" />
@@ -159,7 +159,7 @@ function Idle({
           onChange={(e) => onFocusChange(e.target.value)}
           placeholder="Ej.: bajar CPA en Meta sin perder volumen de leads B2B"
           className="
-            w-full resize-y border border-border-default bg-white px-3 py-2
+            w-full resize-y border border-border-default bg-card px-3 py-2
             text-sm leading-relaxed text-primary
             focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
           "

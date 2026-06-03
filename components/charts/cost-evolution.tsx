@@ -75,7 +75,7 @@ export function CostEvolutionChart({ points }: Props) {
         data={data}
         index="date"
         categories={[...CATEGORIES]}
-        colors={["gray", "blue"]}
+        colors={["cyan", "violet"]}
         valueFormatter={(v: number) => formatCurrencyArs(v)}
         showLegend={false}
         showGridLines
