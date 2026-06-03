@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="plasma" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb068"/>
+      <stop offset="0.55" stop-color="#ff6a2c"/>
+      <stop offset="1" stop-color="#e8521a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#plasma)"/>
+  <path d="M11 8.5 L11 23.5 M11 8.5 L17 8.5 Q21.8 8.5 21.8 13 Q21.8 17.5 17 17.5 L11 17.5"
+        stroke="#0a0e14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="22.5" y="21.5" width="3.2" height="3.2" rx="0.6" fill="#0a0e14" opacity="0.85"/>
+</svg>
