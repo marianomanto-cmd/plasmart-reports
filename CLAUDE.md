@@ -205,17 +205,25 @@ Las funciones `ingestAdsets(supabase, publisher, ...)` e
 al resolver `campaign_id`. Por eso un mismo helper sirve para las cuatro
 fuentes opcionales (gads/meta × adset/ad).
 
-## Estructura de rutas (v1.5)
+## Estructura de rutas (v1.7 — cockpit)
 
 | Ruta | Contenido | Sidebar item |
 |---|---|---|
-| `/dashboard` | Overview: KPIs paid + GA4, chart evolución, CTA al análisis | Overview |
-| `/dashboard/paid` | Comparativa GAds vs Meta + selector granularidad + top + tabla | Paid |
+| `/dashboard` | **Cockpit/Resumen**: headline KPIs + "Qué mirar" (alertas) + embudo + distribución de gasto + cuadrante de eficiencia + tendencia + IA inline | Resumen |
+| `/dashboard/paid` | **Campañas**: comparativa GAds vs Meta + distribución + cuadrante de eficiencia + tabla, con selector de granularidad | Campañas |
 | `/dashboard/paid/gads` | Idem, publisher forzado a gads | ↳ Google Ads |
 | `/dashboard/paid/meta` | Idem, publisher forzado a meta | ↳ Meta Ads |
 | `/dashboard/traffic` | GA4: KPIs + tabla source/medium | Tráfico |
-| `/dashboard/analysis` | Hub IA con toggle rápido / experto (Corey Haines) | Análisis |
+| `/dashboard/analysis` | Hub IA con toggle rápido / experto (Corey Haines) | Análisis IA |
 | `/admin` | Log de ingestas, freshness, log de IA | Admin |
+
+> **v1.7 (jun-2026): rediseño "Control Room".** La IA pasó de "páginas
+> por fuente de dato" a "páginas por pregunta": el home es un cockpit que
+> responde *cómo vamos* y *qué mirar* de un vistazo. Las anomalías de
+> campaña (antes badges de 9px en la tabla) ahora son el feed de alertas;
+> se sumaron embudo, distribución de gasto y cuadrante de eficiencia
+> (`lib/insights.ts` + `components/cockpit/*`). El mockup de referencia
+> está en `docs/redesign/cockpit-mockup.html`.
 
 Rutas legacy (`/dashboard/comparativa`, `/dashboard/detalle`,
 `/dashboard/corey-haines`) **redirigen** preservando los search params, no
@@ -239,8 +247,20 @@ Layout principal en `components/app-shell/`:
 
 ## Lineamientos de diseño visual
 
+> ⚠️ **v1.7 — tema "Plasmart Control Room" (dark-first).** El dashboard se
+> rediseñó como el panel de control de una máquina de corte: **acero oscuro
+> + acento plasma (naranja incandescente `#ff6a2c`)** + sistema de estado
+> verde/ámbar/rojo + numerales monoespaciados. La **fuente de verdad** es
+> `app/globals.css` (los valores de los tokens se remapearon a oscuro; el
+> `<html>` lleva `class="dark"`). Tipografía: **IBM Plex Sans** (UI) +
+> **IBM Plex Mono** (`.font-data`, para cifras/tablas). Series: Google Ads =
+> cyan `#38bdf8`, Meta = violet `#a78bfa`. Superficies vía `surface-card`;
+> stripe plasma vía `glow-stripe`; cards del cockpit en `components/cockpit/`.
+> La descripción **slate + azul (light)** de abajo es **histórica** — los
+> nombres de token siguen valiendo, pero ahora apuntan a valores oscuros.
+
 Identidad basada en plasmartcba.com (industrial-elegante).
-Paleta efectiva: **slate + azul** con dos sistemas de tokens conviviendo:
+Paleta histórica (light, pre-v1.7): **slate + azul** con dos sistemas de tokens conviviendo:
 - **shadcn** (HSL): `background/foreground/primary/secondary/muted/
   accent/border` + `sidebar-*`. Usado por componentes en `components/ui/`.
 - **Plasmart legacy** (hex via aliases): `text-steel`, `text-light`,
