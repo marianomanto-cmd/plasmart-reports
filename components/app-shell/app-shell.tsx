@@ -16,8 +16,8 @@ interface Props {
  */
 export function AppShell({ userEmail, children }: Props) {
   return (
-    <div className="flex min-h-dvh bg-background">
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
+    <div className="flex min-h-dvh">
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-sidebar-border bg-sidebar/80 backdrop-blur md:flex md:flex-col">
         <div className="border-b border-sidebar-border px-4 py-4">
           <Link
             href="/dashboard"

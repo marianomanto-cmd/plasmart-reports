@@ -14,7 +14,6 @@ import {
   buildSpendDistribution,
 } from "@/lib/insights";
 import { rangeDays } from "@/lib/dates";
-import { InlineFilters } from "@/components/inline-filters";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
 import { HeadlineStrip } from "@/components/cockpit/headline-strip";
 import { AlertFeed } from "@/components/cockpit/alert-feed";
@@ -90,7 +89,6 @@ export default async function CockpitPage({
         </p>
       </header>
 
-      <InlineFilters />
 
       {hasPaidData ? (
         <>
