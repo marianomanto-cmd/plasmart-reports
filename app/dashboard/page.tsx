@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { RiSparkling2Line } from "@remixicon/react";
 
 import { parseFilters } from "@/lib/filters";
 import {
@@ -105,7 +105,7 @@ export default async function ResumenPage({
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="size-4 text-brand" aria-hidden="true" />
+                  <RiSparkling2Line className="size-4 text-brand" aria-hidden="true" />
                   <h3 className="text-sm font-semibold text-foreground">
                     ¿Necesitás un análisis?
                   </h3>

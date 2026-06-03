@@ -3,42 +3,42 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
-  LayoutGrid,
-  TrendingUp,
-  Globe,
-  Sparkles,
-  Settings,
-  ChevronRight,
-} from "lucide-react";
+  RiDashboardLine,
+  RiLineChartLine,
+  RiGlobalLine,
+  RiSparkling2Line,
+  RiSettings3Line,
+  RiArrowRightSLine,
+} from "@remixicon/react";
 
 import { cn } from "@/lib/utils";
 
 interface NavLink {
   href: string;
   label: string;
-  icon: typeof LayoutGrid;
+  icon: typeof RiDashboardLine;
   /** Children que se muestran indentados debajo. Activos cuando el path
    *  matchea exactamente; el padre queda activo si cualquier child lo está. */
   children?: Array<{ href: string; label: string }>;
 }
 
 const PRIMARY: NavLink[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutGrid },
+  { href: "/dashboard", label: "Overview", icon: RiDashboardLine },
   {
     href: "/dashboard/paid",
     label: "Paid",
-    icon: TrendingUp,
+    icon: RiLineChartLine,
     children: [
       { href: "/dashboard/paid/gads", label: "Google Ads" },
       { href: "/dashboard/paid/meta", label: "Meta Ads" },
     ],
   },
-  { href: "/dashboard/traffic", label: "Tráfico", icon: Globe },
-  { href: "/dashboard/analysis", label: "Análisis", icon: Sparkles },
+  { href: "/dashboard/traffic", label: "Tráfico", icon: RiGlobalLine },
+  { href: "/dashboard/analysis", label: "Análisis", icon: RiSparkling2Line },
 ];
 
 const SECONDARY: NavLink[] = [
-  { href: "/admin", label: "Admin", icon: Settings },
+  { href: "/admin", label: "Admin", icon: RiSettings3Line },
 ];
 
 interface Props {
@@ -91,7 +91,7 @@ export function SidebarNav({ onNavigate }: Props) {
                 <Icon className="size-4 shrink-0" aria-hidden="true" />
                 <span className="flex-1 truncate">{item.label}</span>
                 {item.children && (
-                  <ChevronRight
+                  <RiArrowRightSLine
                     className={cn(
                       "size-3.5 shrink-0 transition-transform",
                       active && "rotate-90",

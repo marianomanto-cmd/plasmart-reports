@@ -259,7 +259,10 @@ del proyecto se llamaba "accent" — se renombró para no chocar).
 - Accent soft `#dbeafe` (blue-100) — fondo de chips de filtro activo,
   íconos del estado vacío
 - Steel `#475569` (slate-600) — texto secundario, serie Google Ads
-- Light `#94a3b8` (slate-400) — labels, metadatos, eyebrows
+- Light `#64748b` (slate-500) — labels, metadatos, eyebrows. *Subido desde
+  slate-400 (`#94a3b8`) en la auditoría UI/UX (jun-2026): el 400 daba ~2.6:1
+  sobre fondo claro y fallaba WCAG AA. El 500 da ~4.8:1. Ver
+  `docs/auditoria-ui-ux.md`.*
 - Cream `#f8fafc` (slate-50) — fondo de página
 - White `#ffffff` — fondo de cards
 - Border `#e2e8f0` (slate-200) — bordes y divisores principales
@@ -279,7 +282,12 @@ del proyecto se llamaba "accent" — se renombró para no chocar).
 
 **Iconografía:** `@remixicon/react` (RiArrowRightUpLine, RiCalendarLine,
 RiFilter3Line, RiSparkling2Line, RiDownloadLine, RiRefreshLine,
-RiLogoutBoxRLine). No mezclar con emojis ni con triángulos unicode.
+RiLogoutBoxRLine). No mezclar con emojis ni con triángulos unicode. Los
+componentes de producto (`components/*`, incluido `app-shell/`) usan sólo
+remixicon — en la auditoría jun-2026 se migró el sidebar/topbar/hub que
+todavía usaban `lucide-react`. La única excepción son los primitivos shadcn
+(`components/ui/*`), que traen glifos internos de lucide (check, chevron, X)
+y se dejan como vienen del vendor.
 
 **Patrones de layout:**
 - **KPI cards** llevan un stripe horizontal de 2px arriba (`bg-accent` por
@@ -365,3 +373,24 @@ No retomarlas hasta que el dashboard esté estable y el equipo lo pida.
 - La implementación concreta (escribir código, archivos, comandos) se hace
   con Claude Code aquí.
 - Cada cambio significativo va a su propio commit con mensaje descriptivo en español.
+
+## Skills de Claude Code instalados
+
+En `.claude/skills/` viven skills versionadas con el repo. Las relevantes
+para diseño:
+
+- **`ui-ux-pro-max`** — motor de inteligencia de diseño (67 estilos, 161
+  paletas, 99 guías UX, 25 tipos de chart). Se usa para auditar y diseñar
+  UI. Tiene un CLI Python:
+  ```bash
+  # Sistema de diseño recomendado para un tipo de producto
+  python3 .claude/skills/ui-ux-pro-max/scripts/search.py \
+    "internal analytics dashboard b2b data-dense" --design-system
+  # Búsqueda por dominio (ux / color / chart / typography / style / product)
+  python3 .claude/skills/ui-ux-pro-max/scripts/search.py "loading accessibility" --domain ux
+  ```
+  La auditoría completa del sitio con este skill está en
+  `docs/auditoria-ui-ux.md`.
+- Colección **`intellectronica/agent-skills`** (beautiful-mermaid, promptify,
+  markdown-converter, ultrathink, etc.) — utilidades varias, la mayoría
+  integraciones con APIs externas que necesitan su propia key.

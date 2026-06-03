@@ -62,6 +62,15 @@ export function CostEvolutionChart({ points }: Props) {
         </div>
       </div>
 
+      {/* Resumen accesible: los lectores de pantalla no pueden leer el SVG
+          del chart, así que les damos la conclusión en texto. */}
+      <p className="sr-only">
+        Evolución diaria de inversión sobre {dates.length}{" "}
+        {dates.length === 1 ? "día" : "días"}. Google Ads totalizó{" "}
+        {formatCurrencyArs(totalGads)}; Meta Ads totalizó{" "}
+        {formatCurrencyArs(totalMeta)}.
+      </p>
+
       <AreaChart
         data={data}
         index="date"

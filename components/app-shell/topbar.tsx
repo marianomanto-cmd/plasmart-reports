@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, LogOut } from "lucide-react";
+import { RiMenuLine, RiLogoutBoxRLine } from "@remixicon/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -50,7 +50,7 @@ export function Topbar({ userEmail }: Props) {
             className="md:hidden"
             aria-label="Abrir navegación"
           >
-            <Menu className="size-5" />
+            <RiMenuLine className="size-5" />
           </Button>
         </SheetTrigger>
         <SheetContent
@@ -120,7 +120,7 @@ export function Topbar({ userEmail }: Props) {
             <form action="/auth/logout" method="post">
               <DropdownMenuItem asChild>
                 <button type="submit" className="w-full cursor-pointer">
-                  <LogOut className="size-4" />
+                  <RiLogoutBoxRLine className="size-4" />
                   Cerrar sesión
                 </button>
               </DropdownMenuItem>

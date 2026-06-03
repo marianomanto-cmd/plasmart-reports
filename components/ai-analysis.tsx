@@ -161,7 +161,7 @@ function Idle({
           className="
             w-full resize-y border border-border-default bg-white px-3 py-2
             text-sm leading-relaxed text-primary
-            focus:border-primary focus:outline-none
+            focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20
           "
         />
         <p className="text-xs text-light">
