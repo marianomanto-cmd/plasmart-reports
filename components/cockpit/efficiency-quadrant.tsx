@@ -19,10 +19,10 @@ const shortName = (n: string) => (n.length > 12 ? n.slice(0, 11) + "…" : n);
  * Cuatro cuadrantes accionables: Escalar / Vigilar / Optimizar / Cortar.
  */
 export function EfficiencyQuadrant({ points }: { points: EfficiencyPoint[] }) {
-  const L = 52,
-    R = 620,
-    T = 18,
-    B = 205;
+  const L = 54,
+    R = 596,
+    T = 24,
+    B = 196;
 
   if (points.length === 0) {
     return (
@@ -45,7 +45,9 @@ export function EfficiencyQuadrant({ points }: { points: EfficiencyPoint[] }) {
   const xOf = (conv: number) => L + (conv / maxConv) * (R - L);
   const yOf = (cpa: number | null) =>
     T + (1 - (cpa ?? maxCpa) / maxCpa) * (B - T);
-  const rOf = (cost: number) => 5 + (cost / maxCost) * 19;
+  const rOf = (cost: number) => 5 + (cost / maxCost) * 13;
+  const clamp = (v: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, v));
 
   const xSplit = xOf(median(points.map((p) => p.conversions)));
   const ySplit = yOf(median(cpaVals.length ? cpaVals : [maxCpa / 2]));
@@ -86,12 +88,15 @@ export function EfficiencyQuadrant({ points }: { points: EfficiencyPoint[] }) {
         <text x={xSplit - 8} y={B - 8} textAnchor="end" fontSize="9" letterSpacing="1" fill="rgba(56,189,248,.75)">OPTIMIZAR</text>
         <text x={xSplit + 8} y={B - 8} fontSize="9" letterSpacing="1" fill="rgba(52,211,153,.85)">ESCALAR ◢</text>
 
-        {/* bubbles */}
+        {/* bubbles — posiciones clampeadas al área de plot para no recortar */}
         {points.map((p) => {
           const color = PUB_COLOR[p.publisher];
-          const cx = xOf(p.conversions);
-          const cy = yOf(p.cpa);
           const r = rOf(p.cost);
+          const cx = clamp(xOf(p.conversions), L + r, 636 - r);
+          const cy = clamp(yOf(p.cpa), T + r, B - r);
+          // Etiqueta arriba; si toca el borde superior, va abajo.
+          const ly = cy - r - 5 < T + 10 ? cy + r + 12 : cy - r - 5;
+          const lx = clamp(cx, 46, 600);
           return (
             <g key={p.id}>
               <circle cx={cx} cy={cy} r={r} fill={color} fillOpacity={0.16} stroke={color} strokeOpacity={0.9}>
@@ -103,8 +108,8 @@ export function EfficiencyQuadrant({ points }: { points: EfficiencyPoint[] }) {
               </circle>
               {labelIds.has(p.id) && (
                 <text
-                  x={cx}
-                  y={cy - r - 3}
+                  x={lx}
+                  y={ly}
                   textAnchor="middle"
                   fontSize="9"
                   className="font-data"

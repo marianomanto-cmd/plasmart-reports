@@ -3,7 +3,6 @@ import { fetchKpis } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
 import { AnalysisHub } from "@/components/analysis-hub";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
-import { InlineFilters } from "@/components/inline-filters";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -39,7 +38,6 @@ export default async function AnalysisPage({
         </p>
       </div>
 
-      <InlineFilters />
 
       {hasPaidData ? (
         <AnalysisHub filters={filters} />

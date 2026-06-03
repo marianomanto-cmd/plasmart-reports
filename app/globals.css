@@ -27,9 +27,9 @@
   /* ---- shadcn (dark) ---- */
   --background: #0a0e14;            /* acero casi negro */
   --foreground: #e6edf3;            /* texto alto énfasis */
-  --card: #121a24;                  /* superficie de card */
+  --card: #161f2b;                  /* superficie de card (sube de #121a24 para separar del fondo) */
   --card-foreground: #e6edf3;
-  --popover: #16202c;
+  --popover: #1a2534;
   --popover-foreground: #e6edf3;
   --primary: #e6edf3;              /* texto/elemento primario (near-white) */
   --primary-foreground: #0a0e14;
@@ -41,8 +41,8 @@
   --accent-foreground: #e6edf3;
   --destructive: #f87171;          /* rojo aclarado para dark */
   --destructive-foreground: #0a0e14;
-  --border: #1e2a36;
-  --input: #1e2a36;
+  --border: #26333f;               /* hairline más definido */
+  --input: #26333f;
   --ring: #ff6a2c;                 /* foco = plasma */
   --radius: 0.75rem;
 
@@ -59,9 +59,9 @@
   /* ---- Plasmart ---- */
   --color-plasmart-steel: #b8c4d0;        /* texto secundario */
   --color-plasmart-light: #94a3b8;        /* labels/metadatos/eyebrows (slate-400, ok en dark) */
-  --color-plasmart-cream: #131b25;        /* superficie tenue / hover / zebra */
-  --color-plasmart-border: #1e2a36;       /* hairline principal */
-  --color-plasmart-border-soft: #18222e;  /* divisor interno */
+  --color-plasmart-cream: #1a2330;        /* superficie tenue / hover / zebra */
+  --color-plasmart-border: #26333f;       /* hairline principal */
+  --color-plasmart-border-soft: #1d2735;  /* divisor interno */
   --color-plasmart-success: #34d399;      /* emerald aclarado */
   --color-plasmart-warning: #fbbf24;      /* amber */
   --color-plasmart-danger: #f87171;       /* red */
@@ -71,7 +71,7 @@
   --color-plasmart-meta: #a78bfa;         /* serie Meta Ads (violet) */
 
   /* Superficies extra del cockpit */
-  --color-plasmart-surface-2: #16202c;    /* superficie elevada */
+  --color-plasmart-surface-2: #1b2734;    /* superficie elevada */
   --color-plasmart-glow: rgba(255, 106, 44, 0.30);
 }
 
@@ -139,8 +139,9 @@ body {
 
 body {
   background:
-    radial-gradient(1100px 560px at 82% -8%, rgba(255, 106, 44, 0.06), transparent 60%),
-    radial-gradient(820px 460px at -8% 6%, rgba(56, 189, 248, 0.05), transparent 55%),
+    radial-gradient(1200px 620px at 80% -12%, rgba(255, 106, 44, 0.13), transparent 58%),
+    radial-gradient(900px 520px at -10% 4%, rgba(56, 189, 248, 0.09), transparent 52%),
+    radial-gradient(700px 700px at 50% 120%, rgba(167, 139, 250, 0.06), transparent 60%),
     var(--background);
   background-attachment: fixed;
   color: var(--foreground);
@@ -204,10 +205,13 @@ body {
   pointer-events: none;
 }
 
-/* Card con borde hairline + leve gradiente vertical */
+/* Card con borde hairline + leve gradiente vertical + sombra de profundidad */
 .surface-card {
-  background: linear-gradient(180deg, var(--card), #0e151d);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #1a2330, #111922);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 30px -12px rgba(0, 0, 0, 0.6);
 }
 
 /* ============================================================

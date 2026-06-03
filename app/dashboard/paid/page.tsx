@@ -7,7 +7,6 @@ import {
   fetchPublisherComparison,
 } from "@/lib/queries";
 import { rangeDays } from "@/lib/dates";
-import { InlineFilters } from "@/components/inline-filters";
 import { PublisherComparisonTable } from "@/components/publisher-comparison";
 import { TopAdsetsChart } from "@/components/charts/top-adsets";
 import { TopAdsChart } from "@/components/charts/top-ads";
@@ -189,7 +188,6 @@ function PaidShell({
         <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
       </div>
 
-      <InlineFilters lockedPublisher={lockedPublisher} />
 
       {children}
     </div>
