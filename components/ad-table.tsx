@@ -189,7 +189,7 @@ function MobileSortBar({
         <select
           value={sortKey}
           onChange={(e) => onChange(e.target.value as SortKey, sortDir)}
-          className="border border-border-default bg-white px-2 py-1 text-xs font-medium text-primary focus:border-brand focus:outline-none"
+          className="border border-border-default bg-white px-2 py-1 text-xs font-medium text-primary focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {options.map((o) => (
             <option key={o.k} value={o.k}>
@@ -201,7 +201,7 @@ function MobileSortBar({
       <button
         type="button"
         onClick={() => onChange(sortKey, sortDir === "asc" ? "desc" : "asc")}
-        className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+        className="inline-flex items-center gap-1 rounded-sm text-[11px] font-semibold uppercase tracking-[0.14em] text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
       >
         {sortDir === "asc" ? (
           <RiArrowUpLine className="size-3.5" aria-hidden="true" />
@@ -283,8 +283,9 @@ function Th({
         type="button"
         onClick={() => onClick(k)}
         className={`
-          inline-flex items-center gap-1 uppercase tracking-[0.18em]
+          inline-flex items-center gap-1 rounded-sm uppercase tracking-[0.18em]
           transition-colors duration-150
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40
           ${isActive ? "text-primary" : "hover:text-primary"}
           ${align === "right" ? "flex-row-reverse" : ""}
         `}

@@ -53,7 +53,10 @@
 
   /* ---- Plasmart legacy ---- */
   --color-plasmart-steel: #475569;
-  --color-plasmart-light: #94a3b8;
+  /* slate-500: labels/metadata/eyebrows. Subido desde slate-400 (#94a3b8)
+     para cumplir contraste WCAG AA (4.5:1) sobre fondos claros — el 400
+     daba ~2.6:1 y fallaba incluso para texto grande. Ver docs/auditoria-ui-ux.md */
+  --color-plasmart-light: #64748b;
   --color-plasmart-cream: #f8fafc;
   --color-plasmart-border: #e2e8f0;
   --color-plasmart-border-soft: #f1f5f9;
@@ -177,5 +180,22 @@ body {
   .filter-select-mobile-full > select {
     width: 100%;
     min-width: 0;
+  }
+}
+
+/* ============================================================
+   Accesibilidad: respetar prefers-reduced-motion.
+   Neutraliza transiciones/animaciones (incluidas las de Recharts/
+   Tremor y los hover de tablas) para usuarios que pidieron menos
+   movimiento. Los datos siguen siendo legibles de inmediato.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

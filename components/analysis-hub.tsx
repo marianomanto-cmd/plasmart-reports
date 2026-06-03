@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, Sparkles } from "lucide-react";
+import { RiFlashlightLine, RiSparkling2Line } from "@remixicon/react";
 
 import type { DashboardFilters } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -10,21 +10,25 @@ import { CoreyHainesAnalysis } from "@/components/corey-haines-analysis";
 
 type Mode = "quick" | "expert";
 
-const MODES: Array<{ id: Mode; label: string; desc: string; icon: typeof Zap }> =
-  [
-    {
-      id: "quick",
-      label: "Diagnóstico rápido",
-      desc: "Análisis breve con recomendaciones puntuales del período.",
-      icon: Zap,
-    },
-    {
-      id: "expert",
-      label: "Reporte experto Corey Haines",
-      desc: "Frameworks de marketing skills aplicados al período. Más extenso, ~30-60 seg.",
-      icon: Sparkles,
-    },
-  ];
+const MODES: Array<{
+  id: Mode;
+  label: string;
+  desc: string;
+  icon: typeof RiFlashlightLine;
+}> = [
+  {
+    id: "quick",
+    label: "Diagnóstico rápido",
+    desc: "Análisis breve con recomendaciones puntuales del período.",
+    icon: RiFlashlightLine,
+  },
+  {
+    id: "expert",
+    label: "Reporte experto Corey Haines",
+    desc: "Frameworks de marketing skills aplicados al período. Más extenso, ~30-60 seg.",
+    icon: RiSparkling2Line,
+  },
+];
 
 interface Props {
   filters: DashboardFilters;
