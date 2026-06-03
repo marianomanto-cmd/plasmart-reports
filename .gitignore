@@ -56,3 +56,7 @@ coverage/
 !.claude/skills/
 .claude-code/
 CLAUDE.local.md
+
+# Python cache (skills)
+__pycache__/
+*.pyc
