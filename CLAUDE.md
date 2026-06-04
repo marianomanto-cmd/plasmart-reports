@@ -22,17 +22,88 @@ recomendaciones puntuales.
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Next.js 15 (App Router) + TypeScript + Tailwind + Tremor |
+| Frontend | Next.js 16 (App Router) + TypeScript + Tailwind v4 + Tremor |
 | Backend | Supabase (Postgres + Auth + Edge Functions) |
 | Hosting | Vercel (plan Hobby) |
-| IA | Claude API (modelo a definir en Fase 5) |
+| IA | Claude API (Sonnet 4.6) vía Anthropic SDK |
 | Auth | Supabase Auth con Google OAuth, dominio @transfil.com.ar |
 
 ## Estructura del proyecto
+
 ```
+app/
+  (auth)/login/              # Pantalla Google OAuth
+  (dashboard)/               # Rutas protegidas
+    page.tsx                 # /dashboard — Cockpit
+    layout.tsx               # Aplica AppShell
+    paid/                    # /dashboard/paid — Campañas
+      gads/page.tsx          # Publisher forzado: Google Ads
+      meta/page.tsx          # Publisher forzado: Meta Ads
+    traffic/page.tsx         # /dashboard/traffic — GA4
+    analysis/page.tsx        # /dashboard/analysis — Hub IA
+    comparativa/             # Legacy → redirect a /paid
+    detalle/                 # Legacy → redirect a /paid
+    corey-haines/            # Legacy → redirect a /analysis
+  admin/page.tsx             # /admin — log ingestas + IA
+  api/
+    analyze/route.ts         # POST → Claude (cache por hash)
+    ingest/run/route.ts      # POST → dispara ingest-reports
+    filters/available/       # GET → opciones de filtros
 
-app/ # Next.js App Router (auth)/ # Rutas públicas (login) (dashboard)/ # Rutas autenticadas api/ # API routes (server-side) components/ # React components ui/ # Componentes base charts/ # Visualizaciones filters/ # Barra de filtros lib/ supabase/ # Cliente Supabase (server + client) anthropic/ # Cliente y prompts de Claude utils/ # Helpers supabase/ migrations/ # Migrations Postgres versionadas functions/ # Edge Functions ingest-reports/ # Lee Sheets de Drive y popula la DB analyze-snapshot/ # Llama a Claude para análisis public/ # Assets estáticos
+components/
+  app-shell/
+    app-shell.tsx            # Topbar + <main> full-width (sin sidebar)
+    topbar.tsx               # Header sticky: marca + TopNav + filtros + usuario
+    top-nav.tsx              # Nav horizontal desktop (4 items)
+    topbar-filters.tsx       # Chip período + Sheet drawer con InlineFilters
+    sidebar-nav.tsx          # Nav del Sheet mobile
+  cockpit/                   # Componentes del cockpit /dashboard
+    panel.tsx                # surface-card + glow-stripe opcional
+    headline-strip.tsx       # 4 KPI tiles con sparklines y deltas
+    alert-feed.tsx           # Feed "Qué mirar" (danger/warn/info)
+    funnel-chart.tsx         # Embudo 3 etapas SVG
+    spend-distribution.tsx   # Barras de distribución de gasto
+    efficiency-quadrant.tsx  # Scatter CPA vs volumen (4 cuadrantes)
+  charts/
+    cost-evolution.tsx       # Tremor AreaChart evolución GAds vs Meta
+    top-campaigns.tsx        # BarChart top campañas
+    top-adsets.tsx / top-ads.tsx
+  ui/                        # Primitivos shadcn
+  tremor/                    # Wrappers dark-mode de Tremor
+  plasmart-mark.tsx          # Logotipo spark plasma
+  ai-analysis.tsx            # Bloque análisis Claude
+  campaign-table.tsx         # Tabla con fallback mobile (cards)
+  inline-filters.tsx         # Formulario de filtros
+  …y otros componentes de UI
 
+lib/
+  insights.ts                # buildAlerts / buildSpendDistribution / buildFunnel / buildEfficiencyPoints
+  queries.ts                 # Queries del dashboard (RPCs Supabase)
+  admin-queries.ts           # Queries de /admin
+  types.ts                   # Tipos del dominio
+  filters.ts                 # Parseo de filtros desde URL
+  format.ts                  # Formateo es-AR (moneda, número, %)
+  dates.ts                   # Helpers de fechas
+  ai/
+    prompt.ts                # SYSTEM_PROMPT + buildUserContent()
+    account-context.ts       # Contexto estático de Plasmart
+    corey-prompt.ts          # Prompt modo experto
+    hash.ts                  # Hash de filtros para cache
+  supabase/
+    client.ts / server.ts / middleware.ts
+  tremor/                    # Helpers internos de Tremor
+
+proxy.ts                     # Middleware Next.js (sesión + guard)
+supabase/
+  migrations/                # SQL versionado
+  functions/ingest-reports/  # Edge Function ingesta
+
+docs/
+  redesign/cockpit-mockup.html
+  auditoria-ui-ux.md
+  extractores-appscript.md
+
+.claude/skills/              # Skills versionadas (ui-ux-pro-max + agent-skills)
 ```
 
 ## Modelo de datos
@@ -207,7 +278,7 @@ fuentes opcionales (gads/meta × adset/ad).
 
 ## Estructura de rutas (v1.7 — cockpit)
 
-| Ruta | Contenido | Sidebar item |
+| Ruta | Contenido | Nav item |
 |---|---|---|
 | `/dashboard` | **Cockpit/Resumen**: headline KPIs + "Qué mirar" (alertas) + embudo + distribución de gasto + cuadrante de eficiencia + tendencia + IA inline | Resumen |
 | `/dashboard/paid` | **Campañas**: comparativa GAds vs Meta + distribución + cuadrante de eficiencia + tabla, con selector de granularidad | Campañas |
@@ -229,21 +300,22 @@ Rutas legacy (`/dashboard/comparativa`, `/dashboard/detalle`,
 `/dashboard/corey-haines`) **redirigen** preservando los search params, no
 se borran de un saque para no romper bookmarks ni linkeos previos.
 
-## AppShell (v1.5)
+## AppShell (v1.7 — sin sidebar)
 
 Layout principal en `components/app-shell/`:
 
-- **Sidebar** fija a la izquierda en desktop (≥md), oculta en mobile
-  (accesible vía hamburger en el topbar que abre un Sheet de shadcn).
-  Items: Overview / Paid (con sub-items GAds y Meta) / Tráfico /
-  Análisis, más Admin separado abajo. Preserva query params al navegar.
-- **Topbar** persistente con marca (mobile), chip de período activo
-  (desktop), botón Filtros que abre drawer lateral, menu de usuario.
-- **Filtros en drawer**: la `FiltersBar` ya no vive sticky en cada
-  página. Va en un Sheet lateral que se abre desde el topbar. Auto-
-  fetchea los `available filters` via `/api/filters/available` (cliente).
-- Las pages bajo `/dashboard/*` y `/admin/*` no renderizan más su propio
-  `<main>` ni filtros inline — heredan todo del AppShell.
+- **Sin sidebar.** La navegación vive en el header: `TopNav` renderiza
+  cuatro items horizontales (Resumen / Campañas / Tráfico / Análisis IA)
+  directamente en el topbar, visibles en desktop (≥md).
+- **Mobile:** hamburger en el topbar abre un Sheet (shadcn) con
+  `SidebarNav` — el mismo árbol de items pero en formato vertical.
+- **Topbar** sticky: marca → `TopNav` (desktop) → `TopbarFilters`
+  (chip de período + botón "Filtros" → Sheet drawer) → menú de usuario.
+- **Filtros en drawer:** `InlineFilters` dentro de un Sheet lateral
+  que se abre desde el topbar. Fetchea opciones disponibles vía
+  `/api/filters/available`.
+- **Full-width:** el `<main>` ocupa todo el ancho disponible. Las pages
+  no renderizan su propio layout de filtros — heredan todo del AppShell.
 
 ## Lineamientos de diseño visual
 
@@ -292,13 +364,12 @@ del proyecto se llamaba "accent" — se renombró para no chocar).
 - GAds series `#475569` — Google Ads en charts/listas
 - Meta series `#2563eb` — Meta Ads en charts/listas
 
-**Tipografía:** Inter (Google Fonts)
-- Headings de página: Inter Bold sentence-case (`text-2xl`/`text-3xl`),
-  tracking ajustado. Reservamos uppercase + tracking amplio para eyebrows
-  y micro-labels, no para titulares.
+**Tipografía:** IBM Plex Sans (Google Fonts) + IBM Plex Mono para cifras
+- Headings de página: IBM Plex Sans SemiBold sentence-case (`text-2xl`/`text-3xl`).
+- Cifras de KPI y tablas: clase `.font-data` = IBM Plex Mono, `font-variant-numeric: tabular-nums`.
 - Eyebrows: clases utilitarias `.eyebrow-xs` (10px) y `.eyebrow-sm` (11px),
   definidas en `app/globals.css`.
-- Cifras de KPI: Inter Bold 32-48px, sin abreviar.
+- Reservamos uppercase + tracking amplio para eyebrows y micro-labels, no para titulares.
 
 **Iconografía:** `@remixicon/react` (RiArrowRightUpLine, RiCalendarLine,
 RiFilter3Line, RiSparkling2Line, RiDownloadLine, RiRefreshLine,
@@ -356,13 +427,13 @@ y se dejan como vienen del vendor.
 El desarrollo está organizado en 7 fases. Resumen:
 
 - **Fase 0 (✅ completa):** Preparación de cuentas e infra (GitHub, Supabase, Vercel, Anthropic, Google)
-- **Fase 1 (en curso):** Configuración de fuentes de datos en Drive
-- **Fase 2:** Modelo de datos y Edge Function de ingesta
-- **Fase 3:** Frontend base, layout, autenticación
-- **Fase 4:** Dashboard de KPIs, filtros, gráficos
-- **Fase 5:** Motor de análisis con Claude
-- **Fase 6:** Refinamientos y monitoreo
-- **Fase 7:** Lanzamiento
+- **Fase 1 (✅ completa):** Configuración de fuentes de datos en Drive (extractores Apps Script + Ads Scripts)
+- **Fase 2 (✅ completa):** Modelo de datos y Edge Function de ingesta (incluyendo adsets/ads v1.4)
+- **Fase 3 (✅ completa):** Frontend base, layout, autenticación
+- **Fase 4 (✅ completa):** Dashboard de KPIs, filtros, gráficos
+- **Fase 5 (✅ completa):** Motor de análisis con Claude (cache, prompt, Corey Haines)
+- **Fase 6 (en curso):** Refinamientos — rediseño Control Room v1.7, auditoría UX, granularidad v1.6
+- **Fase 7:** Lanzamiento formal
 
 **Regla:** no avanzar de fase si los criterios de aceptación de la actual
 no están cumplidos.
