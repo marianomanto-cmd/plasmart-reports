@@ -16,11 +16,13 @@ export function parseIsoDate(s: string): Date {
 }
 
 export function isValidIsoDate(s: unknown): s is string {
-  return (
-    typeof s === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(s) &&
-    !Number.isNaN(parseIsoDate(s).getTime())
-  );
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  // El formato es válido; ahora exigimos que la fecha del calendario sea
+  // real. `new Date("2026-02-30…")` no devuelve NaN: V8 normaliza al
+  // 2-mar. Sin este round-trip, un `?from=2026-02-30` en la URL se
+  // aceptaría y se interpretaría como otro día sin avisar.
+  const d = parseIsoDate(s);
+  return !Number.isNaN(d.getTime()) && toIsoDate(d) === s;
 }
 
 /** Hoy a medianoche UTC, serializado a "YYYY-MM-DD". */

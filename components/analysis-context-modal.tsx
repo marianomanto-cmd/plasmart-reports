@@ -155,6 +155,10 @@ export function AnalysisContextModal({ open, onClose, onSaved }: Props) {
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    // Reset intencional al abrir el modal: descartamos el estado de la
+    // apertura anterior antes de re-fetchear. Es el caso legítimo de
+    // "reset al cambiar una prop", por eso silenciamos la regla acá.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadState({ kind: "loading" });
     setSaveState({ kind: "idle" });
     (async () => {

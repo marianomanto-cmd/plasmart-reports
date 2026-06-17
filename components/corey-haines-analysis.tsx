@@ -162,7 +162,7 @@ function Idle({
         </p>
         <p className="text-xs text-light">
           Granularidad actual: <span className="font-semibold text-steel">{granularityLabel}</span>
-          {" "}— cambiala desde el selector "Granularidad" en los filtros de arriba.
+          {" "}— cambiala desde el selector &ldquo;Granularidad&rdquo; en los filtros de arriba.
         </p>
         <div className="flex flex-wrap gap-1.5">
           {ACTIVE_SKILLS.map((s) => (

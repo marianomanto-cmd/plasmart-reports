@@ -68,14 +68,22 @@ Edge Function se setean con `supabase secrets set NOMBRE=valor`.
 ## Comandos
 
 ```bash
-npm run dev          # dev server en :3000 con Turbopack
-npm run build        # build de producción
-npm run type-check   # solo type-check, no compila
-npm run lint         # ESLint
+npm run dev            # dev server en :3000 con Turbopack
+npm run build          # build de producción
+npm run type-check     # solo type-check, no compila
+npm run lint           # ESLint (flat config, ESLint 9)
+npm run test           # tests unitarios de la lógica pura (Vitest)
+npm run test:watch     # Vitest en modo watch
+npm run test:coverage  # cobertura de lib/**
+npm run validate       # type-check + lint + test (lo que corre CI)
 
 npx supabase db push                      # aplicar migrations al remoto
 npx supabase functions deploy ingest-reports   # deploy edge function
 ```
+
+La validación completa (type-check, lint, test y build) también corre
+automáticamente en cada push a `main` y en cada PR vía GitHub Actions
+(`.github/workflows/ci.yml`).
 
 ## Estructura
 

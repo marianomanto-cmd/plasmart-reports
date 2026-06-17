@@ -31,12 +31,17 @@ export function CostEvolutionChart({ points }: Props) {
     return <EmptyState />;
   }
 
+  // Acumulamos los totales en un loop aparte (no dentro del .map de
+  // render): reasignar variables externas dentro del callback que arma
+  // la data de render rompe la regla del React Compiler.
   let totalGads = 0;
   let totalMeta = 0;
-  const data = dates.map((d) => {
-    const v = byDate.get(d)!;
+  for (const v of byDate.values()) {
     totalGads += v.gads;
     totalMeta += v.meta;
+  }
+  const data = dates.map((d) => {
+    const v = byDate.get(d)!;
     return {
       date: shortLabel(d),
       [CATEGORIES[0]]: v.gads,

@@ -1,0 +1,43 @@
+name: CI
+
+# Corre la batería de validación en cada push a main y en cada PR.
+# El build de Next no necesita secrets: todas las rutas del dashboard son
+# dinámicas (ƒ) y leen las env vars en runtime, no en build time.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancela corridas viejas del mismo ref si llega un push nuevo.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Type-check · Lint · Test · Build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
