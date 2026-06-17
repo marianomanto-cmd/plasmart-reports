@@ -49,7 +49,7 @@ function BottomLink({
       aria-current={active ? "page" : undefined}
       aria-label={item.label}
       className={cn(
-        "flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-semibold transition-colors",
+        "flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-semibold transition-colors",
         active
           ? "bg-[rgba(43,255,174,0.18)] text-foreground ring-1 ring-inset ring-[rgba(43,255,174,0.45)]"
           : "text-steel",

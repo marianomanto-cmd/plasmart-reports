@@ -3,8 +3,8 @@ import { formatCurrencyArs, formatRatioAsPct } from "@/lib/format";
 import { Panel, PanelHead } from "./panel";
 
 const PUB = {
-  gads: { dot: "#38bdf8", fill: "linear-gradient(90deg,#38bdf8,#0ea5e9)" },
-  meta: { dot: "#a78bfa", fill: "linear-gradient(90deg,#a78bfa,#7c3aed)" },
+  gads: { dot: "#2bffae", fill: "linear-gradient(90deg,#2bffae,#5cffc8)" },
+  meta: { dot: "#b6ff3d", fill: "linear-gradient(90deg,#b6ff3d,#d6ff7a)" },
 } as const;
 
 const WASTE_FILL = "linear-gradient(90deg,#f87171,#b91c1c)";

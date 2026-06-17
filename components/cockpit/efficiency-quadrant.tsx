@@ -2,7 +2,7 @@ import type { EfficiencyPoint } from "@/lib/insights";
 import { formatCurrencyArs, formatInteger } from "@/lib/format";
 import { Panel, PanelHead } from "./panel";
 
-const PUB_COLOR = { gads: "#38bdf8", meta: "#a78bfa" } as const;
+const PUB_COLOR = { gads: "#2bffae", meta: "#b6ff3d" } as const;
 
 function median(nums: number[]): number {
   if (nums.length === 0) return 0;

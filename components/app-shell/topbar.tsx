@@ -72,7 +72,7 @@ export function Topbar({ userEmail }: Props) {
           <p className="mt-0.5 truncate text-sm text-steel">{subtitle}</p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
           {/* Chip de período (informativo; los filtros viven abajo) */}
           <div className="flex items-center gap-2 rounded-2xl border border-[rgba(43,255,174,0.13)] bg-white/10 px-3.5 py-2.5 text-[13px] font-semibold text-foreground">
             <RiCalendar2Line className="size-4 text-light" aria-hidden="true" />

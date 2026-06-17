@@ -3,11 +3,11 @@ import type { FunnelStage } from "@/lib/insights";
 import { formatInteger, formatRatioAsPct } from "@/lib/format";
 import { Panel, PanelHead } from "./panel";
 
-// Gradiente por etapa: cyan → indigo → plasma.
+// Gradiente por etapa (Reactor Neon): esmeralda → teal → lima.
 const GRAD = [
-  "linear-gradient(90deg,#38bdf8,#0ea5e9)",
-  "linear-gradient(90deg,#7aa7ff,#6366f1)",
-  "linear-gradient(90deg,#ff8a4c,#ff6a2c)",
+  "linear-gradient(90deg,#2bffae,#5cffc8)",
+  "linear-gradient(90deg,#1fd6c4,#2bffae)",
+  "linear-gradient(90deg,#b6ff3d,#d6ff7a)",
 ];
 
 /**

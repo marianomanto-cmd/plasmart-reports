@@ -20,7 +20,7 @@ interface Props {
  */
 export function Sparkline({
   values,
-  color = "#2563eb",
+  color = "#2bffae",
   width = 96,
   height = 28,
   showBaseline = false,
