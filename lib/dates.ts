@@ -23,6 +23,16 @@ export function isValidIsoDate(s: unknown): s is string {
   );
 }
 
+/** Hoy a medianoche UTC, serializado a "YYYY-MM-DD". */
+export function todayIso(): string {
+  const now = new Date();
+  return toIsoDate(
+    new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    ),
+  );
+}
+
 /** Rango por defecto: últimos 30 días incluyendo hoy. */
 export function defaultRange(): { from: string; to: string } {
   const now = new Date();
@@ -94,4 +104,102 @@ export function compareModeLabel(mode: CompareMode): string {
     case "none":
       return "sin comparación";
   }
+}
+
+// ---------- Presets de rango de fechas ----------
+// Atajos de un clic para los rangos que la gerencia mira siempre.
+// Cada preset calcula {from, to} relativos a "hoy" (UTC), así que el
+// rango se mantiene fresco sin tener que tocar las fechas a mano.
+
+export type DateRangePresetKey =
+  | "today"
+  | "last7"
+  | "last14"
+  | "last30"
+  | "last90"
+  | "thisMonth"
+  | "lastMonth"
+  | "thisYear";
+
+export interface DateRangePreset {
+  key: DateRangePresetKey;
+  label: string;
+  /** Calcula el rango {from, to} relativo a hoy. */
+  range(): { from: string; to: string };
+}
+
+/** Últimos N días incluyendo hoy (to = hoy, from = hoy - (N-1)). */
+function lastNDays(n: number): { from: string; to: string } {
+  const to = todayIso();
+  const from = toIsoDate(
+    new Date(parseIsoDate(to).getTime() - (n - 1) * MS_PER_DAY),
+  );
+  return { from, to };
+}
+
+export const DATE_RANGE_PRESETS: ReadonlyArray<DateRangePreset> = [
+  {
+    key: "today",
+    label: "Hoy",
+    range: () => ({ from: todayIso(), to: todayIso() }),
+  },
+  { key: "last7", label: "Últimos 7 días", range: () => lastNDays(7) },
+  { key: "last14", label: "Últimos 14 días", range: () => lastNDays(14) },
+  { key: "last30", label: "Últimos 30 días", range: () => lastNDays(30) },
+  { key: "last90", label: "Últimos 90 días", range: () => lastNDays(90) },
+  {
+    key: "thisMonth",
+    label: "Este mes",
+    range: () => {
+      const now = new Date();
+      return {
+        from: toIsoDate(
+          new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+        ),
+        to: todayIso(),
+      };
+    },
+  },
+  {
+    key: "lastMonth",
+    label: "Mes pasado",
+    range: () => {
+      const now = new Date();
+      return {
+        // primer día del mes anterior … último día del mes anterior
+        from: toIsoDate(
+          new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)),
+        ),
+        to: toIsoDate(
+          new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0)),
+        ),
+      };
+    },
+  },
+  {
+    key: "thisYear",
+    label: "Este año",
+    range: () => {
+      const now = new Date();
+      return {
+        from: toIsoDate(new Date(Date.UTC(now.getUTCFullYear(), 0, 1))),
+        to: todayIso(),
+      };
+    },
+  },
+];
+
+/**
+ * Devuelve la key del preset que matchea exactamente el rango actual,
+ * o null si es un rango custom. Sirve para resaltar el preset activo.
+ */
+export function matchDatePreset(
+  from: string,
+  to: string,
+): DateRangePresetKey | null {
+  for (const preset of DATE_RANGE_PRESETS) {
+    const r = preset.range();
+    if (r.from === from && r.to === to) return preset.key;
+  }
+  return null;
 }

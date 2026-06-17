@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { InlineFilters } from "@/components/inline-filters";
 import { parseFilters } from "@/lib/filters";
+import { DATE_RANGE_PRESETS, matchDatePreset } from "@/lib/dates";
 import type { Publisher } from "@/lib/types";
 
 const fmt = new Intl.DateTimeFormat("es-AR", {
@@ -21,6 +22,14 @@ const fmt = new Intl.DateTimeFormat("es-AR", {
   timeZone: "UTC",
 });
 const short = (iso: string) => fmt.format(new Date(`${iso}T00:00:00Z`));
+
+function rangeSummary(from: string, to: string): string {
+  const presetKey = matchDatePreset(from, to);
+  if (presetKey) {
+    return DATE_RANGE_PRESETS.find((p) => p.key === presetKey)?.label ?? "";
+  }
+  return `${short(from)} – ${short(to)}`;
+}
 
 /**
  * Chip de período + botón "Filtros" en el topbar, que abre un drawer
@@ -60,7 +69,7 @@ export function TopbarFilters() {
         >
           <RiCalendarLine className="size-3.5 text-light" aria-hidden="true" />
           <span className="font-data tabular-nums text-foreground">
-            {short(filters.from)} – {short(filters.to)}
+            {rangeSummary(filters.from, filters.to)}
           </span>
           <span className="text-light">· {compareLabel}</span>
         </button>
