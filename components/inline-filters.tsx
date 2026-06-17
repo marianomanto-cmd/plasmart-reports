@@ -64,9 +64,23 @@ export function InlineFilters({
 
   if (!available) {
     return (
-      <div className="rounded-lg border border-border bg-card p-3 sm:p-4">
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
+      <div className="space-y-3 rounded-lg border border-border bg-card p-3 sm:p-4">
+        {/* Bloque de período (presets + fechas) */}
+        <div className="rounded-md border border-border-soft bg-background/40 p-3">
+          <Skeleton className="h-2.5 w-16" />
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-24 rounded-full" />
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+        </div>
+        {/* Resto de selects */}
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="space-y-1">
               <Skeleton className="h-2.5 w-16" />
               <Skeleton className="h-9 w-full" />

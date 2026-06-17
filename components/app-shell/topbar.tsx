@@ -23,7 +23,6 @@ import {
 import { PlasmartMark } from "@/components/plasmart-mark";
 import { SidebarNav } from "./sidebar-nav";
 import { TopNav } from "./top-nav";
-import { TopbarFilters } from "./topbar-filters";
 
 interface Props {
   userEmail: string | null | undefined;
@@ -101,8 +100,6 @@ export function Topbar({ userEmail }: Props) {
       </div>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        <TopbarFilters />
-
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

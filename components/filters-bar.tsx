@@ -278,48 +278,53 @@ function DateRangeField({
         </span>
       </div>
 
-      {/* Presets de un clic */}
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
-        {DATE_RANGE_PRESETS.map((preset) => {
-          const isActive = preset.key === activePreset;
-          return (
-            <button
-              key={preset.key}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => {
-                const r = preset.range();
-                onChange(r.from, r.to);
-              }}
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                isActive
-                  ? "border-brand/50 bg-brand-soft text-foreground"
-                  : "border-border bg-card/40 text-steel hover:border-brand/40 hover:text-foreground",
-              )}
-            >
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Presets a la izquierda, fechas exactas a la derecha. En pantallas
+          anchas comparten fila (hay lugar de sobra); en angostas stackean. */}
+      <div className="mt-2.5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+        <div className="flex flex-wrap gap-1.5">
+          {DATE_RANGE_PRESETS.map((preset) => {
+            const isActive = preset.key === activePreset;
+            return (
+              <button
+                key={preset.key}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => {
+                  const r = preset.range();
+                  onChange(r.from, r.to);
+                }}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                  isActive
+                    ? "border-brand/50 bg-brand-soft text-foreground"
+                    : "border-border bg-card/40 text-steel hover:border-brand/40 hover:text-foreground",
+                )}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Fechas exactas (para rangos custom) */}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <DateField
-          label="Desde"
-          value={from}
-          max={to}
-          onChange={(v) => onChange(v, to)}
-        />
-        <DateField
-          label="Hasta"
-          value={to}
-          min={from}
-          max={today}
-          onChange={(v) => onChange(from, v)}
-        />
+        {/* Fechas exactas (para rangos custom) */}
+        <div className="flex shrink-0 items-end gap-2">
+          <DateField
+            label="Desde"
+            value={from}
+            max={to}
+            onChange={(v) => onChange(v, to)}
+            className="min-w-0 flex-1 sm:w-36 sm:flex-none"
+          />
+          <DateField
+            label="Hasta"
+            value={to}
+            min={from}
+            max={today}
+            onChange={(v) => onChange(from, v)}
+            className="min-w-0 flex-1 sm:w-36 sm:flex-none"
+          />
+        </div>
       </div>
     </div>
   );
@@ -331,15 +336,17 @@ function DateField({
   min,
   max,
   onChange,
+  className,
 }: {
   label: string;
   value: string;
   min?: string;
   max?: string;
   onChange: (v: string) => void;
+  className?: string;
 }) {
   return (
-    <label className="flex min-w-0 flex-col">
+    <label className={cn("flex min-w-0 flex-col", className)}>
       <FieldLabel>{label}</FieldLabel>
       <input
         type="date"

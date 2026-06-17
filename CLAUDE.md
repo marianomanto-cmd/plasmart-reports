@@ -237,13 +237,23 @@ Layout principal en `components/app-shell/`:
   (accesible vía hamburger en el topbar que abre un Sheet de shadcn).
   Items: Overview / Paid (con sub-items GAds y Meta) / Tráfico /
   Análisis, más Admin separado abajo. Preserva query params al navegar.
-- **Topbar** persistente con marca (mobile), chip de período activo
-  (desktop), botón Filtros que abre drawer lateral, menu de usuario.
-- **Filtros en drawer**: la `FiltersBar` ya no vive sticky en cada
-  página. Va en un Sheet lateral que se abre desde el topbar. Auto-
-  fetchea los `available filters` via `/api/filters/available` (cliente).
+- **Topbar** persistente con marca, nav horizontal (desktop) y menu de
+  usuario.
+- **Filtros siempre visibles (v1.8)**: la `FiltersBar` vive en una barra
+  fija debajo del header (`components/app-shell/filter-toolbar.tsx`),
+  alineada al ancho del contenido. Ya no es un drawer/modal — hay lugar de
+  sobra en pantalla. Se oculta en `/admin` y deriva el `lockedPublisher`
+  de la ruta (`/paid/gads`, `/paid/meta`). `InlineFilters` auto-fetchea los
+  `available filters` via `/api/filters/available` (cliente); al vivir en
+  el AppShell, persiste montada entre navegaciones de `/dashboard/*` y sólo
+  re-fetchea cuando cambian fecha/publisher.
 - Las pages bajo `/dashboard/*` y `/admin/*` no renderizan más su propio
   `<main>` ni filtros inline — heredan todo del AppShell.
+
+> **Histórico**: en v1.5 los filtros se movieron a un Sheet lateral que se
+> abría desde un botón "Filtros" en el topbar. En v1.8 se volvieron a la
+> main screen como barra siempre visible (el drawer escondía controles que
+> tienen lugar de sobra en desktop).
 
 ## Lineamientos de diseño visual
 
