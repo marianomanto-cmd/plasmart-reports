@@ -24,56 +24,68 @@
    ============================================================ */
 
 :root {
-  /* ---- shadcn (dark) ---- */
-  --background: #0a0e14;            /* acero casi negro */
-  --foreground: #e6edf3;            /* texto alto énfasis */
-  --card: #161f2b;                  /* superficie de card (sube de #121a24 para separar del fondo) */
-  --card-foreground: #e6edf3;
-  --popover: #1a2534;
-  --popover-foreground: #e6edf3;
-  --primary: #e6edf3;              /* texto/elemento primario (near-white) */
-  --primary-foreground: #0a0e14;
-  --secondary: #1b2734;
-  --secondary-foreground: #e6edf3;
-  --muted: #16202c;
-  --muted-foreground: #94a3b8;     /* slate-400: sobre dark da >6:1 */
-  --accent: #1b2734;               /* hover neutro */
-  --accent-foreground: #e6edf3;
-  --destructive: #f87171;          /* rojo aclarado para dark */
-  --destructive-foreground: #0a0e14;
-  --border: #26333f;               /* hairline más definido */
-  --input: #26333f;
-  --ring: #ff6a2c;                 /* foco = plasma */
-  --radius: 0.75rem;
+  /* ---- shadcn (Reactor Neon glass) ---- */
+  --background: #050807;            /* negro casi puro */
+  --foreground: #f6f8fc;            /* texto alto énfasis */
+  --card: rgba(8, 20, 15, 0.55);   /* glass: translúcido + backdrop-blur en los primitivos */
+  --card-foreground: #f6f8fc;
+  --popover: rgba(8, 18, 13, 0.96);/* dropdowns/sheets: casi opaco para legibilidad */
+  --popover-foreground: #f6f8fc;
+  --primary: #f6f8fc;              /* texto/elemento primario (near-white) */
+  --primary-foreground: #04140d;
+  --secondary: rgba(255, 255, 255, 0.10);  /* chip glass */
+  --secondary-foreground: #f6f8fc;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(246, 248, 252, 0.62);
+  --accent: rgba(255, 255, 255, 0.08);     /* hover neutro */
+  --accent-foreground: #f6f8fc;
+  --destructive: #f87171;          /* rojo */
+  --destructive-foreground: #04140d;
+  --border: rgba(43, 255, 174, 0.20);      /* hairline neón */
+  --input: rgba(43, 255, 174, 0.18);
+  --ring: #2bffae;                 /* foco = esmeralda radiactivo */
+  --radius: 1rem;
 
-  /* Sidebar (shadcn) */
-  --sidebar: #0c121a;
-  --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #ff6a2c;
-  --sidebar-primary-foreground: #0a0e14;
-  --sidebar-accent: #16202c;        /* item activo */
-  --sidebar-accent-foreground: #e6edf3;
-  --sidebar-border: #1e2a36;
-  --sidebar-ring: #ff6a2c;
+  /* Sidebar / rail (glass) */
+  --sidebar: rgba(8, 20, 15, 0.55);
+  --sidebar-foreground: #f6f8fc;
+  --sidebar-primary: #2bffae;
+  --sidebar-primary-foreground: #04140d;
+  --sidebar-accent: rgba(43, 255, 174, 0.18);   /* item activo */
+  --sidebar-accent-foreground: #f6f8fc;
+  --sidebar-border: rgba(43, 255, 174, 0.30);
+  --sidebar-ring: #2bffae;
 
   /* ---- Plasmart ---- */
-  --color-plasmart-steel: #b8c4d0;        /* texto secundario */
-  --color-plasmart-light: #94a3b8;        /* labels/metadatos/eyebrows (slate-400, ok en dark) */
-  --color-plasmart-cream: #1a2330;        /* superficie tenue / hover / zebra */
-  --color-plasmart-border: #26333f;       /* hairline principal */
-  --color-plasmart-border-soft: #1d2735;  /* divisor interno */
-  --color-plasmart-success: #34d399;      /* emerald aclarado */
-  --color-plasmart-warning: #fbbf24;      /* amber */
+  --color-plasmart-steel: rgba(246, 248, 252, 0.62);   /* texto secundario (txt-2) */
+  --color-plasmart-light: rgba(246, 248, 252, 0.46);   /* labels/metadatos/eyebrows (txt-3) */
+  --color-plasmart-cream: rgba(255, 255, 255, 0.04);   /* superficie tenue / hover / zebra */
+  --color-plasmart-border: rgba(43, 255, 174, 0.20);   /* hairline principal */
+  --color-plasmart-border-soft: rgba(255, 255, 255, 0.08); /* divisor interno */
+  --color-plasmart-success: #34ffb0;      /* esmeralda OK */
+  --color-plasmart-warning: #b6ff3d;      /* lima radiactivo (atención) */
   --color-plasmart-danger: #f87171;       /* red */
-  --color-plasmart-brand: #ff6a2c;        /* PLASMA — acento de marca/acción */
-  --color-plasmart-brand-soft: #2a1710;   /* fondo de chips (plasma tint oscuro) */
-  --color-plasmart-gads: #38bdf8;         /* serie Google Ads (cyan) */
-  --color-plasmart-meta: #a78bfa;         /* serie Meta Ads (violet) */
+  --color-plasmart-brand: #2bffae;        /* NEÓN — acento de marca/acción */
+  --color-plasmart-brand-soft: rgba(43, 255, 174, 0.16);   /* fondo de chips */
+  --color-plasmart-gads: #2bffae;         /* serie Google Ads (esmeralda) */
+  --color-plasmart-meta: #b6ff3d;         /* serie Meta Ads (lima) */
 
   /* Superficies extra del cockpit */
-  --color-plasmart-surface-2: #1b2734;    /* superficie elevada */
-  --color-plasmart-glow: rgba(255, 106, 44, 0.30);
+  --color-plasmart-surface-2: rgba(255, 255, 255, 0.06);   /* superficie elevada */
+  --color-plasmart-glow: rgba(43, 255, 174, 0.30);
+
+  /* Glass system (Reactor Neon) */
+  --glass-bg: rgba(8, 20, 15, 0.55);
+  --glass-border: rgba(43, 255, 174, 0.30);
+  --glass-blur: 20px;
+  --glass-shadow: 0 12px 34px rgba(0, 0, 0, 0.55), 0 0 22px rgba(43, 255, 174, 0.07);
+
+  /* Aurora (blobs del fondo) */
+  --aurora-a: #2bffae;
+  --aurora-b: #b6ff3d;
+  --aurora-c: #1fd6c4;
 }
+
 
 @theme inline {
   /* shadcn (utilidades bg-background, text-foreground, bg-primary, etc.) */
@@ -127,7 +139,7 @@
   --color-gads: var(--color-plasmart-gads);
   --color-meta: var(--color-plasmart-meta);
 
-  --font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
 }
 
@@ -137,13 +149,13 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  /* Base sólida del fondo aurora (las blobs/grid pintan encima). */
+  background-color: var(--background);
+}
+
 body {
-  background:
-    radial-gradient(1200px 620px at 80% -12%, rgba(255, 106, 44, 0.13), transparent 58%),
-    radial-gradient(900px 520px at -10% 4%, rgba(56, 189, 248, 0.09), transparent 52%),
-    radial-gradient(700px 700px at 50% 120%, rgba(167, 139, 250, 0.06), transparent 60%),
-    var(--background);
-  background-attachment: fixed;
+  background-color: transparent;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -205,13 +217,13 @@ body {
   pointer-events: none;
 }
 
-/* Card con borde hairline + leve gradiente vertical + sombra de profundidad */
+/* Card glass (Reactor Neon): superficie esmerilada + borde neón + glow. */
 .surface-card {
-  background: linear-gradient(180deg, #1a2330, #111922);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-    0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* ============================================================
@@ -236,6 +248,179 @@ body {
     min-width: 0;
   }
 }
+
+/* ============================================================
+   Reactor Neon — sistema glass + aurora + animaciones
+   ============================================================ */
+
+/* Panel glass: superficie esmerilada con borde neón y glow.
+   Se usa en cards, paneles, rail y topbar. */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Variante con borde más tenue (blanco) para cards internas/KPIs. */
+.glass-soft {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* Gradiente neón para logo / botones de acción / barras activas. */
+.neon-gradient {
+  background: linear-gradient(135deg, var(--color-plasmart-gads), var(--color-plasmart-meta));
+  color: #04140d;
+}
+.neon-gradient-h {
+  background: linear-gradient(90deg, #2bffae, #5cffc8);
+}
+
+/* ---- Fondo aurora (blobs difuminados + grid futurista) ---- */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.aurora__blob--a {
+  width: 60vw;
+  height: 60vw;
+  left: -12vw;
+  top: -16vw;
+  filter: blur(70px);
+  opacity: 0.85;
+  background: radial-gradient(circle, var(--aurora-a), transparent 62%);
+  animation: pl-float 18s ease-in-out infinite;
+}
+.aurora__blob--b {
+  width: 52vw;
+  height: 52vw;
+  right: -14vw;
+  top: -8vw;
+  filter: blur(72px);
+  opacity: 0.7;
+  background: radial-gradient(circle, var(--aurora-b), transparent 60%);
+  animation: pl-float 22s ease-in-out infinite reverse;
+}
+.aurora__blob--c {
+  width: 64vw;
+  height: 64vw;
+  left: 18vw;
+  bottom: -30vw;
+  filter: blur(80px);
+  opacity: 0.7;
+  background: radial-gradient(circle, var(--aurora-c), transparent 62%);
+  animation: pl-float 26s ease-in-out infinite;
+}
+.aurora__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.55));
+}
+.aurora__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  background-image:
+    linear-gradient(rgba(43, 255, 174, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43, 255, 174, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000, transparent 78%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000, transparent 78%);
+}
+
+/* ---- Pills de estado (deltas, badges) ---- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.pill-ok {
+  color: #bbffe0;
+  background: rgba(52, 255, 176, 0.18);
+  border-color: rgba(52, 255, 176, 0.32);
+}
+.pill-warn {
+  color: #e6ffb0;
+  background: rgba(182, 255, 61, 0.18);
+  border-color: rgba(182, 255, 61, 0.32);
+}
+.pill-danger {
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.16);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+/* ---- Animaciones de entrada (utilidades) ---- */
+.an-pop {
+  animation: pl-pop 0.5s both;
+}
+.an-tabin {
+  animation: pl-tabIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.an-rise {
+  animation: pl-rise 0.5s both;
+}
+.an-grow {
+  animation: pl-grow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: bottom;
+}
+.an-widen {
+  animation: pl-widen 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: left;
+}
+.an-donut {
+  animation: pl-donut 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.an-spin {
+  animation: pl-spin 0.8s linear infinite;
+}
+
+@keyframes pl-float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, -2%) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes pl-tabIn { from { transform: translateY(14px); } to { transform: none; } }
+@keyframes pl-pop { from { transform: translateY(16px) scale(0.985); } to { transform: none; } }
+@keyframes pl-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pl-widen { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pl-donut {
+  from { opacity: 0; transform: rotate(-26deg) scale(0.86); }
+  to { opacity: 1; transform: rotate(0) scale(1); }
+}
+@keyframes pl-spin { to { transform: rotate(360deg); } }
+@keyframes pl-rise {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Scrollbar fino acorde al tema */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
 
 /* ============================================================
    Accesibilidad: respetar prefers-reduced-motion.

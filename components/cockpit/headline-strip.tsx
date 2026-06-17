@@ -59,7 +59,7 @@ export function HeadlineStrip({ kpis, ga4, daily, compareMode }: Props) {
         deltaPct={showDelta ? kpis.cost.deltaPct : null}
         tone="neutral"
         series={costSeries}
-        color="#38bdf8"
+        color="#2bffae"
       />
       <Tile
         label="Consultas WhatsApp"
@@ -67,7 +67,7 @@ export function HeadlineStrip({ kpis, ga4, daily, compareMode }: Props) {
         deltaPct={showDelta ? kpis.conversions.deltaPct : null}
         positiveIsGood
         series={convSeries}
-        color="#34d399"
+        color="#34ffb0"
       />
       <Tile
         label="Costo por consulta"
@@ -75,7 +75,7 @@ export function HeadlineStrip({ kpis, ga4, daily, compareMode }: Props) {
         deltaPct={showDelta ? cpaDelta : null}
         positiveIsGood={false}
         series={cpaSeries}
-        color="#fbbf24"
+        color="#b6ff3d"
       />
       <Tile
         label="Sesiones GA4"
@@ -83,7 +83,7 @@ export function HeadlineStrip({ kpis, ga4, daily, compareMode }: Props) {
         deltaPct={showDelta ? ga4.sessions.deltaPct : null}
         positiveIsGood
         note={`rebote ${Math.round(bounce * 100)}%`}
-        color="#a78bfa"
+        color="#5cffc8"
       />
     </div>
   );

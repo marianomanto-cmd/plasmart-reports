@@ -56,7 +56,7 @@ export function InlineFilters({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive/30 bg-card p-3 text-sm text-destructive">
+      <div className="glass rounded-[20px] border-destructive/30 p-3 text-sm text-destructive">
         No pudimos cargar los filtros: {error}
       </div>
     );
@@ -64,7 +64,7 @@ export function InlineFilters({
 
   if (!available) {
     return (
-      <div className="space-y-3 rounded-lg border border-border bg-card p-3 sm:p-4">
+      <div className="glass space-y-3 rounded-[20px] p-3 sm:p-4">
         {/* Bloque de período (presets + fechas) */}
         <div className="rounded-md border border-border-soft bg-background/40 p-3">
           <Skeleton className="h-2.5 w-16" />

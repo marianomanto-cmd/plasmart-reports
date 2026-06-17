@@ -19,12 +19,11 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <Component
         ref={forwardedRef}
         className={cx(
-          // base
-          "relative w-full rounded-lg border p-6 text-left shadow-xs",
-          // background color
-          "bg-white dark:bg-[#090E1A]",
-          // border color
-          "border-gray-200 dark:border-gray-900",
+          // base (Reactor Neon glass)
+          "relative w-full rounded-3xl border p-6 text-left",
+          // glass surface + neon border + glow
+          "bg-[var(--glass-bg)] backdrop-blur-xl backdrop-saturate-150",
+          "border-[var(--glass-border)] shadow-[0_12px_34px_rgba(0,0,0,0.55),0_0_22px_rgba(43,255,174,0.07)]",
           className,
         )}
         tremor-id="tremor-raw"

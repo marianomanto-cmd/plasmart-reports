@@ -30,11 +30,5 @@ export function FilterToolbar() {
       ? "meta"
       : undefined;
 
-  return (
-    <div className="border-b border-border bg-background/40">
-      <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 lg:px-8">
-        <InlineFilters lockedPublisher={lockedPublisher} />
-      </div>
-    </div>
-  );
+  return <InlineFilters lockedPublisher={lockedPublisher} />;
 }

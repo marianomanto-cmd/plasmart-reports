@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { AuroraBackground } from "@/components/aurora-background";
 
-const plexSans = IBM_Plex_Sans({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-plex-sans",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
@@ -44,9 +45,12 @@ export default function RootLayout({
   return (
     <html
       lang="es-AR"
-      className={`dark ${plexSans.variable} ${plexMono.variable}`}
+      className={`dark ${jakarta.variable} ${plexMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <AuroraBackground />
+        <div className="relative z-10">{children}</div>
+      </body>
     </html>
   );
 }

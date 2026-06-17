@@ -97,7 +97,7 @@ export function FiltersBar({ filters, available, lockedPublisher }: Props) {
   }, [available.campaigns, filters.campaignId]);
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-card p-3 sm:p-4">
+    <div className="glass space-y-3 rounded-[20px] p-3 sm:p-4">
       {/* Bloque de período: presets de un clic + fechas exactas */}
       <DateRangeField
         from={filters.from}
