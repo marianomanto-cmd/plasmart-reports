@@ -94,12 +94,12 @@ export function FilterPopover() {
             aria-label="Cerrar filtros"
             tabIndex={-1}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-40 cursor-default"
+            className="fixed inset-0 z-40 cursor-default bg-black/30 backdrop-blur-[2px]"
           />
           <div
             role="dialog"
             aria-label="Filtros"
-            className="absolute right-0 top-full z-50 mt-2 w-[min(92vw,640px)]"
+            className="absolute right-0 top-full z-50 mt-2 max-h-[min(72vh,560px)] w-[min(92vw,640px)] overflow-y-auto rounded-[20px] bg-[#0a1712] shadow-[0_24px_60px_rgba(0,0,0,0.75)] ring-1 ring-[rgba(43,255,174,0.25)]"
           >
             <InlineFilters lockedPublisher={lockedPublisher} />
           </div>
