@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   RiLogoutBoxRLine,
   RiSettings3Line,
   RiNotification3Line,
-  RiCalendar2Line,
 } from "@remixicon/react";
 
 import {
@@ -17,39 +16,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { parseFilters } from "@/lib/filters";
-import { DATE_RANGE_PRESETS, matchDatePreset } from "@/lib/dates";
 import { BRAND_EYEBROW, sectionMeta } from "./nav-items";
+import { FilterPopover } from "./filter-popover";
 
 interface Props {
   userEmail: string | null | undefined;
 }
 
-const fmt = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-const short = (iso: string) => fmt.format(new Date(`${iso}T00:00:00Z`));
-
-function rangeSummary(from: string, to: string): string {
-  const preset = matchDatePreset(from, to);
-  if (preset) {
-    return DATE_RANGE_PRESETS.find((p) => p.key === preset)?.label ?? "";
-  }
-  return `${short(from)} — ${short(to)}`;
-}
-
 /**
  * Topbar vidriado (Reactor Neon): eyebrow de marca + título/subtítulo de
- * la sección (derivados de la ruta) + chip de período + campana + avatar.
- * La navegación vive en el rail (desktop) / bottom-nav (mobile); los
- * filtros viven en la barra de abajo. Apila en mobile.
+ * la sección (derivados de la ruta) + un único control de período/filtros
+ * (popover) + campana + avatar. La navegación vive en el rail (desktop) /
+ * bottom-nav (mobile). Apila en mobile.
  */
 export function Topbar({ userEmail }: Props) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const filters = parseFilters(Object.fromEntries(searchParams.entries()));
   const { title, subtitle } = sectionMeta(pathname);
 
   const initials = userEmail
@@ -75,13 +56,8 @@ export function Topbar({ userEmail }: Props) {
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
-          {/* Chip de período (informativo; los filtros viven abajo) */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-[rgba(43,255,174,0.13)] bg-white/10 px-3 py-2 text-xs font-semibold text-foreground">
-            <RiCalendar2Line className="size-3.5 text-light" aria-hidden="true" />
-            <span className="font-data tabular-nums">
-              {rangeSummary(filters.from, filters.to)}
-            </span>
-          </div>
+          {/* Único control de período/filtros (popover desde el chip) */}
+          <FilterPopover />
 
           <button
             type="button"

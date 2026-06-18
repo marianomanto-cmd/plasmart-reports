@@ -2,24 +2,19 @@ import { parseFilters } from "@/lib/filters";
 import {
   fetchCampaignAnomalies,
   fetchCampaignRows,
-  fetchDailyByPublisher,
   fetchDailyTotals,
-  fetchGa4Kpis,
   fetchKpis,
 } from "@/lib/queries";
-import {
-  buildAlerts,
-  buildEfficiencyPoints,
-  buildFunnel,
-  buildSpendDistribution,
-} from "@/lib/insights";
+import { buildAlerts } from "@/lib/insights";
+import { rangeDays } from "@/lib/dates";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
-import { HeadlineStrip } from "@/components/cockpit/headline-strip";
+import { KpiStrip } from "@/components/cockpit/kpi-strip";
+import { DailyBars } from "@/components/cockpit/daily-bars";
+import { MiniStats } from "@/components/cockpit/mini-stats";
+import { SpendDonut } from "@/components/cockpit/spend-donut";
 import { AlertFeed } from "@/components/cockpit/alert-feed";
-import { FunnelChart } from "@/components/cockpit/funnel-chart";
-import { SpendDistribution } from "@/components/cockpit/spend-distribution";
-import { EfficiencyQuadrant } from "@/components/cockpit/efficiency-quadrant";
-import { CostEvolutionChart } from "@/components/charts/cost-evolution";
+import { WeekCalendar } from "@/components/cockpit/week-calendar";
+import { PeriodResult } from "@/components/cockpit/period-result";
 import { AiAnalysis } from "@/components/ai-analysis";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -32,15 +27,12 @@ export default async function CockpitPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const [kpis, ga4Kpis, dailyPoints, dailyTotals, rows, anomalies] =
-    await Promise.all([
-      fetchKpis(filters),
-      fetchGa4Kpis(filters),
-      fetchDailyByPublisher(filters),
-      fetchDailyTotals(filters),
-      fetchCampaignRows(filters),
-      fetchCampaignAnomalies(filters),
-    ]);
+  const [kpis, dailyTotals, rows, anomalies] = await Promise.all([
+    fetchKpis(filters),
+    fetchDailyTotals(filters),
+    fetchCampaignRows(filters),
+    fetchCampaignAnomalies(filters),
+  ]);
 
   const hasPaidData =
     kpis.cost.current > 0 ||
@@ -48,67 +40,58 @@ export default async function CockpitPage({
     kpis.conversions.current > 0 ||
     rows.length > 0;
 
-  // Derivaciones del cockpit
   const alerts = buildAlerts(rows, anomalies);
-  const distribution = buildSpendDistribution(rows, anomalies);
-  const funnel = buildFunnel(kpis);
-  const efficiency = buildEfficiencyPoints(rows);
+  const days = rangeDays(filters.from, filters.to);
 
+  // Reparto de inversión GAds vs Meta (derivado de las filas de campaña).
   const gadsCost = rows
     .filter((r) => r.publisher === "gads")
     .reduce((s, r) => s + r.cost, 0);
-  const total = distribution.total;
-  const split =
-    total > 0
-      ? `GAds ${Math.round((gadsCost / total) * 100)}% · Meta ${Math.round(
-          ((total - gadsCost) / total) * 100,
-        )}%`
-      : undefined;
+  const totalCost = rows.reduce((s, r) => s + r.cost, 0);
+  const metaCost = totalCost - gadsCost;
+
+  const cpaCombined =
+    kpis.conversions.current > 0
+      ? kpis.cost.current / kpis.conversions.current
+      : null;
+  const cpaPrev =
+    kpis.cost.previous !== null &&
+    kpis.conversions.previous !== null &&
+    kpis.conversions.previous > 0
+      ? kpis.cost.previous / kpis.conversions.previous
+      : null;
+  const cpaDeltaPct =
+    cpaCombined !== null && cpaPrev !== null && cpaPrev !== 0
+      ? ((cpaCombined - cpaPrev) / cpaPrev) * 100
+      : null;
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+    <div className="mx-auto max-w-[1400px] space-y-3 px-4 py-4 sm:space-y-4 sm:px-6 sm:py-5 lg:px-8">
       {hasPaidData ? (
         <>
-          <HeadlineStrip
-            kpis={kpis}
-            ga4={ga4Kpis}
-            daily={dailyTotals}
-            compareMode={filters.compare}
-          />
+          <KpiStrip kpis={kpis} compareMode={filters.compare} />
 
-          <div className="grid grid-cols-12 gap-3 sm:gap-4">
-            <div className="col-span-12 lg:col-span-8">
-              <AlertFeed alerts={alerts} />
-            </div>
-            <div className="col-span-12 lg:col-span-4">
-              <FunnelChart stages={funnel} />
-            </div>
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.35fr_0.85fr_1.2fr]">
+            <DailyBars daily={dailyTotals} />
+            <MiniStats kpis={kpis} />
+            <SpendDonut
+              gadsCost={gadsCost}
+              metaCost={metaCost}
+              cpaCombined={cpaCombined}
+              cpaDeltaPct={cpaDeltaPct}
+            />
+          </div>
 
-            <div className="col-span-12 lg:col-span-5">
-              <SpendDistribution data={distribution} right={split} />
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1.45fr_1fr]">
+            <AlertFeed alerts={alerts} />
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <WeekCalendar />
+              <PeriodResult kpis={kpis} days={days} />
             </div>
-            <div className="col-span-12 lg:col-span-7">
-              <EfficiencyQuadrant points={efficiency} />
-            </div>
+          </div>
 
-            <div className="col-span-12">
-              <section aria-labelledby="trend-heading">
-                <h2 id="trend-heading" className="sr-only">
-                  Tendencia diaria de inversión
-                </h2>
-                <CostEvolutionChart
-                  points={dailyPoints}
-                  fromIso={filters.from}
-                  toIso={filters.to}
-                />
-              </section>
-            </div>
-
-            <div className="col-span-12">
-              <div className="surface-card overflow-hidden rounded-xl">
-                <AiAnalysis filters={filters} />
-              </div>
-            </div>
+          <div className="surface-card overflow-hidden rounded-[22px]">
+            <AiAnalysis filters={filters} />
           </div>
         </>
       ) : (
