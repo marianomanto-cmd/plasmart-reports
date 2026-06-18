@@ -13,7 +13,6 @@ import {
   buildFunnel,
   buildSpendDistribution,
 } from "@/lib/insights";
-import { rangeDays } from "@/lib/dates";
 import { EmptyStateBanner } from "@/components/empty-state-banner";
 import { HeadlineStrip } from "@/components/cockpit/headline-strip";
 import { AlertFeed } from "@/components/cockpit/alert-feed";
@@ -49,14 +48,6 @@ export default async function CockpitPage({
     kpis.conversions.current > 0 ||
     rows.length > 0;
 
-  const days = rangeDays(filters.from, filters.to);
-  const compareLabel =
-    filters.compare === "yoy"
-      ? "vs el mismo rango del año pasado"
-      : filters.compare === "previous"
-        ? `vs los ${days} días previos`
-        : "sin comparación";
-
   // Derivaciones del cockpit
   const alerts = buildAlerts(rows, anomalies);
   const distribution = buildSpendDistribution(rows, anomalies);
@@ -75,21 +66,7 @@ export default async function CockpitPage({
       : undefined;
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <header>
-        <div className="eyebrow-sm" style={{ color: "var(--color-plasma)" }}>
-          Cockpit · cómo vamos y qué mirar
-        </div>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          {formatHumanRange(filters.from, filters.to)}
-        </h1>
-        <p className="mt-1.5 text-sm text-steel">
-          {days} {days === 1 ? "día" : "días"} · {compareLabel} · Corte láser y
-          plasma · Córdoba
-        </p>
-      </header>
-
-
+    <div className="mx-auto max-w-[1400px] space-y-4 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
       {hasPaidData ? (
         <>
           <HeadlineStrip
@@ -139,16 +116,4 @@ export default async function CockpitPage({
       )}
     </div>
   );
-}
-
-function formatHumanRange(from: string, to: string): string {
-  const fmt = new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  const f = fmt.format(new Date(`${from}T00:00:00Z`));
-  const t = fmt.format(new Date(`${to}T00:00:00Z`));
-  return `${f} — ${t}`;
 }

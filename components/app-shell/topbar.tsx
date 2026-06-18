@@ -62,20 +62,22 @@ export function Topbar({ userEmail }: Props) {
     : "U";
 
   return (
-    <header className="glass sticky top-4 z-30 rounded-[24px] px-4 py-4 sm:px-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <header className="glass sticky top-3 z-30 rounded-[22px] px-4 py-3 sm:top-4 sm:px-6 sm:py-3.5">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <div className="eyebrow-sm">{BRAND_EYEBROW}</div>
-          <h1 className="mt-1.5 truncate text-2xl font-extrabold tracking-tight text-foreground">
+          <div className="eyebrow-xs sm:eyebrow-sm">{BRAND_EYEBROW}</div>
+          <h1 className="mt-0.5 truncate text-xl font-extrabold tracking-tight text-foreground sm:mt-1 sm:text-2xl">
             {title}
           </h1>
-          <p className="mt-0.5 truncate text-sm text-steel">{subtitle}</p>
+          <p className="mt-0.5 truncate text-[13px] text-steel sm:text-sm">
+            {subtitle}
+          </p>
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
           {/* Chip de período (informativo; los filtros viven abajo) */}
-          <div className="flex items-center gap-2 rounded-2xl border border-[rgba(43,255,174,0.13)] bg-white/10 px-3.5 py-2.5 text-[13px] font-semibold text-foreground">
-            <RiCalendar2Line className="size-4 text-light" aria-hidden="true" />
+          <div className="flex items-center gap-1.5 rounded-xl border border-[rgba(43,255,174,0.13)] bg-white/10 px-3 py-2 text-xs font-semibold text-foreground">
+            <RiCalendar2Line className="size-3.5 text-light" aria-hidden="true" />
             <span className="font-data tabular-nums">
               {rangeSummary(filters.from, filters.to)}
             </span>
@@ -84,10 +86,10 @@ export function Topbar({ userEmail }: Props) {
           <button
             type="button"
             aria-label="Notificaciones"
-            className="relative flex size-[42px] items-center justify-center rounded-2xl border border-[rgba(43,255,174,0.13)] bg-white/10 text-foreground transition-colors hover:bg-white/20"
+            className="relative flex size-9 items-center justify-center rounded-xl border border-[rgba(43,255,174,0.13)] bg-white/10 text-foreground transition-colors hover:bg-white/20 sm:size-10"
           >
-            <RiNotification3Line className="size-5" aria-hidden="true" />
-            <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-[var(--color-plasma)] ring-2 ring-[rgba(8,20,15,0.8)]" />
+            <RiNotification3Line className="size-[18px]" aria-hidden="true" />
+            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--color-plasma)] ring-2 ring-[rgba(8,20,15,0.8)]" />
           </button>
 
           <DropdownMenu>
@@ -95,7 +97,7 @@ export function Topbar({ userEmail }: Props) {
               <button
                 type="button"
                 aria-label="Menú de usuario"
-                className="neon-gradient flex size-[42px] items-center justify-center rounded-full text-sm font-bold ring-2 ring-white/30"
+                className="neon-gradient flex size-9 items-center justify-center rounded-full text-sm font-bold ring-2 ring-white/30 sm:size-10"
               >
                 {initials}
               </button>

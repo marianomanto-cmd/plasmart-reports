@@ -22,28 +22,22 @@ export default async function AdminPage() {
   const failedInLast20 = rows.filter((r) => r.status === "failed").length;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-8 sm:py-8">
-        {/* Encabezado */}
-        <div>
-          <p className="eyebrow-sm">Operación</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-            Estado de las fuentes de datos
-          </h2>
-          <p className="mt-1 text-sm text-steel">
-            {lastSuccess && (
-              <>Última ingesta exitosa: {formatRelative(lastSuccess.startedAt)}.</>
-            )}
-            {failedInLast20 > 0 && (
-              <span className="text-warning">
-                {" "}· {failedInLast20}{" "}
-                {failedInLast20 === 1
-                  ? "ejecución fallida"
-                  : "ejecuciones fallidas"}{" "}
-                en las últimas 20.
-              </span>
-            )}
-          </p>
-        </div>
+    <div className="mx-auto max-w-7xl space-y-5 px-4 py-4 sm:px-8 sm:py-5">
+        {/* El título de sección lo da el topbar; acá sólo el estado vivo. */}
+        <p className="text-xs text-light">
+          {lastSuccess && (
+            <>Última ingesta exitosa: {formatRelative(lastSuccess.startedAt)}.</>
+          )}
+          {failedInLast20 > 0 && (
+            <span className="text-warning">
+              {" "}· {failedInLast20}{" "}
+              {failedInLast20 === 1
+                ? "ejecución fallida"
+                : "ejecuciones fallidas"}{" "}
+              en las últimas 20.
+            </span>
+          )}
+        </p>
 
         {/* Freshness por fuente */}
         <section aria-labelledby="freshness-heading">

@@ -97,7 +97,7 @@ export function FiltersBar({ filters, available, lockedPublisher }: Props) {
   }, [available.campaigns, filters.campaignId]);
 
   return (
-    <div className="glass space-y-3 rounded-[20px] p-3 sm:p-4">
+    <div className="glass space-y-2.5 rounded-[20px] p-3 sm:p-4">
       {/* Bloque de período: presets de un clic + fechas exactas */}
       <DateRangeField
         from={filters.from}
@@ -107,9 +107,9 @@ export function FiltersBar({ filters, available, lockedPublisher }: Props) {
 
       <div
         className={cn(
-          "grid gap-3 items-end",
-          // Mobile 1, sm 2, lg 4 columnas
-          "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+          "grid gap-2.5 items-end",
+          // Más denso: 2 columnas ya en mobile (eran 1) para no estirar a lo alto
+          "grid-cols-2 lg:grid-cols-4",
         )}
       >
         <SelectField
@@ -164,7 +164,7 @@ export function FiltersBar({ filters, available, lockedPublisher }: Props) {
           onChange={(v) => update({ type: v || undefined })}
         />
 
-        <div className="sm:col-span-2 lg:col-span-4">
+        <div className="col-span-2 lg:col-span-4">
           <SelectField
             label="Campaña"
             value={filters.campaignId ?? ""}
@@ -266,7 +266,7 @@ function DateRangeField({
   const days = rangeDays(from, to);
 
   return (
-    <div className="rounded-md border border-border-soft bg-background/40 p-3">
+    <div className="rounded-md border border-border-soft bg-background/40 p-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <FieldLabel>Período</FieldLabel>
         <span className="inline-flex items-center gap-1.5 text-[11px] text-steel">
@@ -279,9 +279,10 @@ function DateRangeField({
       </div>
 
       {/* Presets a la izquierda, fechas exactas a la derecha. En pantallas
-          anchas comparten fila (hay lugar de sobra); en angostas stackean. */}
-      <div className="mt-2.5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
-        <div className="flex flex-wrap gap-1.5">
+          anchas comparten fila; en angostas, los presets quedan en una
+          sola fila con scroll horizontal (no wrappean a 3 filas). */}
+      <div className="mt-2 flex flex-col gap-2.5 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+        <div className="-mx-1 flex min-w-0 gap-1.5 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:flex-wrap lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
           {DATE_RANGE_PRESETS.map((preset) => {
             const isActive = preset.key === activePreset;
             return (
@@ -294,7 +295,7 @@ function DateRangeField({
                   onChange(r.from, r.to);
                 }}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  "shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                   isActive
                     ? "border-brand/50 bg-brand-soft text-foreground"

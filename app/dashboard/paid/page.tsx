@@ -179,15 +179,14 @@ function PaidShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-8 lg:px-8">
-      <div>
-        <p className="eyebrow-sm">{eyebrow}</p>
-        <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+    <div className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-5 sm:px-6 sm:py-5 lg:px-8">
+      <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-light">
+        <span className="eyebrow-sm">{eyebrow}</span>
+        <span className="font-data tabular-nums text-steel">
           {formatHumanRange(filters.from, filters.to)}
-        </h2>
-        <p className="mt-1.5 text-sm text-steel">{subtitle}</p>
-      </div>
-
+        </span>
+        <span>· {subtitle}</span>
+      </p>
 
       {children}
     </div>
